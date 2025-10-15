@@ -89,4 +89,80 @@ interface AuthRepository {
      */
     suspend fun socialLogin(provider: String, token: String): Result<User>
 
+    /**
+     * Verifies OAuth token and returns verification result.
+     *
+     * @param provider OAuth provider ("Google" or "Facebook")
+     * @param accessToken Access token from OAuth provider
+     * @return Result containing OAuth verification data (email, fullName, needsRegistration, etc.)
+     */
+    suspend fun verifyOAuth(provider: String, accessToken: String): Result<OAuthVerificationData>
+
+    /**
+     * Logs in an existing user via OAuth.
+     *
+     * @param provider OAuth provider ("Google" or "Facebook")
+     * @param token Token from OAuth provider
+     * @return Result containing the authenticated User on success
+     */
+    suspend fun oauthLogin(provider: String, token: String): Result<User>
+
+    /**
+     * Completes registration for a new OAuth general user.
+     * Use this after verifyOAuth returns needsRegistration = true.
+     *
+     * @param tempToken Temporary token received from verifyOAuth
+     * @param acceptsPrivacyPolicy Whether the user accepts the privacy policy
+     * @return Result containing authenticated User with JWT token (auto-login)
+     */
+    suspend fun completeOAuthRegistrationGeneral(
+        tempToken: String,
+        acceptsPrivacyPolicy: Boolean
+    ): Result<User>
+
+    /**
+     * Completes registration for a new OAuth psychologist user.
+     * Use this after verifyOAuth returns needsRegistration = true.
+     * Requires professional data and document uploads.
+     *
+     * @param tempToken Temporary token received from verifyOAuth
+     * @param professionalLicense Professional license number
+     * @param yearsOfExperience Years of professional experience
+     * @param collegiateRegion College region
+     * @param university University name
+     * @param graduationYear Year of graduation
+     * @param acceptsPrivacyPolicy Whether the user accepts the privacy policy
+     * @param licenseDocumentUri URI of license document file
+     * @param diplomaDocumentUri URI of diploma certificate file
+     * @param dniDocumentUri URI of DNI/identity document file
+     * @param specialties Comma-separated list of specialties (optional)
+     * @param certificationDocumentUris List of URIs for additional certificates (optional)
+     * @return Result containing authenticated User with JWT token (auto-login, pending verification for psychologists)
+     */
+    suspend fun completeOAuthRegistrationPsychologist(
+        tempToken: String,
+        professionalLicense: String,
+        yearsOfExperience: Int,
+        collegiateRegion: String,
+        university: String,
+        graduationYear: Int,
+        acceptsPrivacyPolicy: Boolean,
+        licenseDocumentUri: String,
+        diplomaDocumentUri: String,
+        dniDocumentUri: String,
+        specialties: String? = null,
+        certificationDocumentUris: List<String>? = null
+    ): Result<User>
 }
+
+/**
+ * Data class representing OAuth verification result.
+ */
+data class OAuthVerificationData(
+    val email: String,
+    val fullName: String,
+    val provider: String,
+    val tempToken: String,
+    val needsRegistration: Boolean,
+    val existingUserType: String?
+)

@@ -18,6 +18,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("../keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -70,6 +79,12 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    // Google Sign-In
+    implementation(libs.play.services.auth)
+    implementation(libs.credentials)
+    implementation(libs.googleid)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Testing
     testImplementation(libs.junit)

@@ -1,5 +1,7 @@
 package com.softfocus.features.auth.presentation.login
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.R
+import com.softfocus.core.networking.ApiConstants
 import com.softfocus.core.ui.theme.SoftFocusTheme
 import com.softfocus.features.auth.presentation.di.PresentationModule.getLoginViewModel
 import com.softfocus.ui.theme.Black
@@ -63,19 +66,41 @@ import com.softfocus.ui.theme.SourceSansBold
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onNavigateToRegisterWithOAuth: (email: String, fullName: String, tempToken: String) -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val user by viewModel.user.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val oauthData by viewModel.oauthDataForRegistration.collectAsState()
+    val googleSignInIntent by viewModel.googleSignInIntent.collectAsState()
 
     val isPasswordVisible = remember { mutableStateOf(false) }
 
-    // Navigate on success
+    // Activity Result Launcher for Google Sign-In
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.handleGoogleSignInResult(result.data)
+    }
+
+    // Launch Google Sign-In Intent when available
+    googleSignInIntent?.let { intent ->
+        googleSignInLauncher.launch(intent)
+        viewModel.clearGoogleSignInIntent()
+    }
+
+    // Navigate on login success
     user?.let {
         onLoginSuccess()
+    }
+
+    // Navigate to register with OAuth data
+    oauthData?.let { data ->
+        onNavigateToRegisterWithOAuth(data.email, data.fullName, data.tempToken)
+        viewModel.clearOAuthData()
     }
 
     Column(
@@ -256,7 +281,9 @@ fun LoginScreen(
 
         // Google button
         OutlinedButton(
-            onClick = { /* TODO: Google Sign-In */ },
+            onClick = {
+                viewModel.signInWithGoogle(ApiConstants.GOOGLE_SERVER_CLIENT_ID)
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.outlinedButtonColors(
@@ -301,7 +328,8 @@ fun LoginScreenPreview() {
         LoginScreen(
             viewModel = viewModel,
             onLoginSuccess = {},
-            onNavigateToRegister = {}
+            onNavigateToRegister = {},
+            onNavigateToRegisterWithOAuth = { _, _, _ -> }
         )
     }
 }

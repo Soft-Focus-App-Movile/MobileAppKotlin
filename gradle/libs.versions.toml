@@ -18,6 +18,10 @@ lifecycleViewmodelCompose = "2.9.4"
 hiltVersion = "2.57.2"
 kspVersion = "2.2.20-2.0.3"
 roomRuntime = "2.8.1"
+googlePlayServicesAuth = "21.3.0"
+credentials = "1.3.0"
+googleid = "1.1.1"
+coroutinesPlayServices = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,6 +71,12 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+
+# Google Sign-In
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "googlePlayServicesAuth" }
+credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

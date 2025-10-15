@@ -3,12 +3,15 @@ package com.softfocus.features.auth.data.repositories
 import android.content.Context
 import android.net.Uri
 import com.softfocus.features.auth.data.models.request.LoginRequestDto
+import com.softfocus.features.auth.data.models.request.OAuthLoginRequestDto
+import com.softfocus.features.auth.data.models.request.OAuthVerifyRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterGeneralUserRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterRequestDto
 import com.softfocus.features.auth.data.models.request.SocialLoginRequestDto
 import com.softfocus.features.auth.data.remote.AuthService
 import com.softfocus.features.auth.domain.models.User
 import com.softfocus.features.auth.domain.repositories.AuthRepository
+import com.softfocus.features.auth.domain.repositories.OAuthVerificationData
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -173,6 +176,145 @@ class AuthRepositoryImpl(
             val response = authService.socialLogin(request)
             Result.success(response.toDomain())
         } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Verifies OAuth token with the backend.
+     */
+    override suspend fun verifyOAuth(provider: String, accessToken: String): Result<OAuthVerificationData> {
+        return try {
+            val request = OAuthVerifyRequestDto(
+                provider = provider,
+                accessToken = accessToken
+            )
+            val response = authService.verifyOAuth(request)
+
+            val data = OAuthVerificationData(
+                email = response.email,
+                fullName = response.fullName,
+                provider = response.provider,
+                tempToken = response.tempToken,
+                needsRegistration = response.needsRegistration,
+                existingUserType = response.existingUserType
+            )
+            Result.success(data)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Logs in existing user via OAuth.
+     */
+    override suspend fun oauthLogin(provider: String, token: String): Result<User> {
+        return try {
+            val request = OAuthLoginRequestDto(
+                provider = provider,
+                token = token
+            )
+            val response = authService.oauthLogin(request)
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Completes registration for a new OAuth general user.
+     * Returns authenticated User with JWT token for auto-login.
+     */
+    override suspend fun completeOAuthRegistrationGeneral(
+        tempToken: String,
+        acceptsPrivacyPolicy: Boolean
+    ): Result<User> {
+        return try {
+            val tempTokenBody = tempToken.toRequestBody("text/plain".toMediaTypeOrNull())
+            val userTypeBody = "General".toRequestBody("text/plain".toMediaTypeOrNull())
+            val acceptsPrivacyPolicyBody = acceptsPrivacyPolicy.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = authService.completeOAuthRegistration(
+                tempToken = tempTokenBody,
+                userType = userTypeBody,
+                acceptsPrivacyPolicy = acceptsPrivacyPolicyBody
+            )
+
+            val user = response.toDomain()
+            Result.success(user)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepositoryImpl", "OAuth general registration failed: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Completes registration for a new OAuth psychologist user.
+     */
+    override suspend fun completeOAuthRegistrationPsychologist(
+        tempToken: String,
+        professionalLicense: String,
+        yearsOfExperience: Int,
+        collegiateRegion: String,
+        university: String,
+        graduationYear: Int,
+        acceptsPrivacyPolicy: Boolean,
+        licenseDocumentUri: String,
+        diplomaDocumentUri: String,
+        dniDocumentUri: String,
+        specialties: String?,
+        certificationDocumentUris: List<String>?
+    ): Result<User> {
+        return try {
+            android.util.Log.d("AuthRepositoryImpl", "Starting OAuth psychologist registration")
+
+            // Convert URIs to MultipartBody.Part
+            val licensePart = uriToMultipartBody(licenseDocumentUri, "licenseDocument")
+                ?: return Result.failure(Exception("Failed to process license document"))
+            val diplomaPart = uriToMultipartBody(diplomaDocumentUri, "diplomaDocument")
+                ?: return Result.failure(Exception("Failed to process diploma document"))
+            val dniPart = uriToMultipartBody(dniDocumentUri, "dniDocument")
+                ?: return Result.failure(Exception("Failed to process DNI document"))
+
+            // Process certification documents (optional)
+            val certificationParts = certificationDocumentUris?.mapNotNull { uri ->
+                uriToMultipartBody(uri, "certificationDocuments")
+            }
+
+            // Prepare text fields as RequestBody
+            val tempTokenBody = tempToken.toRequestBody("text/plain".toMediaTypeOrNull())
+            val userTypeBody = "Psychologist".toRequestBody("text/plain".toMediaTypeOrNull())
+            val professionalLicenseBody = professionalLicense.toRequestBody("text/plain".toMediaTypeOrNull())
+            val yearsOfExperienceBody = yearsOfExperience.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val collegiateRegionBody = collegiateRegion.toRequestBody("text/plain".toMediaTypeOrNull())
+            val universityBody = university.toRequestBody("text/plain".toMediaTypeOrNull())
+            val graduationYearBody = graduationYear.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val acceptsPrivacyPolicyBody = acceptsPrivacyPolicy.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val specialtiesBody = specialties?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = authService.completeOAuthRegistrationPsychologist(
+                tempToken = tempTokenBody,
+                userType = userTypeBody,
+                acceptsPrivacyPolicy = acceptsPrivacyPolicyBody,
+                professionalLicense = professionalLicenseBody,
+                yearsOfExperience = yearsOfExperienceBody,
+                collegiateRegion = collegiateRegionBody,
+                university = universityBody,
+                graduationYear = graduationYearBody,
+                licenseDocument = licensePart,
+                diplomaDocument = diplomaPart,
+                dniDocument = dniPart,
+                specialties = specialtiesBody,
+                certificationDocuments = certificationParts
+            )
+
+            android.util.Log.d("AuthRepositoryImpl", "OAuth psychologist registration successful: ${response.user.id}")
+
+            val user = response.toDomain()
+            Result.success(user)
+
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepositoryImpl", "OAuth psychologist registration failed: ${e.message}", e)
             Result.failure(e)
         }
     }

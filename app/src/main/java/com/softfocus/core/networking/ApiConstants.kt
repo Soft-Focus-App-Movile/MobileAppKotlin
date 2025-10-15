@@ -4,6 +4,16 @@ object ApiConstants {
     // 10.0.2.2 is the special IP for Android emulator to access host machine's localhost
     const val BASE_URL = "http://10.0.2.2:5007/api/v1/"
 
+    // Google OAuth Client IDs
+    // Web Client ID - Used for serverClientId in Credential Manager and backend verification
+    const val GOOGLE_WEB_CLIENT_ID = "456468181765-quas8eebf9rfjg33ovhn42efqu4uqcag.apps.googleusercontent.com"
+
+    // Android Client ID - Registered with SHA-1 fingerprint
+    const val GOOGLE_ANDROID_CLIENT_ID = "456468181765-c6kjl3vsdc0a7d6mqjfgg3aihnuj23tb.apps.googleusercontent.com"
+
+    // For Credential Manager API, we use the WEB client ID as serverClientId
+    const val GOOGLE_SERVER_CLIENT_ID = GOOGLE_WEB_CLIENT_ID
+
     // Auth endpoints
     object Auth {
         const val REGISTER = "auth/register"

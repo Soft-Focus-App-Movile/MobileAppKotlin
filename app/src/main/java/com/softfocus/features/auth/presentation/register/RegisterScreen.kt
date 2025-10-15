@@ -70,6 +70,7 @@ import com.softfocus.R
 import com.softfocus.core.ui.theme.SoftFocusTheme
 import com.softfocus.features.auth.domain.models.UserType
 import com.softfocus.features.auth.domain.models.PsychologySpecialty
+import com.softfocus.features.auth.domain.models.User
 import com.softfocus.features.auth.presentation.di.PresentationModule
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Gray828
@@ -83,19 +84,37 @@ import com.softfocus.ui.theme.SourceSansBold
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
+    oauthEmail: String? = null,
+    oauthFullName: String? = null,
+    oauthTempToken: String? = null,
     onRegisterSuccess: (UserType) -> Unit,
+    onAutoLogin: (User) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
     val userType by viewModel.userType.collectAsState()
-    val registrationResult by viewModel.registrationResult.collectAsState()
+    val registrationResultRegular by viewModel.registrationResultRegular.collectAsState()
+    val registrationResultOAuth by viewModel.registrationResultOAuth.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
+    // Pre-fill from OAuth if available
+    val nameParts = oauthFullName?.split(" ") ?: listOf()
+    var firstName by remember { mutableStateOf(nameParts.firstOrNull() ?: "") }
+    var lastName by remember { mutableStateOf(nameParts.drop(1).joinToString(" ")) }
+
+    // Set OAuth email in ViewModel if provided
+    if (oauthEmail != null && email.isEmpty()) {
+        viewModel.updateEmail(oauthEmail)
+    }
+
+    // Set OAuth temp token in ViewModel if provided
+    if (oauthTempToken != null) {
+        viewModel.setOAuthTempToken(oauthTempToken)
+    }
+
     var acceptedTerms by remember { mutableStateOf(false) }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
@@ -150,12 +169,18 @@ fun RegisterScreen(
         }
     }
 
-    // Navigate on success
-    registrationResult?.let {
+    // Navigate on success - Regular registration (userId, email)
+    registrationResultRegular?.let { (userId, email) ->
         userType?.let { type ->
             onRegisterSuccess(type)
-            viewModel.clearRegistrationResult()
         }
+        viewModel.clearRegistrationResult()
+    }
+
+    // Navigate on success - OAuth registration (User with JWT token for auto-login)
+    registrationResultOAuth?.let { user ->
+        onAutoLogin(user)
+        viewModel.clearRegistrationResult()
     }
 
     Column(
@@ -252,7 +277,9 @@ fun RegisterScreen(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Green37,
-                unfocusedIndicatorColor = GrayE0
+                unfocusedIndicatorColor = GrayE0,
+                disabledContainerColor = GrayE0.copy(alpha = 0.2f),
+                disabledIndicatorColor = GrayE0
             ),
             placeholder = {
                 Text(
@@ -262,13 +289,16 @@ fun RegisterScreen(
                 )
             },
             singleLine = true,
-            enabled = !isLoading
+            enabled = !isLoading && oauthEmail == null, // Disable if from OAuth
+            readOnly = oauthEmail != null
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password
-        OutlinedTextField(
+        // Only show password fields if not from OAuth
+        if (oauthEmail == null) {
+            // Password
+            OutlinedTextField(
             value = password,
             onValueChange = { viewModel.updatePassword(it) },
             modifier = Modifier.fillMaxWidth(),
@@ -371,9 +401,10 @@ fun RegisterScreen(
             },
             singleLine = true,
             enabled = !isLoading
-        )
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // User Type Checkboxes
         Column(
@@ -992,8 +1023,7 @@ fun RegisterScreen(
                     firstName.isNotEmpty() &&
                     lastName.isNotEmpty() &&
                     email.isNotEmpty() &&
-                    password.isNotEmpty() &&
-                    confirmPassword.isNotEmpty() &&
+                    (oauthEmail != null || (password.isNotEmpty() && confirmPassword.isNotEmpty())) &&
                     acceptedTerms
         ) {
             if (isLoading) {
@@ -1051,7 +1081,11 @@ fun RegisterScreenPreview() {
     SoftFocusTheme {
         RegisterScreen(
             viewModel = viewModel,
+            oauthEmail = null,
+            oauthFullName = null,
+            oauthTempToken = null,
             onRegisterSuccess = { _ -> },
+            onAutoLogin = { _ -> },
             onNavigateToLogin = {}
         )
     }
