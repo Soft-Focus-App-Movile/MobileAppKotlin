@@ -30,20 +30,20 @@ interface AuthService {
     @Multipart
     @POST("auth/register/psychologist")
     suspend fun registerPsychologist(
-        @Part("firstName") firstName: RequestBody,
-        @Part("lastName") lastName: RequestBody,
-        @Part("email") email: RequestBody,
-        @Part("password") password: RequestBody,
-        @Part("professionalLicense") professionalLicense: RequestBody,
-        @Part("yearsOfExperience") yearsOfExperience: RequestBody,
-        @Part("collegiateRegion") collegiateRegion: RequestBody,
-        @Part("university") university: RequestBody,
-        @Part("graduationYear") graduationYear: RequestBody,
-        @Part("acceptsPrivacyPolicy") acceptsPrivacyPolicy: RequestBody,
+        @Part firstName: MultipartBody.Part,
+        @Part lastName: MultipartBody.Part,
+        @Part email: MultipartBody.Part,
+        @Part password: MultipartBody.Part,
+        @Part professionalLicense: MultipartBody.Part,
+        @Part yearsOfExperience: MultipartBody.Part,
+        @Part collegiateRegion: MultipartBody.Part,
+        @Part university: MultipartBody.Part,
+        @Part graduationYear: MultipartBody.Part,
+        @Part acceptsPrivacyPolicy: MultipartBody.Part,
         @Part licenseDocument: MultipartBody.Part,
         @Part diplomaDocument: MultipartBody.Part,
         @Part dniDocument: MultipartBody.Part,
-        @Part("specialties") specialties: RequestBody? = null,
+        @Part specialties: MultipartBody.Part? = null,
         @Part certificationDocuments: List<MultipartBody.Part>? = null
     ): RegisterResponseDto
 
@@ -68,27 +68,27 @@ interface AuthService {
     @Multipart
     @POST("auth/oauth/complete-registration")
     suspend fun completeOAuthRegistration(
-        @Part("tempToken") tempToken: RequestBody,
-        @Part("userType") userType: RequestBody,
-        @Part("acceptsPrivacyPolicy") acceptsPrivacyPolicy: RequestBody
+        @Part tempToken: MultipartBody.Part,
+        @Part userType: MultipartBody.Part,
+        @Part acceptsPrivacyPolicy: MultipartBody.Part
     ): LoginResponseDto
 
 
     @Multipart
     @POST("auth/oauth/complete-registration")
     suspend fun completeOAuthRegistrationPsychologist(
-        @Part("tempToken") tempToken: RequestBody,
-        @Part("userType") userType: RequestBody,
-        @Part("acceptsPrivacyPolicy") acceptsPrivacyPolicy: RequestBody,
-        @Part("professionalLicense") professionalLicense: RequestBody,
-        @Part("yearsOfExperience") yearsOfExperience: RequestBody,
-        @Part("collegiateRegion") collegiateRegion: RequestBody,
-        @Part("university") university: RequestBody,
-        @Part("graduationYear") graduationYear: RequestBody,
+        @Part tempToken: MultipartBody.Part,
+        @Part userType: MultipartBody.Part,
+        @Part acceptsPrivacyPolicy: MultipartBody.Part,
+        @Part professionalLicense: MultipartBody.Part,
+        @Part yearsOfExperience: MultipartBody.Part,
+        @Part collegiateRegion: MultipartBody.Part,
+        @Part university: MultipartBody.Part,
+        @Part graduationYear: MultipartBody.Part,
         @Part licenseDocument: MultipartBody.Part,
         @Part diplomaDocument: MultipartBody.Part,
         @Part dniDocument: MultipartBody.Part,
-        @Part("specialties") specialties: RequestBody? = null,
+        @Part specialties: MultipartBody.Part? = null,
         @Part certificationDocuments: List<MultipartBody.Part>? = null
     ): LoginResponseDto
 }

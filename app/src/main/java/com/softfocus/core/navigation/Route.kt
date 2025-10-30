@@ -24,6 +24,11 @@ sealed class Route(val path: String) {
     data object Library : Route("library")
     data object AiChat : Route("ai_chat")
 
+    data object ConnectPsychologist : Route("connect_psychologist")
+
+    data object AdminUsers : Route("admin_users")
+    data object VerifyPsychologist : Route("verify_psychologist")
+
     companion object {
         /**
          * Returns all auth-related routes.

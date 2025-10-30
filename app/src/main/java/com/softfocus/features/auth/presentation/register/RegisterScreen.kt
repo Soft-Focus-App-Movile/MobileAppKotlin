@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +35,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +45,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
@@ -89,14 +93,19 @@ fun RegisterScreen(
     oauthTempToken: String? = null,
     onRegisterSuccess: (UserType) -> Unit,
     onAutoLogin: (User) -> Unit,
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    onNavigateToPendingVerification: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val emailError by viewModel.emailError.collectAsState()
+    val passwordError by viewModel.passwordError.collectAsState()
+    val confirmPasswordError by viewModel.confirmPasswordError.collectAsState()
     val userType by viewModel.userType.collectAsState()
     val registrationResultRegular by viewModel.registrationResultRegular.collectAsState()
     val registrationResultOAuth by viewModel.registrationResultOAuth.collectAsState()
+    val psychologistPendingVerification by viewModel.psychologistPendingVerification.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
@@ -172,7 +181,12 @@ fun RegisterScreen(
     // Navigate on success - Regular registration (userId, email)
     registrationResultRegular?.let { (userId, email) ->
         userType?.let { type ->
-            onRegisterSuccess(type)
+            // If psychologist, navigate to pending verification screen
+            if (type == UserType.PSYCHOLOGIST) {
+                onNavigateToPendingVerification()
+            } else {
+                onRegisterSuccess(type)
+            }
         }
         viewModel.clearRegistrationResult()
     }
@@ -180,6 +194,12 @@ fun RegisterScreen(
     // Navigate on success - OAuth registration (User with JWT token for auto-login)
     registrationResultOAuth?.let { user ->
         onAutoLogin(user)
+        viewModel.clearRegistrationResult()
+    }
+
+    // Navigate to pending verification if psychologist registration is pending
+    if (psychologistPendingVerification) {
+        onNavigateToPendingVerification()
         viewModel.clearRegistrationResult()
     }
 
@@ -268,194 +288,231 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Email
-        OutlinedTextField(
-            value = email,
-            onValueChange = { viewModel.updateEmail(it) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Green37,
-                unfocusedIndicatorColor = GrayE0,
-                disabledContainerColor = GrayE0.copy(alpha = 0.2f),
-                disabledIndicatorColor = GrayE0
-            ),
-            placeholder = {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = email,
+                onValueChange = { viewModel.updateEmail(it) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Green37,
+                    unfocusedIndicatorColor = GrayE0,
+                    disabledContainerColor = GrayE0.copy(alpha = 0.2f),
+                    disabledIndicatorColor = GrayE0
+                ),
+                placeholder = {
+                    Text(
+                        text = "Correo",
+                        style = SourceSansRegular,
+                        color = Gray828
+                    )
+                },
+                singleLine = true,
+                enabled = !isLoading && oauthEmail == null, // Disable if from OAuth
+                readOnly = oauthEmail != null
+            )
+            if (emailError != null) {
                 Text(
-                    text = "Correo",
+                    text = emailError!!,
+                    color = Color.Red,
                     style = SourceSansRegular,
-                    color = Gray828
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                 )
-            },
-            singleLine = true,
-            enabled = !isLoading && oauthEmail == null, // Disable if from OAuth
-            readOnly = oauthEmail != null
-        )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Only show password fields if not from OAuth
         if (oauthEmail == null) {
             // Password
-            OutlinedTextField(
-            value = password,
-            onValueChange = { viewModel.updatePassword(it) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Green37,
-                unfocusedIndicatorColor = GrayE0
-            ),
-            placeholder = {
-                Text(
-                    text = "Contraseña",
-                    style = SourceSansRegular,
-                    color = Gray828
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { viewModel.updatePassword(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Green37,
+                        unfocusedIndicatorColor = GrayE0
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "Contraseña",
+                            style = SourceSansRegular,
+                            color = Gray828
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = Green37
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) {
+                                    Icons.Default.Visibility
+                                } else {
+                                    Icons.Default.VisibilityOff
+                                },
+                                contentDescription = if (isPasswordVisible) {
+                                    "Ocultar contraseña"
+                                } else {
+                                    "Mostrar contraseña"
+                                },
+                                tint = Green37
+                            )
+                        }
+                    },
+                    visualTransformation = if (isPasswordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                    singleLine = true,
+                    enabled = !isLoading
                 )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Lock,
-                    contentDescription = null,
-                    tint = Green37
-                )
-            },
-            trailingIcon = {
-                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                    Icon(
-                        imageVector = if (isPasswordVisible) {
-                            Icons.Default.Visibility
-                        } else {
-                            Icons.Default.VisibilityOff
-                        },
-                        contentDescription = if (isPasswordVisible) {
-                            "Ocultar contraseña"
-                        } else {
-                            "Mostrar contraseña"
-                        },
-                        tint = Green37
+                if (passwordError != null) {
+                    Text(
+                        text = passwordError!!,
+                        color = Color.Red,
+                        style = SourceSansRegular,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                     )
                 }
-            },
-            visualTransformation = if (isPasswordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            singleLine = true,
-            enabled = !isLoading
-        )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Confirm Password
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { viewModel.updateConfirmPassword(it) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Green37,
-                unfocusedIndicatorColor = GrayE0
-            ),
-            placeholder = {
-                Text(
-                    text = "Confirme su contraseña",
-                    style = SourceSansRegular,
-                    color = Gray828
+            // Confirm Password
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { viewModel.updateConfirmPassword(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Green37,
+                        unfocusedIndicatorColor = GrayE0
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "Confirme su contraseña",
+                            style = SourceSansRegular,
+                            color = Gray828
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = Green37
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isConfirmPasswordVisible) {
+                                    Icons.Default.Visibility
+                                } else {
+                                    Icons.Default.VisibilityOff
+                                },
+                                contentDescription = if (isConfirmPasswordVisible) {
+                                    "Ocultar contraseña"
+                                } else {
+                                    "Mostrar contraseña"
+                                },
+                                tint = Green37
+                            )
+                        }
+                    },
+                    visualTransformation = if (isConfirmPasswordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                    singleLine = true,
+                    enabled = !isLoading
                 )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Lock,
-                    contentDescription = null,
-                    tint = Green37
-                )
-            },
-            trailingIcon = {
-                IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
-                    Icon(
-                        imageVector = if (isConfirmPasswordVisible) {
-                            Icons.Default.Visibility
-                        } else {
-                            Icons.Default.VisibilityOff
-                        },
-                        contentDescription = if (isConfirmPasswordVisible) {
-                            "Ocultar contraseña"
-                        } else {
-                            "Mostrar contraseña"
-                        },
-                        tint = Green37
+                if (confirmPasswordError != null) {
+                    Text(
+                        text = confirmPasswordError!!,
+                        color = Color.Red,
+                        style = SourceSansRegular,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                     )
                 }
-            },
-            visualTransformation = if (isConfirmPasswordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            singleLine = true,
-            enabled = !isLoading
-            )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // User Type Checkboxes
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Tipo de usuario",
-                style = SourceSansRegular,
-                fontSize = 16.sp,
-                color = Gray828,
-                modifier = Modifier.padding(bottom = 8.dp)
+        // User Type Switch
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = GrayE0.copy(alpha = 0.3f)
             )
-
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = userType == UserType.GENERAL,
-                        onCheckedChange = {
-                            if (it) viewModel.updateUserType(UserType.GENERAL)
-                        },
-                        enabled = !isLoading
-                    )
+                Column {
                     Text(
-                        text = "Usuario General",
-                        style = SourceSansRegular,
-                        fontSize = 14.sp,
+                        text = "Tipo de cuenta",
+                        style = SourceSansBold,
+                        fontSize = 16.sp,
                         color = Gray828
                     )
                 }
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    Checkbox(
+                    Text(
+                        text = "General",
+                        style = SourceSansRegular,
+                        fontSize = 14.sp,
+                        color = if (userType == UserType.GENERAL) Green49 else Gray828
+                    )
+                    Switch(
                         checked = userType == UserType.PSYCHOLOGIST,
-                        onCheckedChange = {
-                            if (it) viewModel.updateUserType(UserType.PSYCHOLOGIST)
+                        onCheckedChange = { checked ->
+                            viewModel.updateUserType(
+                                if (checked) UserType.PSYCHOLOGIST else UserType.GENERAL
+                            )
                         },
-                        enabled = !isLoading
+                        enabled = !isLoading,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Green49,
+                            checkedTrackColor = Green49.copy(alpha = 0.5f),
+                            uncheckedThumbColor = Gray828,
+                            uncheckedTrackColor = GrayE0
+                        )
                     )
                     Text(
                         text = "Psicólogo",
                         style = SourceSansRegular,
                         fontSize = 14.sp,
-                        color = Gray828
+                        color = if (userType == UserType.PSYCHOLOGIST) Green49 else Gray828
                     )
                 }
             }
@@ -514,31 +571,6 @@ fun RegisterScreen(
                     enabled = !isLoading
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Región de colegiatura
-            OutlinedTextField(
-                value = region,
-                onValueChange = { region = it },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Green37,
-                    unfocusedIndicatorColor = GrayE0
-                ),
-                placeholder = {
-                    Text(
-                        text = "Región de colegiatura",
-                        style = SourceSansRegular,
-                        color = Gray828
-                    )
-                },
-                singleLine = true,
-                enabled = !isLoading
-            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -608,7 +640,12 @@ fun RegisterScreen(
                                             } else {
                                                 selectedSpecialties - specialty
                                             }
-                                        }
+                                        },
+                                        colors = CheckboxDefaults.colors(
+                                            checkedColor = Green49,
+                                            uncheckedColor = Gray828,
+                                            checkmarkColor = Color.White
+                                        )
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
@@ -679,15 +716,19 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Universidad y Año de graduación en fila
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            // Universidad con autocomplete (fila completa)
+            val universitySuggestions by viewModel.universitySuggestions.collectAsState()
+            var showUniversitySuggestions by remember { mutableStateOf(false) }
+
+            Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = university,
-                    onValueChange = { university = it },
-                    modifier = Modifier.weight(1f),
+                    onValueChange = {
+                        university = it
+                        viewModel.searchUniversities(it)
+                        showUniversitySuggestions = it.isNotEmpty()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
@@ -698,6 +739,71 @@ fun RegisterScreen(
                     placeholder = {
                         Text(
                             text = "Universidad",
+                            style = SourceSansRegular,
+                            color = Gray828
+                        )
+                    },
+                    singleLine = true,
+                    enabled = !isLoading
+                )
+
+                // Dropdown de sugerencias
+                if (showUniversitySuggestions && universitySuggestions.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.heightIn(max = 200.dp)
+                        ) {
+                            items(universitySuggestions.take(5)) { suggestion ->
+                                Text(
+                                    text = suggestion.name,
+                                    style = SourceSansRegular,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            university = suggestion.name
+                                            region = suggestion.region
+                                            showUniversitySuggestions = false
+                                            viewModel.clearUniversitySuggestions()
+                                        }
+                                        .padding(12.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Región de colegiatura y Año de graduación en fila
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = region,
+                    onValueChange = { region = it },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Green37,
+                        unfocusedIndicatorColor = GrayE0
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "Región",
                             style = SourceSansRegular,
                             color = Gray828
                         )
@@ -969,7 +1075,12 @@ fun RegisterScreen(
             Checkbox(
                 checked = acceptedTerms,
                 onCheckedChange = { acceptedTerms = it },
-                enabled = !isLoading
+                enabled = !isLoading,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Green49,
+                    uncheckedColor = Gray828,
+                    checkmarkColor = Color.White
+                )
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -1024,7 +1135,12 @@ fun RegisterScreen(
                     lastName.isNotEmpty() &&
                     email.isNotEmpty() &&
                     (oauthEmail != null || (password.isNotEmpty() && confirmPassword.isNotEmpty())) &&
-                    acceptedTerms
+                    acceptedTerms &&
+                    (userType != UserType.PSYCHOLOGIST ||
+                        (licenseFile != null && diplomaFile != null && dniFile != null &&
+                         licenseNumber.isNotEmpty() && region.isNotEmpty() &&
+                         university.isNotEmpty() && yearsOfExperience.isNotEmpty() &&
+                         graduationYear.isNotEmpty()))
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -1033,7 +1149,7 @@ fun RegisterScreen(
                 )
             } else {
                 Text(
-                    text = "Iniciar Sesión",
+                    text = "Registrar",
                     style = SourceSansBold,
                     color = Color.White,
                     fontSize = 16.sp
@@ -1086,7 +1202,8 @@ fun RegisterScreenPreview() {
             oauthTempToken = null,
             onRegisterSuccess = { _ -> },
             onAutoLogin = { _ -> },
-            onNavigateToLogin = {}
+            onNavigateToLogin = {},
+            onNavigateToPendingVerification = {}
         )
     }
 }

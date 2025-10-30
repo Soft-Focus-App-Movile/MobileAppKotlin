@@ -2,9 +2,13 @@ package com.softfocus.features.auth.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.data.repositories.UniversityInfo
+import com.softfocus.core.data.repositories.UniversityRepository
 import com.softfocus.features.auth.domain.models.User
 import com.softfocus.features.auth.domain.models.UserType
 import com.softfocus.features.auth.domain.repositories.AuthRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +20,10 @@ import kotlinx.coroutines.launch
  * 2. Psychologist: Complex registration with professional data and document uploads
  * 3. OAuth User: Registration after OAuth verification (no password required) - auto-login with User+JWT
  */
-class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
+class RegisterViewModel(
+    private val repository: AuthRepository,
+    private val universityRepository: UniversityRepository
+) : ViewModel() {
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -26,6 +33,16 @@ class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
 
     private val _confirmPassword = MutableStateFlow("")
     val confirmPassword: StateFlow<String> = _confirmPassword
+
+    // Validation error states
+    private val _emailError = MutableStateFlow<String?>(null)
+    val emailError: StateFlow<String?> = _emailError
+
+    private val _passwordError = MutableStateFlow<String?>(null)
+    val passwordError: StateFlow<String?> = _passwordError
+
+    private val _confirmPasswordError = MutableStateFlow<String?>(null)
+    val confirmPasswordError: StateFlow<String?> = _confirmPasswordError
 
     private val _userType = MutableStateFlow<UserType?>(null)
     val userType: StateFlow<UserType?> = _userType
@@ -42,22 +59,74 @@ class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
     private val _registrationResultOAuth = MutableStateFlow<User?>(null)
     val registrationResultOAuth: StateFlow<User?> = _registrationResultOAuth
 
+    private val _psychologistPendingVerification = MutableStateFlow(false)
+    val psychologistPendingVerification: StateFlow<Boolean> = _psychologistPendingVerification
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _universitySuggestions = MutableStateFlow<List<UniversityInfo>>(emptyList())
+    val universitySuggestions: StateFlow<List<UniversityInfo>> = _universitySuggestions
+
+    private var searchJob: Job? = null
+
     fun updateEmail(value: String) {
         _email.value = value
+        validateEmail(value)
     }
 
     fun updatePassword(value: String) {
         _password.value = value
+        validatePassword(value)
+        // Also revalidate confirm password if it has a value
+        if (_confirmPassword.value.isNotEmpty()) {
+            validateConfirmPassword(_confirmPassword.value)
+        }
     }
 
     fun updateConfirmPassword(value: String) {
         _confirmPassword.value = value
+        validateConfirmPassword(value)
+    }
+
+    private fun validateEmail(email: String) {
+        _emailError.value = when {
+            email.isEmpty() -> null // Don't show error for empty field
+            !email.contains('@') -> "El email debe contener @"
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Email inválido"
+            email.length > 100 -> "El email no puede exceder 100 caracteres"
+            else -> null
+        }
+    }
+
+    private fun validatePassword(password: String) {
+        _passwordError.value = when {
+            password.isEmpty() -> null // Don't show error for empty field
+            password.length < 6 -> "La contraseña debe tener al menos 6 caracteres"
+            password.length > 100 -> "La contraseña no puede exceder 100 caracteres"
+            !password.any { it.isUpperCase() } -> "Debe contener al menos una mayúscula"
+            !password.any { it.isLowerCase() } -> "Debe contener al menos una minúscula"
+            !password.any { it.isDigit() } -> "Debe contener al menos un número"
+            !password.any { it in "@\$!%*?&" } -> "Debe contener al menos un carácter especial (@\$!%*?&)"
+            else -> null
+        }
+    }
+
+    private fun validateConfirmPassword(confirmPassword: String) {
+        _confirmPasswordError.value = when {
+            confirmPassword.isEmpty() -> null // Don't show error for empty field
+            confirmPassword != _password.value -> "Las contraseñas no coinciden"
+            else -> null
+        }
+    }
+
+    fun clearValidationErrors() {
+        _emailError.value = null
+        _passwordError.value = null
+        _confirmPasswordError.value = null
     }
 
     fun updateUserType(value: UserType) {
@@ -216,6 +285,15 @@ class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
             _isLoading.value = true
             _errorMessage.value = null
 
+            android.util.Log.d("RegisterViewModel", "Registering psychologist:")
+            android.util.Log.d("RegisterViewModel", "firstName: $firstName")
+            android.util.Log.d("RegisterViewModel", "lastName: $lastName")
+            android.util.Log.d("RegisterViewModel", "email: ${email.value}")
+            android.util.Log.d("RegisterViewModel", "password: ${password.value}")
+            android.util.Log.d("RegisterViewModel", "professionalLicense: $professionalLicense")
+            android.util.Log.d("RegisterViewModel", "university: $university")
+            android.util.Log.d("RegisterViewModel", "collegiateRegion: $collegiateRegion")
+
             repository.registerPsychologist(
                 firstName = firstName,
                 lastName = lastName,
@@ -283,6 +361,12 @@ class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
             _isLoading.value = true
             _errorMessage.value = null
 
+            android.util.Log.d("RegisterViewModel", "=== ANTES DE LLAMAR REPOSITORY ===")
+            android.util.Log.d("RegisterViewModel", "yearsOfExperience: $yearsOfExperience")
+            android.util.Log.d("RegisterViewModel", "graduationYear: $graduationYear")
+            android.util.Log.d("RegisterViewModel", "professionalLicense: $professionalLicense")
+            android.util.Log.d("RegisterViewModel", "collegiateRegion: $collegiateRegion")
+
             repository.completeOAuthRegistrationPsychologist(
                 tempToken = tempToken,
                 professionalLicense = professionalLicense,
@@ -301,8 +385,14 @@ class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
                 _registrationResultOAuth.value = user
                 _isLoading.value = false
             }.onFailure { error ->
-                _errorMessage.value = error.message ?: "Error desconocido al registrar con OAuth"
-                _isLoading.value = false
+                // Check if it's a pending verification error
+                if (error is com.softfocus.features.auth.data.repositories.AuthRepositoryImpl.PsychologistPendingVerificationException) {
+                    _psychologistPendingVerification.value = true
+                    _isLoading.value = false
+                } else {
+                    _errorMessage.value = error.message ?: "Error desconocido al registrar con OAuth"
+                    _isLoading.value = false
+                }
             }
         }
     }
@@ -314,5 +404,24 @@ class RegisterViewModel(private val repository: AuthRepository) : ViewModel() {
     fun clearRegistrationResult() {
         _registrationResultRegular.value = null
         _registrationResultOAuth.value = null
+        _psychologistPendingVerification.value = false
+    }
+
+    fun searchUniversities(query: String) {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(300)
+            universityRepository.searchUniversities(query)
+                .onSuccess { suggestions ->
+                    _universitySuggestions.value = suggestions
+                }
+                .onFailure {
+                    _universitySuggestions.value = emptyList()
+                }
+        }
+    }
+
+    fun clearUniversitySuggestions() {
+        _universitySuggestions.value = emptyList()
     }
 }

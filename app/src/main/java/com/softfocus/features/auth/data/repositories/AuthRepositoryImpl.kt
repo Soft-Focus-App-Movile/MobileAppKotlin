@@ -45,6 +45,23 @@ class AuthRepositoryImpl(
             val response = authService.login(request)
             val user = response.toDomain()
             Result.success(user)
+        } catch (e: retrofit2.HttpException) {
+            if (e.code() == 401) {
+                try {
+                    val errorBody = e.response()?.errorBody()?.string()
+                    if (errorBody != null) {
+                        val jsonObject = org.json.JSONObject(errorBody)
+                        val errorMessage = jsonObject.optString("message", "Invalid credentials")
+                        Result.failure(Exception(errorMessage))
+                    } else {
+                        Result.failure(Exception("Invalid credentials"))
+                    }
+                } catch (jsonException: Exception) {
+                    Result.failure(Exception("Invalid credentials"))
+                }
+            } else {
+                Result.failure(e)
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -97,16 +114,6 @@ class AuthRepositoryImpl(
         certificationDocumentUris: List<String>?
     ): Result<Pair<String, String>> {
         return try {
-            android.util.Log.d("AuthRepositoryImpl", "Starting psychologist registration")
-            android.util.Log.d("AuthRepositoryImpl", "firstName: $firstName, lastName: $lastName, email: $email")
-            android.util.Log.d("AuthRepositoryImpl", "professionalLicense: $professionalLicense, years: $yearsOfExperience")
-            android.util.Log.d("AuthRepositoryImpl", "region: $collegiateRegion, university: $university, year: $graduationYear")
-            android.util.Log.d("AuthRepositoryImpl", "specialties: $specialties")
-            android.util.Log.d("AuthRepositoryImpl", "licenseUri: $licenseDocumentUri")
-            android.util.Log.d("AuthRepositoryImpl", "diplomaUri: $diplomaDocumentUri")
-            android.util.Log.d("AuthRepositoryImpl", "dniUri: $dniDocumentUri")
-
-            // Convert URIs to MultipartBody.Part
             val licensePart = uriToMultipartBody(licenseDocumentUri, "licenseDocument")
                 ?: return Result.failure(Exception("Failed to process license document"))
             val diplomaPart = uriToMultipartBody(diplomaDocumentUri, "diplomaDocument")
@@ -114,51 +121,42 @@ class AuthRepositoryImpl(
             val dniPart = uriToMultipartBody(dniDocumentUri, "dniDocument")
                 ?: return Result.failure(Exception("Failed to process DNI document"))
 
-            android.util.Log.d("AuthRepositoryImpl", "Documents processed successfully")
-
-            // Process certification documents (optional)
             val certificationParts = certificationDocumentUris?.mapNotNull { uri ->
                 uriToMultipartBody(uri, "certificationDocuments")
             }
 
-            // Prepare text fields as RequestBody
-            val firstNameBody = firstName.toRequestBody("text/plain".toMediaTypeOrNull())
-            val lastNameBody = lastName.toRequestBody("text/plain".toMediaTypeOrNull())
-            val emailBody = email.toRequestBody("text/plain".toMediaTypeOrNull())
-            val passwordBody = password.toRequestBody("text/plain".toMediaTypeOrNull())
-            val professionalLicenseBody = professionalLicense.toRequestBody("text/plain".toMediaTypeOrNull())
-            val yearsOfExperienceBody = yearsOfExperience.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val collegiateRegionBody = collegiateRegion.toRequestBody("text/plain".toMediaTypeOrNull())
-            val universityBody = university.toRequestBody("text/plain".toMediaTypeOrNull())
-            val graduationYearBody = graduationYear.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val acceptsPrivacyPolicyBody = acceptsPrivacyPolicy.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val specialtiesBody = specialties?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-            android.util.Log.d("AuthRepositoryImpl", "Calling registerPsychologist API...")
+            val firstNamePart = textToMultipartPart(firstName, "firstName")
+            val lastNamePart = textToMultipartPart(lastName, "lastName")
+            val emailPart = textToMultipartPart(email, "email")
+            val passwordPart = textToMultipartPart(password, "password")
+            val professionalLicensePart = textToMultipartPart(professionalLicense, "professionalLicense")
+            val yearsOfExperiencePart = textToMultipartPart(yearsOfExperience.toString(), "yearsOfExperience")
+            val collegiateRegionPart = textToMultipartPart(collegiateRegion, "collegiateRegion")
+            val universityPart = textToMultipartPart(university, "university")
+            val graduationYearPart = textToMultipartPart(graduationYear.toString(), "graduationYear")
+            val acceptsPrivacyPolicyPart = textToMultipartPart(acceptsPrivacyPolicy.toString(), "acceptsPrivacyPolicy")
+            val specialtiesPart = specialties?.let { textToMultipartPart(it, "specialties") }
 
             val response = authService.registerPsychologist(
-                firstName = firstNameBody,
-                lastName = lastNameBody,
-                email = emailBody,
-                password = passwordBody,
-                professionalLicense = professionalLicenseBody,
-                yearsOfExperience = yearsOfExperienceBody,
-                collegiateRegion = collegiateRegionBody,
-                university = universityBody,
-                graduationYear = graduationYearBody,
-                acceptsPrivacyPolicy = acceptsPrivacyPolicyBody,
+                firstName = firstNamePart,
+                lastName = lastNamePart,
+                email = emailPart,
+                password = passwordPart,
+                professionalLicense = professionalLicensePart,
+                yearsOfExperience = yearsOfExperiencePart,
+                collegiateRegion = collegiateRegionPart,
+                university = universityPart,
+                graduationYear = graduationYearPart,
+                acceptsPrivacyPolicy = acceptsPrivacyPolicyPart,
                 licenseDocument = licensePart,
                 diplomaDocument = diplomaPart,
                 dniDocument = dniPart,
-                specialties = specialtiesBody,
+                specialties = specialtiesPart,
                 certificationDocuments = certificationParts
             )
 
-            android.util.Log.d("AuthRepositoryImpl", "Registration successful: ${response.userId}")
             Result.success(Pair(response.userId, response.email))
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepositoryImpl", "Registration failed: ${e.message}", e)
-            e.printStackTrace()
             Result.failure(e)
         }
     }
@@ -200,6 +198,23 @@ class AuthRepositoryImpl(
                 existingUserType = response.existingUserType
             )
             Result.success(data)
+        } catch (e: retrofit2.HttpException) {
+            if (e.code() == 401) {
+                try {
+                    val errorBody = e.response()?.errorBody()?.string()
+                    if (errorBody != null) {
+                        val jsonObject = org.json.JSONObject(errorBody)
+                        val errorMessage = jsonObject.optString("message", "Your account is pending verification. Please wait for admin approval.")
+                        Result.failure(Exception(errorMessage))
+                    } else {
+                        Result.failure(Exception("Your account is pending verification. Please wait for admin approval."))
+                    }
+                } catch (jsonException: Exception) {
+                    Result.failure(Exception("Your account is pending verification. Please wait for admin approval."))
+                }
+            } else {
+                Result.failure(e)
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -230,20 +245,19 @@ class AuthRepositoryImpl(
         acceptsPrivacyPolicy: Boolean
     ): Result<User> {
         return try {
-            val tempTokenBody = tempToken.toRequestBody("text/plain".toMediaTypeOrNull())
-            val userTypeBody = "General".toRequestBody("text/plain".toMediaTypeOrNull())
-            val acceptsPrivacyPolicyBody = acceptsPrivacyPolicy.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val tempTokenPart = textToMultipartPart(tempToken, "tempToken")
+            val userTypePart = textToMultipartPart("General", "userType")
+            val acceptsPrivacyPolicyPart = textToMultipartPart(acceptsPrivacyPolicy.toString(), "acceptsPrivacyPolicy")
 
             val response = authService.completeOAuthRegistration(
-                tempToken = tempTokenBody,
-                userType = userTypeBody,
-                acceptsPrivacyPolicy = acceptsPrivacyPolicyBody
+                tempToken = tempTokenPart,
+                userType = userTypePart,
+                acceptsPrivacyPolicy = acceptsPrivacyPolicyPart
             )
 
             val user = response.toDomain()
             Result.success(user)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepositoryImpl", "OAuth general registration failed: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -266,9 +280,6 @@ class AuthRepositoryImpl(
         certificationDocumentUris: List<String>?
     ): Result<User> {
         return try {
-            android.util.Log.d("AuthRepositoryImpl", "Starting OAuth psychologist registration")
-
-            // Convert URIs to MultipartBody.Part
             val licensePart = uriToMultipartBody(licenseDocumentUri, "licenseDocument")
                 ?: return Result.failure(Exception("Failed to process license document"))
             val diplomaPart = uriToMultipartBody(diplomaDocumentUri, "diplomaDocument")
@@ -276,49 +287,59 @@ class AuthRepositoryImpl(
             val dniPart = uriToMultipartBody(dniDocumentUri, "dniDocument")
                 ?: return Result.failure(Exception("Failed to process DNI document"))
 
-            // Process certification documents (optional)
             val certificationParts = certificationDocumentUris?.mapNotNull { uri ->
                 uriToMultipartBody(uri, "certificationDocuments")
             }
 
-            // Prepare text fields as RequestBody
-            val tempTokenBody = tempToken.toRequestBody("text/plain".toMediaTypeOrNull())
-            val userTypeBody = "Psychologist".toRequestBody("text/plain".toMediaTypeOrNull())
-            val professionalLicenseBody = professionalLicense.toRequestBody("text/plain".toMediaTypeOrNull())
-            val yearsOfExperienceBody = yearsOfExperience.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val collegiateRegionBody = collegiateRegion.toRequestBody("text/plain".toMediaTypeOrNull())
-            val universityBody = university.toRequestBody("text/plain".toMediaTypeOrNull())
-            val graduationYearBody = graduationYear.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val acceptsPrivacyPolicyBody = acceptsPrivacyPolicy.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val specialtiesBody = specialties?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val tempTokenPart = textToMultipartPart(tempToken, "tempToken")
+            val userTypePart = textToMultipartPart("Psychologist", "userType")
+            val professionalLicensePart = textToMultipartPart(professionalLicense, "professionalLicense")
+            val yearsOfExperiencePart = textToMultipartPart(yearsOfExperience.toString(), "yearsOfExperience")
+            val collegiateRegionPart = textToMultipartPart(collegiateRegion, "collegiateRegion")
+            val universityPart = textToMultipartPart(university, "university")
+            val graduationYearPart = textToMultipartPart(graduationYear.toString(), "graduationYear")
+            val acceptsPrivacyPolicyPart = textToMultipartPart(acceptsPrivacyPolicy.toString(), "acceptsPrivacyPolicy")
+            val specialtiesPart = specialties?.let { textToMultipartPart(it, "specialties") }
 
             val response = authService.completeOAuthRegistrationPsychologist(
-                tempToken = tempTokenBody,
-                userType = userTypeBody,
-                acceptsPrivacyPolicy = acceptsPrivacyPolicyBody,
-                professionalLicense = professionalLicenseBody,
-                yearsOfExperience = yearsOfExperienceBody,
-                collegiateRegion = collegiateRegionBody,
-                university = universityBody,
-                graduationYear = graduationYearBody,
+                tempToken = tempTokenPart,
+                userType = userTypePart,
+                acceptsPrivacyPolicy = acceptsPrivacyPolicyPart,
+                professionalLicense = professionalLicensePart,
+                yearsOfExperience = yearsOfExperiencePart,
+                collegiateRegion = collegiateRegionPart,
+                university = universityPart,
+                graduationYear = graduationYearPart,
                 licenseDocument = licensePart,
                 diplomaDocument = diplomaPart,
                 dniDocument = dniPart,
-                specialties = specialtiesBody,
+                specialties = specialtiesPart,
                 certificationDocuments = certificationParts
             )
-
-            android.util.Log.d("AuthRepositoryImpl", "OAuth psychologist registration successful: ${response.user.id}")
 
             val user = response.toDomain()
             Result.success(user)
 
+        } catch (e: retrofit2.HttpException) {
+            if (e.code() == 401) {
+                Result.failure(PsychologistPendingVerificationException("Your account is pending verification"))
+            } else {
+                Result.failure(e)
+            }
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepositoryImpl", "OAuth psychologist registration failed: ${e.message}", e)
             Result.failure(e)
         }
     }
 
+    class PsychologistPendingVerificationException(message: String) : Exception(message)
+
+
+    /**
+     * Converts a text string to a MultipartBody.Part for form data.
+     */
+    private fun textToMultipartPart(text: String, partName: String): MultipartBody.Part {
+        return MultipartBody.Part.createFormData(partName, text)
+    }
 
     /**
      * Converts a URI string to a MultipartBody.Part for file upload.
@@ -328,7 +349,6 @@ class AuthRepositoryImpl(
             val uri = Uri.parse(uriString)
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
 
-            // Get the original filename and extension from the URI
             val cursor = context.contentResolver.query(uri, null, null, null, null)
             var fileName = "document_${System.currentTimeMillis()}"
             cursor?.use {
@@ -340,24 +360,21 @@ class AuthRepositoryImpl(
                 }
             }
 
-            // If no extension, try to get mime type and add appropriate extension
             if (!fileName.contains(".")) {
                 val mimeType = context.contentResolver.getType(uri)
                 val extension = when {
                     mimeType?.startsWith("image/") == true -> ".jpg"
                     mimeType == "application/pdf" -> ".pdf"
-                    else -> ".pdf" // Default to PDF
+                    else -> ".pdf"
                 }
                 fileName += extension
             }
 
-            // Create temp file with proper extension
             val file = File(context.cacheDir, fileName)
             file.outputStream().use { outputStream ->
                 inputStream.copyTo(outputStream)
             }
 
-            // Set proper media type based on file extension
             val mediaType = when {
                 fileName.endsWith(".pdf", ignoreCase = true) -> "application/pdf"
                 fileName.endsWith(".jpg", ignoreCase = true) ||
@@ -369,7 +386,6 @@ class AuthRepositoryImpl(
             val requestBody = file.asRequestBody(mediaType)
             MultipartBody.Part.createFormData(partName, file.name, requestBody)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepositoryImpl", "Error creating multipart body: ${e.message}", e)
             null
         }
     }

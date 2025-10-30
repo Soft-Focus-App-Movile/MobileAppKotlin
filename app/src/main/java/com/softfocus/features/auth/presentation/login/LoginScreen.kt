@@ -61,13 +61,20 @@ import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.YellowEB
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.SourceSansBold
+import androidx.compose.ui.platform.LocalContext
+import com.softfocus.core.data.local.UserSession
+import com.softfocus.features.admin.presentation.di.AdminPresentationModule
+import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
+import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
+    onAdminLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onNavigateToRegisterWithOAuth: (email: String, fullName: String, tempToken: String) -> Unit
+    onNavigateToRegisterWithOAuth: (email: String, fullName: String, tempToken: String) -> Unit,
+    onNavigateToPendingVerification: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -76,8 +83,11 @@ fun LoginScreen(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val oauthData by viewModel.oauthDataForRegistration.collectAsState()
     val googleSignInIntent by viewModel.googleSignInIntent.collectAsState()
+    val psychologistPendingVerification by viewModel.psychologistPendingVerification.collectAsState()
 
     val isPasswordVisible = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val userSession = remember { UserSession(context) }
 
     // Activity Result Launcher for Google Sign-In
     val googleSignInLauncher = rememberLauncherForActivityResult(
@@ -92,15 +102,33 @@ fun LoginScreen(
         viewModel.clearGoogleSignInIntent()
     }
 
-    // Navigate on login success
-    user?.let {
-        onLoginSuccess()
+    // Navigate on login success based on user type
+    user?.let { currentUser ->
+        userSession.saveUser(currentUser)
+        if (currentUser.userType == com.softfocus.features.auth.domain.models.UserType.ADMIN) {
+            currentUser.token?.let { AdminPresentationModule.setAuthToken(it) }
+            onAdminLoginSuccess()
+        } else {
+            currentUser.token?.let { token ->
+                TherapyPresentationModule.setAuthToken(token)
+                if (currentUser.userType == com.softfocus.features.auth.domain.models.UserType.PSYCHOLOGIST) {
+                    PsychologistPresentationModule.setAuthToken(token)
+                }
+            }
+            onLoginSuccess()
+        }
     }
 
     // Navigate to register with OAuth data
     oauthData?.let { data ->
         onNavigateToRegisterWithOAuth(data.email, data.fullName, data.tempToken)
         viewModel.clearOAuthData()
+    }
+
+    // Navigate to pending verification if psychologist is not verified
+    if (psychologistPendingVerification) {
+        onNavigateToPendingVerification()
+        viewModel.clearPendingVerification()
     }
 
     Column(
@@ -328,8 +356,10 @@ fun LoginScreenPreview() {
         LoginScreen(
             viewModel = viewModel,
             onLoginSuccess = {},
+            onAdminLoginSuccess = {},
             onNavigateToRegister = {},
-            onNavigateToRegisterWithOAuth = { _, _, _ -> }
+            onNavigateToRegisterWithOAuth = { _, _, _ -> },
+            onNavigateToPendingVerification = {}
         )
     }
 }

@@ -2,11 +2,11 @@ package com.softfocus.features.auth.presentation.accountreview
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.softfocus.R
 import com.softfocus.core.ui.theme.SoftFocusTheme
 import com.softfocus.ui.theme.CrimsonSemiBold
-import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.theme.Green49
+import com.softfocus.ui.theme.GreenC1
 
 @Composable
 fun AccountReviewScreen() {
@@ -32,45 +33,31 @@ fun AccountReviewScreen() {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFD4E4D4), // Verde claro arriba
-                        Color(0xFF8FB89C)  // Verde más oscuro abajo
+                        GreenC1,
+                        Green49
                     )
                 )
-            )
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Título
             Text(
                 text = "Tu cuenta está\nsiendo revisada",
                 style = CrimsonSemiBold,
-                fontSize = 32.sp,
+                fontSize = 40.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 lineHeight = 38.sp
             )
 
-            // Imagen del panda
-            Image(
-                painter = painterResource(id = R.drawable.soft_panda_black),
-                contentDescription = "Panda Soft Focus",
-                modifier = Modifier
-                    .size(280.dp)
-                    .padding(vertical = 32.dp)
-            )
+            Spacer(modifier = Modifier.height(5.dp))
 
-            // Texto "soft focus" (opcional, puedes ajustarlo según el diseño)
-            Text(
-                text = "soft focus",
-                style = SourceSansRegular,
-                fontSize = 24.sp,
-                color = Color.White.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center
+            Image(
+                painter = painterResource(id = R.drawable.panda_soft),
+                contentDescription = "Soft Focus Logo",
+                modifier = Modifier.size(550.dp)
             )
         }
     }

@@ -25,7 +25,7 @@ fun SplashScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToHome: () -> Unit = {}
 ) {
-    // TODO: Check if user is authenticated
+
     val isAuthenticated = false
 
     LaunchedEffect(Unit) {

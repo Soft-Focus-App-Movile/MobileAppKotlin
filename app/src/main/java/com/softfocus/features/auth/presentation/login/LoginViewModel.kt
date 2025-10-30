@@ -34,6 +34,9 @@ class LoginViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _psychologistPendingVerification = MutableStateFlow(false)
+    val psychologistPendingVerification: StateFlow<Boolean> = _psychologistPendingVerification
+
     // OAuth data to pass to registration screen
     private val _oauthDataForRegistration = MutableStateFlow<OAuthVerificationData?>(null)
     val oauthDataForRegistration: StateFlow<OAuthVerificationData?> = _oauthDataForRegistration
@@ -61,8 +64,16 @@ class LoginViewModel(
                     _isLoading.value = false
                 }
                 .onFailure { error ->
-                    _errorMessage.value = error.message ?: "Error desconocido"
-                    _isLoading.value = false
+                    // Check if it's a psychologist pending verification error
+                    val errorMsg = error.message ?: "Error desconocido"
+                    if (errorMsg.contains("pending verification", ignoreCase = true) ||
+                        errorMsg.contains("wait for admin approval", ignoreCase = true)) {
+                        _psychologistPendingVerification.value = true
+                        _isLoading.value = false
+                    } else {
+                        _errorMessage.value = errorMsg
+                        _isLoading.value = false
+                    }
                 }
         }
     }
@@ -155,8 +166,16 @@ class LoginViewModel(
                 }
             }
             .onFailure { error ->
-                _errorMessage.value = error.message ?: "Error al verificar la cuenta de Google"
-                _isLoading.value = false
+                // Check if it's a psychologist pending verification error
+                val errorMsg = error.message ?: "Error al verificar la cuenta de Google"
+                if (errorMsg.contains("pending verification", ignoreCase = true) ||
+                    errorMsg.contains("wait for admin approval", ignoreCase = true)) {
+                    _psychologistPendingVerification.value = true
+                    _isLoading.value = false
+                } else {
+                    _errorMessage.value = errorMsg
+                    _isLoading.value = false
+                }
             }
     }
 
@@ -208,6 +227,10 @@ class LoginViewModel(
 
     fun clearGoogleSignInIntent() {
         _googleSignInIntent.value = null
+    }
+
+    fun clearPendingVerification() {
+        _psychologistPendingVerification.value = false
     }
 
     /**
