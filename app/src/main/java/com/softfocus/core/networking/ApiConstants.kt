@@ -2,7 +2,7 @@ package com.softfocus.core.networking
 
 object ApiConstants {
     // 10.0.2.2 is the special IP for Android emulator to access host machine's localhost
-    const val BASE_URL = "http://10.0.2.2:5007/api/v1/"
+    const val BASE_URL = "http://98.90.172.251:5000/api/v1/"
 
     // Google OAuth Client IDs
     // Web Client ID - Used for serverClientId in Credential Manager and backend verification
@@ -34,5 +34,15 @@ object ApiConstants {
         const val CHAT_USAGE = "ai/chat/usage"
         const val EMOTION_ANALYZE = "ai/emotion/analyze"
         const val EMOTION_USAGE = "ai/emotion/usage"
+    }
+
+    object Notifications {
+        const val BASE = "notifications"
+        const val BY_ID = "notifications/{id}"
+        const val MARK_AS_READ = "notifications/{id}/read"
+        const val MARK_ALL_READ = "notifications/read-all"
+        const val UNREAD_COUNT = "notifications/unread-count"
+        const val PREFERENCES = "notifications/preferences"
+        const val PREFERENCES_RESET = "notifications/preferences/reset"
     }
 }

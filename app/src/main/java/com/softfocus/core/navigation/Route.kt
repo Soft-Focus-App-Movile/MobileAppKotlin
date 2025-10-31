@@ -29,6 +29,9 @@ sealed class Route(val path: String) {
     data object AdminUsers : Route("admin_users")
     data object VerifyPsychologist : Route("verify_psychologist")
 
+    data object Notifications : Route("notifications")
+    data object NotificationPreferences : Route("notification_preferences")
+
     companion object {
         /**
          * Returns all auth-related routes.

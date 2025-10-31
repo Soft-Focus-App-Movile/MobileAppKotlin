@@ -37,6 +37,9 @@ import com.softfocus.features.profile.presentation.general.GeneralProfileScreen
 import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistScreen
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
+import com.softfocus.features.notifications.presentation.di.NotificationPresentationModule
+import com.softfocus.features.notifications.presentation.list.NotificationsScreen
+import com.softfocus.features.notifications.presentation.preferences.NotificationPreferencesScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -346,6 +349,32 @@ fun AppNavigation() {
                     }
                 }
             }
+        }
+        composable(Route.Notifications.path) {
+            val viewModel = remember {
+                NotificationPresentationModule.getNotificationsViewModel(context)
+            }
+            NotificationsScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Route.NotificationPreferences.path)
+                }
+            )
+        }
+
+        composable(Route.NotificationPreferences.path) {
+            val viewModel = remember {
+                NotificationPresentationModule.getNotificationPreferencesViewModel(context)
+            }
+            NotificationPreferencesScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(Route.AdminUsers.path) {
