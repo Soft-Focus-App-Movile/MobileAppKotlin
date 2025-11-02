@@ -14,10 +14,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import com.softfocus.R
 import com.softfocus.ui.theme.SoftFocusMobileTheme
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.GreenC1
+import com.softfocus.core.utils.SessionManager
+import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
+import com.softfocus.features.admin.presentation.di.AdminPresentationModule
+import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
+import com.softfocus.features.auth.domain.models.UserType
 import kotlinx.coroutines.delay
 
 @Composable
@@ -25,12 +31,25 @@ fun SplashScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToHome: () -> Unit = {}
 ) {
-
-    val isAuthenticated = false
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         delay(2500) // 2.5 seconds
+
+        // Check if there's an active session
+        val isAuthenticated = SessionManager.hasActiveSession(context)
+
         if (isAuthenticated) {
+            // Re-initialize auth tokens for the logged-in user
+            val user = SessionManager.getCurrentUser(context)
+            user?.token?.let { token ->
+                TherapyPresentationModule.setAuthToken(token)
+                when (user.userType) {
+                    UserType.ADMIN -> AdminPresentationModule.setAuthToken(token)
+                    UserType.PSYCHOLOGIST -> PsychologistPresentationModule.setAuthToken(token)
+                    else -> {} // GENERAL and PATIENT only need TherapyModule
+                }
+            }
             onNavigateToHome()
         } else {
             onNavigateToLogin()

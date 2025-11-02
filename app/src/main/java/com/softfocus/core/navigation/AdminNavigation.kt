@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.softfocus.features.admin.presentation.di.AdminPresentationModule
 import com.softfocus.features.admin.presentation.userlist.AdminUsersScreen
 import com.softfocus.features.admin.presentation.verifypsychologist.VerifyPsychologistScreen
+import com.softfocus.core.utils.SessionManager
 
 /**
  * Admin navigation graph.
@@ -31,7 +32,7 @@ fun NavGraphBuilder.adminNavigation(
                 navController.navigate("${Route.VerifyPsychologist.path}/$userId")
             },
             onLogout = {
-                AdminPresentationModule.setAuthToken("")
+                SessionManager.logout(context)
                 navController.navigate(Route.Login.path) {
                     popUpTo(0) { inclusive = true }
                 }

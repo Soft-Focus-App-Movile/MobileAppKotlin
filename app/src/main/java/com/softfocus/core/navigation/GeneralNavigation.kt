@@ -31,7 +31,7 @@ fun NavGraphBuilder.generalNavigation(
 ) {
     // Connect with Psychologist Screen
     composable(Route.ConnectPsychologist.path) {
-        val connectViewModel = TherapyPresentationModule.getConnectPsychologistViewModel(context)
+        val connectViewModel = remember { TherapyPresentationModule.getConnectPsychologistViewModel(context) }
         val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
         val isPatient = homeViewModel.isPatient.collectAsState()
         val isLoading = homeViewModel.isLoading.collectAsState()
@@ -45,6 +45,7 @@ fun NavGraphBuilder.generalNavigation(
             }
         } else {
             Scaffold(
+                containerColor = Color.Transparent,
                 bottomBar = {
                     if (isPatient.value) {
                         PatientBottomNav(navController)

@@ -26,6 +26,7 @@ import com.softfocus.ui.theme.White
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import com.softfocus.features.ai.domain.models.ChatMessage
+import com.softfocus.ui.theme.InterRegular
 
 @Composable
 fun ChatMessageBubble(
@@ -57,7 +58,7 @@ fun ChatMessageBubble(
             ) {
                 Text(
                     text = message.content,
-                    style = SourceSansRegular,
+                    style = InterRegular,
                     fontSize = 14.sp,
                     color = textColor,
                     lineHeight = 20.sp,
@@ -67,7 +68,7 @@ fun ChatMessageBubble(
 
             Text(
                 text = message.timestamp.format(DateTimeFormatter.ofPattern("HH:mm")),
-                style = SourceSansRegular,
+                style = InterRegular,
                 fontSize = 11.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)

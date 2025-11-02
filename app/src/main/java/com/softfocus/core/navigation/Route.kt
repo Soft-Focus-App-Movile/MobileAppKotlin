@@ -6,7 +6,8 @@ package com.softfocus.core.navigation
  * Each route corresponds to a screen or destination in the navigation graph.
  * Using a sealed class ensures type safety and compile-time checking for routes.
  */
-sealed class Route(val path: String) {
+sealed class
+Route(val path: String) {
 
     // Auth routes
     data object Splash : Route("splash")
@@ -22,7 +23,6 @@ sealed class Route(val path: String) {
     data object Tracking : Route("tracking")
     data object Crisis : Route("crisis")
     data object Library : Route("library")
-    data object AiChat : Route("ai_chat")
     data object AIWelcome : Route("ai_welcome")
     data object AIChat : Route("ai_chat_screen/{initialMessage}?sessionId={sessionId}") {
         fun createRoute(initialMessage: String? = null, sessionId: String? = null): String {

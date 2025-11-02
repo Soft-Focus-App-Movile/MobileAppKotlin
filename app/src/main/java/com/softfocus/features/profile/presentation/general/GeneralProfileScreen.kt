@@ -2,8 +2,10 @@ package com.softfocus.features.profile.presentation.general
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Help
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,7 +35,8 @@ import com.softfocus.ui.theme.SourceSansRegular
 @Composable
 fun GeneralProfileScreen(
     onNavigateToConnect: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onLogout: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -57,7 +61,8 @@ fun GeneralProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White),
+                .background(Color.White)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -128,6 +133,12 @@ fun GeneralProfileScreen(
                 onClick = { }
             )
 
+            ProfileOption(
+                icon = Icons.Outlined.Logout,
+                title = "Cerrar Sesión",
+                onClick = onLogout
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -145,7 +156,9 @@ fun ProfileOption(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFC5D9A4))
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFC5D9A4)
+        )
     ) {
         Row(
             modifier = Modifier

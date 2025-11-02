@@ -12,6 +12,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.ui.theme.Green29
+import com.softfocus.ui.theme.GreenA3
+import com.softfocus.ui.theme.GreenBF2
+import com.softfocus.ui.theme.InterRegular
 import com.softfocus.ui.theme.SourceSansRegular
 
 @Composable
@@ -25,14 +28,14 @@ fun SuggestedQuestionChip(
         label = {
             Text(
                 text = question,
-                style = SourceSansRegular,
+                style = InterRegular,
                 fontSize = 13.sp
             )
         },
         modifier = modifier.padding(end = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = AssistChipDefaults.assistChipColors(
-            containerColor = Color(0xFFE8F5E9),
+            containerColor = GreenBF2,
             labelColor = Green29
         )
     )

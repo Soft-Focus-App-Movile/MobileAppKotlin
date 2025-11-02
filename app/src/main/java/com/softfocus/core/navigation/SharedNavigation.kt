@@ -32,6 +32,7 @@ import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.ui.components.navigation.GeneralBottomNav
 import com.softfocus.ui.components.navigation.PatientBottomNav
 import com.softfocus.ui.components.navigation.PsychologistBottomNav
+import com.softfocus.core.utils.SessionManager
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -58,6 +59,7 @@ fun NavGraphBuilder.sharedNavigation(
                     PsychologistPresentationModule.getPsychologistHomeViewModel(context)
                 }
                 Scaffold(
+                    containerColor = Color.Transparent,
                     bottomBar = { PsychologistBottomNav(navController) }
                 ) { paddingValues ->
                     Box(
@@ -81,6 +83,7 @@ fun NavGraphBuilder.sharedNavigation(
                     }
                 } else {
                     Scaffold(
+                        containerColor = Color.Transparent,
                         bottomBar = {
                             if (isPatient.value) {
                                 PatientBottomNav(navController)
@@ -122,6 +125,7 @@ fun NavGraphBuilder.sharedNavigation(
             }
         } else {
             Scaffold(
+                containerColor = Color.Transparent,
                 bottomBar = {
                     if (isPatient.value) {
                         PatientBottomNav(navController)
@@ -139,6 +143,12 @@ fun NavGraphBuilder.sharedNavigation(
                         },
                         onNavigateBack = {
                             navController.popBackStack()
+                        },
+                        onLogout = {
+                            SessionManager.logout(context)
+                            navController.navigate(Route.Login.path) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
                     )
                 }
@@ -177,12 +187,13 @@ fun NavGraphBuilder.sharedNavigation(
 
     // AI Welcome Screen
     composable(Route.AIWelcome.path) {
-        val userSession = remember { UserSession(context) }
-        val currentUser = userSession.getUser()
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isPatient = homeViewModel.isPatient.collectAsState()
 
-        // Only General users get bottom nav, Patient/Psychologist get X button
-        if (currentUser?.userType == UserType.GENERAL) {
+        // Only General users (without psychologist) get bottom nav, Patients get X button
+        if (!isPatient.value) {
             Scaffold(
+                containerColor = Color.Transparent,
                 bottomBar = { GeneralBottomNav(navController) }
             ) { paddingValues ->
                 Box(
@@ -200,7 +211,7 @@ fun NavGraphBuilder.sharedNavigation(
                 }
             }
         } else {
-            // Patient/Psychologist/Admin users get X button without bottom nav
+            // Patients get X button without bottom nav
             AIWelcomeScreen(
                 onSendMessage = { message ->
                     navController.navigate(Route.AIChat.createRoute(message))
@@ -229,16 +240,17 @@ fun NavGraphBuilder.sharedNavigation(
     ) { backStackEntry ->
         val initialMessage = backStackEntry.arguments?.getString("initialMessage")
         val sessionId = backStackEntry.arguments?.getString("sessionId")
-        val userSession = remember { UserSession(context) }
-        val currentUser = userSession.getUser()
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isPatient = homeViewModel.isPatient.collectAsState()
 
         val decodedMessage = if (initialMessage != null && initialMessage != "null") {
             URLDecoder.decode(initialMessage, StandardCharsets.UTF_8.toString())
         } else null
 
-        // Only General users get bottom nav, Patient/Psychologist get X button
-        if (currentUser?.userType == UserType.GENERAL) {
+        // Only General users (without psychologist) get bottom nav, Patients get X button
+        if (!isPatient.value) {
             Scaffold(
+                containerColor = Color.Transparent,
                 bottomBar = { GeneralBottomNav(navController) }
             ) { paddingValues ->
                 Box(
@@ -252,7 +264,7 @@ fun NavGraphBuilder.sharedNavigation(
                 }
             }
         } else {
-            // Patient/Psychologist/Admin users get X button without bottom nav
+            // Patients get X button without bottom nav
             AIChatScreen(
                 initialMessage = decodedMessage,
                 sessionId = if (sessionId != "null") sessionId else null,
