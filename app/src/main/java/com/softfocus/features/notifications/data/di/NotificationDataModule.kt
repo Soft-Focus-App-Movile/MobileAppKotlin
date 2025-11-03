@@ -18,7 +18,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NotificationDataModule {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Provides
     @Singleton
     fun provideNotificationRepository(
@@ -28,7 +27,6 @@ object NotificationDataModule {
         return NotificationRepositoryImpl(notificationService, userSession)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Provides
     @Singleton
     fun provideNotificationPreferenceRepository(

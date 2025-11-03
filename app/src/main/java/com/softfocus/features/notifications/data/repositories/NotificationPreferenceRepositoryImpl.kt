@@ -11,7 +11,6 @@ import com.softfocus.features.notifications.domain.repositories.NotificationPref
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 class NotificationPreferenceRepositoryImpl @Inject constructor(
     private val notificationService: NotificationService
 ) : NotificationPreferenceRepository {

@@ -24,7 +24,6 @@ data class NotificationPreferencesState(
     val successMessage: String? = null
 )
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class NotificationPreferencesViewModel @Inject constructor(
     private val getPreferencesUseCase: GetNotificationPreferencesUseCase,

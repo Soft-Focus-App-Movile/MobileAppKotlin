@@ -21,7 +21,6 @@ data class NotificationPreferenceResponseDto(
     @SerializedName("delivery_method")
     val deliveryMethod: String
 ) {
-    @RequiresApi(Build.VERSION_CODES.O)
     fun toDomain(): NotificationPreference {
         return NotificationPreference(
             id = id,

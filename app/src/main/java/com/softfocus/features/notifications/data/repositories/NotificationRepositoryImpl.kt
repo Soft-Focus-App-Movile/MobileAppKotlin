@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
 class NotificationRepositoryImpl @Inject constructor(
     private val notificationService: NotificationService,
     private val userSession: UserSession

@@ -25,7 +25,6 @@ import com.softfocus.features.notifications.domain.models.*
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsScreen(

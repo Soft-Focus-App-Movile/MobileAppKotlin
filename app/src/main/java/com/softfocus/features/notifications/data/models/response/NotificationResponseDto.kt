@@ -31,7 +31,6 @@ data class NotificationResponseDto(
     @SerializedName("metadata")
     val metadata: Map<String, String>?
 ) {
-    @RequiresApi(Build.VERSION_CODES.O)
     fun toDomain(): Notification {
         val formatter = DateTimeFormatter.ISO_DATE_TIME
         return Notification(

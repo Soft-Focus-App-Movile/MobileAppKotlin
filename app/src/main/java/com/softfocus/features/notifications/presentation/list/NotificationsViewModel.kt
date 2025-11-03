@@ -24,7 +24,6 @@ data class NotificationsState(
     val unreadCount: Int = 0
 )
 
-@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
     private val getNotificationsUseCase: GetNotificationsUseCase,
