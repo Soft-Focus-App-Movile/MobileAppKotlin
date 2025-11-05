@@ -31,10 +31,10 @@ data class ContentItemResponseDto(
     val backdropUrl: String? = null,
 
     @SerializedName("rating")
-    val rating: Double? = null,
+    val rating: String? = null,
 
     @SerializedName("duration")
-    val duration: Int? = null,
+    val duration: String? = null,
 
     @SerializedName("genres")
     val genres: List<String>? = null,
@@ -102,8 +102,8 @@ data class ContentItemResponseDto(
             overview = overview,
             posterUrl = posterUrl,
             backdropUrl = backdropUrl,
-            rating = rating,
-            duration = duration,
+            rating = rating?.toDoubleOrNull(),
+            duration = duration?.toIntOrNull(),
             genres = genres ?: emptyList(),
             trailerUrl = trailerUrl,
             emotionalTags = emotionalTags?.mapNotNull { tag ->

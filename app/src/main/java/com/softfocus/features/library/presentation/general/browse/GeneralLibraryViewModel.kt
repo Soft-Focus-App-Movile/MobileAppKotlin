@@ -1,5 +1,6 @@
 package com.softfocus.features.library.presentation.general.browse
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.features.library.domain.models.ContentItem
@@ -23,6 +24,10 @@ import kotlinx.coroutines.launch
 class GeneralLibraryViewModel(
     private val repository: LibraryRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "GeneralLibraryVM"
+    }
 
     private val _uiState = MutableStateFlow<GeneralLibraryUiState>(GeneralLibraryUiState.Loading)
     val uiState: StateFlow<GeneralLibraryUiState> = _uiState.asStateFlow()
@@ -48,26 +53,54 @@ class GeneralLibraryViewModel(
      */
     private fun loadAllContent() {
         viewModelScope.launch {
+            Log.d(TAG, "loadAllContent: Iniciando carga de contenido")
             _uiState.value = GeneralLibraryUiState.Loading
 
             try {
                 val contentMap = mutableMapOf<ContentType, List<ContentItem>>()
+                val errors = mutableListOf<String>()
 
-                // Cargar contenido para cada tipo
-                ContentType.values().forEach { type ->
-                    repository.getRecommendedContent(
+                // Cargar contenido para cada tipo - ESPERAR cada llamada
+                for (type in ContentType.values()) {
+                    Log.d(TAG, "loadAllContent: Cargando contenido para $type")
+
+                    val result = repository.getRecommendedContent(
                         contentType = type,
                         limit = 20
-                    ).onSuccess { content ->
+                    )
+
+                    result.onSuccess { content ->
+                        Log.d(TAG, "loadAllContent: ✅ $type - Recibidos ${content.size} items")
                         contentMap[type] = content
+                    }.onFailure { error ->
+                        Log.e(TAG, "loadAllContent: ❌ $type - Error: ${error.message}", error)
+                        errors.add("${type.name}: ${error.message}")
                     }
                 }
 
-                _uiState.value = GeneralLibraryUiState.Success(
-                    contentByType = contentMap,
-                    selectedType = _selectedType.value
-                )
+                // Log del resultado final
+                val totalItems = contentMap.values.sumOf { it.size }
+                Log.d(TAG, "loadAllContent: Total items cargados: $totalItems")
+                Log.d(TAG, "loadAllContent: ContentMap keys: ${contentMap.keys}")
+                contentMap.forEach { (type, items) ->
+                    Log.d(TAG, "loadAllContent:   $type -> ${items.size} items")
+                }
+
+                // Si todas las llamadas fallaron, mostrar error
+                if (contentMap.isEmpty() && errors.isNotEmpty()) {
+                    Log.w(TAG, "loadAllContent: Todas las llamadas fallaron")
+                    _uiState.value = GeneralLibraryUiState.Error(
+                        "Error al cargar contenido:\n${errors.joinToString("\n")}"
+                    )
+                } else {
+                    Log.d(TAG, "loadAllContent: Estableciendo estado Success")
+                    _uiState.value = GeneralLibraryUiState.Success(
+                        contentByType = contentMap,
+                        selectedType = _selectedType.value
+                    )
+                }
             } catch (e: Exception) {
+                Log.e(TAG, "loadAllContent: Excepción no manejada", e)
                 _uiState.value = GeneralLibraryUiState.Error(
                     e.message ?: "Error al cargar contenido"
                 )
@@ -80,28 +113,52 @@ class GeneralLibraryViewModel(
      */
     fun loadContentByEmotion(emotion: EmotionalTag) {
         viewModelScope.launch {
+            Log.d(TAG, "loadContentByEmotion: Iniciando carga para emoción $emotion")
             _selectedEmotion.value = emotion
             _uiState.value = GeneralLibraryUiState.Loading
 
             try {
                 val contentMap = mutableMapOf<ContentType, List<ContentItem>>()
+                val errors = mutableListOf<String>()
 
-                // Cargar contenido para cada tipo con filtro de emoción
-                ContentType.values().forEach { type ->
-                    repository.getRecommendedByEmotion(
+                // Cargar contenido para cada tipo con filtro de emoción - ESPERAR cada llamada
+                for (type in ContentType.values()) {
+                    Log.d(TAG, "loadContentByEmotion: Cargando $type con emoción $emotion")
+
+                    val result = repository.getRecommendedByEmotion(
                         emotion = emotion,
                         contentType = type,
                         limit = 20
-                    ).onSuccess { content ->
+                    )
+
+                    result.onSuccess { content ->
+                        Log.d(TAG, "loadContentByEmotion: ✅ $type - Recibidos ${content.size} items")
                         contentMap[type] = content
+                    }.onFailure { error ->
+                        Log.e(TAG, "loadContentByEmotion: ❌ $type - Error: ${error.message}", error)
+                        errors.add("${type.name}: ${error.message}")
                     }
                 }
 
-                _uiState.value = GeneralLibraryUiState.Success(
-                    contentByType = contentMap,
-                    selectedType = _selectedType.value
-                )
+                // Log del resultado final
+                val totalItems = contentMap.values.sumOf { it.size }
+                Log.d(TAG, "loadContentByEmotion: Total items cargados: $totalItems")
+
+                // Si todas las llamadas fallaron, mostrar error
+                if (contentMap.isEmpty() && errors.isNotEmpty()) {
+                    Log.w(TAG, "loadContentByEmotion: Todas las llamadas fallaron")
+                    _uiState.value = GeneralLibraryUiState.Error(
+                        "Error al cargar contenido por emoción:\n${errors.joinToString("\n")}"
+                    )
+                } else {
+                    Log.d(TAG, "loadContentByEmotion: Estableciendo estado Success")
+                    _uiState.value = GeneralLibraryUiState.Success(
+                        contentByType = contentMap,
+                        selectedType = _selectedType.value
+                    )
+                }
             } catch (e: Exception) {
+                Log.e(TAG, "loadContentByEmotion: Excepción no manejada", e)
                 _uiState.value = GeneralLibraryUiState.Error(
                     e.message ?: "Error al cargar contenido"
                 )
