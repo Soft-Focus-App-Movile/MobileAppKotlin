@@ -71,9 +71,9 @@ data class ContentItem(
     val photoUrl: String? = null
 ) {
     /**
-     * Verifica si el contenido es de tipo Movie o Series
+     * Verifica si el contenido es de tipo Movie
      */
-    fun isMovieOrSeries(): Boolean = type == ContentType.Movie || type == ContentType.Series
+    fun isMovie(): Boolean = type == ContentType.Movie
 
     /**
      * Verifica si el contenido es de tipo Music
@@ -94,7 +94,7 @@ data class ContentItem(
      * Obtiene la URL de imagen principal (poster o thumbnail según el tipo)
      */
     fun getMainImageUrl(): String? = when (type) {
-        ContentType.Movie, ContentType.Series -> posterUrl
+        ContentType.Movie -> posterUrl
         ContentType.Music -> posterUrl // Album cover
         ContentType.Video -> thumbnailUrl
         ContentType.Place -> photoUrl

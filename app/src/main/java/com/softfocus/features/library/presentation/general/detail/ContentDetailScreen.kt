@@ -21,7 +21,7 @@ import com.softfocus.ui.theme.*
 /**
  * Pantalla de detalle de contenido
  *
- * Muestra información completa de una película, serie, música, video o lugar:
+ * Muestra información completa de una película, música, video o lugar:
  * - Imagen hero
  * - Título, año, rating, duración
  * - Botón de trailer

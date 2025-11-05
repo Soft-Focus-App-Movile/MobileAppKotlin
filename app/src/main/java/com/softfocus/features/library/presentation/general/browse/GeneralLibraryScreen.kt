@@ -26,7 +26,7 @@ import com.softfocus.ui.theme.*
  * Pantalla principal de biblioteca para usuarios General
  *
  * Muestra tabs con diferentes tipos de contenido:
- * - Películas/Series
+ * - Películas
  * - Música
  * - Videos
  * - Lugares

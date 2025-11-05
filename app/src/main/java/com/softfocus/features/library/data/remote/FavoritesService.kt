@@ -21,7 +21,7 @@ interface FavoritesService {
      * Obtiene todos los favoritos del usuario autenticado
      *
      * @param token Token de autenticación Bearer
-     * @param contentType Filtro opcional por tipo de contenido (Movie, Series, Music, Video, Place)
+     * @param contentType Filtro opcional por tipo de contenido (Movie, Music, Video, Place)
      * @param emotionFilter Filtro opcional por emoción (Happy, Sad, Anxious, Calm, Energetic)
      * @return Lista de favoritos del usuario
      *

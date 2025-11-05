@@ -4,14 +4,12 @@ package com.softfocus.features.library.domain.models
  * Tipos de contenido multimedia disponibles en la biblioteca
  *
  * @property Movie Películas de TMDB
- * @property Series Series de TV de TMDB
  * @property Music Canciones de Spotify
  * @property Video Videos de YouTube (meditación/bienestar)
  * @property Place Lugares físicos de Foursquare
  */
 enum class ContentType {
     Movie,
-    Series,
     Music,
     Video,
     Place;

@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
  * ViewModel para la pantalla de biblioteca general
  *
  * Maneja el estado de la pantalla principal de biblioteca con tabs de:
- * - Películas/Series
+ * - Películas
  * - Música
  * - Videos
  * - Lugares

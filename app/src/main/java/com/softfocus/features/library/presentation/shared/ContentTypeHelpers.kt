@@ -11,7 +11,6 @@ import com.softfocus.features.library.domain.models.ContentType
  */
 fun ContentType.getEmoji(): String = when (this) {
     ContentType.Movie -> "🎬"
-    ContentType.Series -> "📺"
     ContentType.Music -> "🎵"
     ContentType.Video -> "▶️"
     ContentType.Place -> "📍"
@@ -22,7 +21,6 @@ fun ContentType.getEmoji(): String = when (this) {
  */
 fun ContentType.getDisplayName(): String = when (this) {
     ContentType.Movie -> "Películas"
-    ContentType.Series -> "Series"
     ContentType.Music -> "Música"
     ContentType.Video -> "Videos"
     ContentType.Place -> "Lugares"
