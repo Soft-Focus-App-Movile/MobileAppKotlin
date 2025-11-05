@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,8 +25,7 @@ import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.SourceSansRegular
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.unit.Constraints
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,55 +88,71 @@ fun NotificationsScreen(
                 .padding(padding)
                 .background(Color.White)
         ) {
-            // Tabs más centrados y con color verde tenue
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = Color.White,
-                contentColor = Green49,
-                indicator = { tabPositions ->
-                    if (selectedTab < tabPositions.size) {
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier
-                                .fillMaxWidth()
-                                .wrapContentSize(Alignment.BottomStart)
-                                .offset(x = tabPositions[selectedTab].left)
-                                .width(tabPositions[selectedTab].width),
-                            color = Green49
+            // Tabs más centrados y con ancho limitado
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    // Tab "Todas"
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable {
+                            selectedTab = 0
+                            viewModel.filterNotifications(null)
+                        }
+                    ) {
+                        Text(
+                            "Todas",
+                            style = SourceSansRegular,
+                            fontSize = 16.sp,
+                            color = if (selectedTab == 0) Green49 else Color.Gray,
+                            fontWeight = if (selectedTab == 0) FontWeight.SemiBold else FontWeight.Normal
                         )
+                        if (selectedTab == 0) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(3.dp)
+                                    .background(Green49)
+                            )
+                        }
+                    }
+
+                    // Tab "No leídas"
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable {
+                            selectedTab = 1
+                            viewModel.filterNotifications(DeliveryStatus.DELIVERED)
+                        }
+                    ) {
+                        Text(
+                            "No leídas",
+                            style = SourceSansRegular,
+                            fontSize = 16.sp,
+                            color = if (selectedTab == 1) Green49 else Color.Gray,
+                            fontWeight = if (selectedTab == 1) FontWeight.SemiBold else FontWeight.Normal
+                        )
+                        if (selectedTab == 1) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .width(60.dp)
+                                    .height(3.dp)
+                                    .background(Green49)
+                            )
+                        }
                     }
                 }
-            ) {
-                Tab(
-                    selected = selectedTab == 0,
-                    onClick = {
-                        selectedTab = 0
-                        viewModel.filterNotifications(null)
-                    },
-                    modifier = Modifier.padding(vertical = 12.dp)
-                ) {
-                    Text(
-                        "Todas",
-                        style = SourceSansRegular,
-                        fontSize = 16.sp,
-                        color = if (selectedTab == 0) Green49 else Color.Gray
-                    )
-                }
-                Tab(
-                    selected = selectedTab == 1,
-                    onClick = {
-                        selectedTab = 1
-                        viewModel.filterNotifications(DeliveryStatus.DELIVERED)
-                    },
-                    modifier = Modifier.padding(vertical = 12.dp)
-                ) {
-                    Text(
-                        "No leídas",
-                        style = SourceSansRegular,
-                        fontSize = 16.sp,
-                        color = if (selectedTab == 1) Green49 else Color.Gray
-                    )
-                }
             }
+
+            HorizontalDivider(color = Color(0xFFE0E0E0))
 
             // Content
             when {
