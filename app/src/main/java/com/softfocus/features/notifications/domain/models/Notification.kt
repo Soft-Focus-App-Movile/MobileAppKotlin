@@ -12,6 +12,7 @@ data class Notification(
     val status: DeliveryStatus,
     val scheduledAt: LocalDateTime?,
     val deliveredAt: LocalDateTime?,
+    val readAt: LocalDateTime?,
     val createdAt: LocalDateTime,
     val metadata: Map<String, String> = emptyMap()
 )

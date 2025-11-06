@@ -299,7 +299,7 @@ private fun DeliveryMethodSelector(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 private fun ScheduleSelector(
     schedule: NotificationSchedule?,
@@ -350,6 +350,10 @@ private fun ScheduleSelector(
 }
 
 private fun getNotificationTypeLabel(type: NotificationType) = when (type) {
+    NotificationType.INFO -> "Notificaciones informativas"
+    NotificationType.ALERT -> "Alertas importantes"
+    NotificationType.WARNING -> "Advertencias"
+    NotificationType.EMERGENCY -> "Emergencias"
     NotificationType.CHECKIN_REMINDER -> "Recordatorios de registro"
     NotificationType.CRISIS_ALERT -> "Alertas de crisis"
     NotificationType.MESSAGE_RECEIVED -> "Mensajes recibidos"
@@ -359,6 +363,10 @@ private fun getNotificationTypeLabel(type: NotificationType) = when (type) {
 }
 
 private fun getNotificationTypeDescription(type: NotificationType) = when (type) {
+    NotificationType.INFO -> "Información general y actualizaciones"
+    NotificationType.ALERT -> "Alertas que requieren tu atención"
+    NotificationType.WARNING -> "Advertencias sobre situaciones importantes"
+    NotificationType.EMERGENCY -> "Notificaciones de emergencia crítica"
     NotificationType.CHECKIN_REMINDER -> "Te recuerda registrar tu estado de ánimo"
     NotificationType.CRISIS_ALERT -> "Notificaciones críticas que requieren atención inmediata"
     NotificationType.MESSAGE_RECEIVED -> "Cuando recibes un nuevo mensaje"

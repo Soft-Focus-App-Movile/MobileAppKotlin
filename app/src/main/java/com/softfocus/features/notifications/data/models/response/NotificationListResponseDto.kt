@@ -9,6 +9,6 @@ data class NotificationListResponseDto(
     val total: Int,
     @SerializedName("page")
     val page: Int,
-    @SerializedName("size")
+    @SerializedName("pageSize")
     val size: Int
 )

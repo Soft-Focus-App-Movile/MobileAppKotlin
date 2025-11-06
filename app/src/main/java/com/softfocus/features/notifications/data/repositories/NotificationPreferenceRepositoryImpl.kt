@@ -1,7 +1,6 @@
 package com.softfocus.features.notifications.data.repositories
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+
 import com.softfocus.features.notifications.data.models.request.NotificationPreferenceDto
 import com.softfocus.features.notifications.data.models.request.NotificationScheduleDto
 import com.softfocus.features.notifications.data.models.request.UpdatePreferencesRequestDto

@@ -19,6 +19,7 @@ import javax.inject.Inject
 data class NotificationsState(
     val notifications: List<Notification> = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val unreadCount: Int = 0
 )
@@ -35,6 +36,7 @@ class NotificationsViewModel @Inject constructor(
     val state: StateFlow<NotificationsState> = _state.asStateFlow()
 
     private var currentFilter: DeliveryStatus? = null
+    private var allNotifications = listOf<Notification>() // ← NUEVO: Guardar todas las notificaciones
 
     init {
         loadNotifications()
@@ -45,7 +47,6 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
 
-            // Obtener el userId desde el User completo
             val userId = userSession.getUser()?.id
             if (userId == null) {
                 _state.value = _state.value.copy(
@@ -55,17 +56,17 @@ class NotificationsViewModel @Inject constructor(
                 return@launch
             }
 
+            // Siempre cargar TODAS las notificaciones sin filtro
             val result = getNotificationsUseCase(
                 userId = userId,
-                status = currentFilter
+                status = null // ← Cambia esto: siempre cargar sin filtro
             )
 
             result.fold(
                 onSuccess = { notifications ->
-                    _state.value = _state.value.copy(
-                        notifications = notifications,
-                        isLoading = false
-                    )
+                    allNotifications = notifications // ← Guardar todas
+                    applyFilter() // ← Aplicar filtro actual
+                    _state.value = _state.value.copy(isLoading = false)
                 },
                 onFailure = { error ->
                     _state.value = _state.value.copy(
@@ -77,27 +78,47 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 
+    // NUEVA FUNCIÓN: Aplicar filtro a todas las notificaciones
+    private fun applyFilter() {
+        val filtered = when (currentFilter) {
+            DeliveryStatus.DELIVERED -> allNotifications.filter {
+                it.readAt == null // "No leídas" = cualquier notificación sin readAt
+            }
+            else -> allNotifications
+        }
+        _state.value = _state.value.copy(notifications = filtered)
+    }
+
     fun filterNotifications(status: DeliveryStatus?) {
         currentFilter = status
-        loadNotifications()
+        applyFilter() // ← Cambia esto: en lugar de recargar, solo aplicar filtro
     }
 
     fun markAsRead(notificationId: String) {
         viewModelScope.launch {
+            println("🔵 [VIEWMODEL] Marcando como leída: $notificationId")
+
             markAsReadUseCase(notificationId).fold(
                 onSuccess = {
+                    println("✅ [VIEWMODEL] Marcado como leída exitosamente en backend")
+
                     // Actualizar localmente
-                    val updatedList = _state.value.notifications.map { notification ->
+                    allNotifications = allNotifications.map { notification ->
                         if (notification.id == notificationId) {
-                            notification.copy(status = DeliveryStatus.READ)
+                            notification.copy(
+                                status = DeliveryStatus.READ,
+                                readAt = java.time.LocalDateTime.now() // ← Agregar esta línea
+                            )
                         } else {
                             notification
                         }
                     }
-                    _state.value = _state.value.copy(notifications = updatedList)
+                    applyFilter()
                     loadUnreadCount()
                 },
-                onFailure = { /* Ignorar error silenciosamente */ }
+                onFailure = { error ->
+                    println("❌ [VIEWMODEL] Error al marcar como leída: ${error.message}")
+                }
             )
         }
     }
@@ -108,7 +129,14 @@ class NotificationsViewModel @Inject constructor(
 
             notificationRepository.markAllAsRead(userId).fold(
                 onSuccess = {
-                    loadNotifications()
+                    // Actualizar TODAS localmente
+                    allNotifications = allNotifications.map { notification ->
+                        notification.copy(
+                            status = DeliveryStatus.READ,
+                            readAt = notification.readAt ?: java.time.LocalDateTime.now() // ← Agregar esta línea
+                        )
+                    }
+                    applyFilter() // ← Re-aplicar filtro
                     loadUnreadCount()
                 },
                 onFailure = { /* Ignorar error */ }
@@ -120,8 +148,9 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             notificationRepository.deleteNotification(notificationId).fold(
                 onSuccess = {
-                    val updatedList = _state.value.notifications.filter { it.id != notificationId }
-                    _state.value = _state.value.copy(notifications = updatedList)
+                    // Actualizar TODAS las notificaciones
+                    allNotifications = allNotifications.filter { it.id != notificationId }
+                    applyFilter() // ← Re-aplicar filtro
                     loadUnreadCount()
                 },
                 onFailure = { /* Ignorar error */ }
@@ -138,6 +167,49 @@ class NotificationsViewModel @Inject constructor(
                     _state.value = _state.value.copy(unreadCount = count)
                 },
                 onFailure = { /* Ignorar error */ }
+            )
+        }
+    }
+
+    fun refreshNotifications() {
+        viewModelScope.launch {
+            println("🔄 [VIEWMODEL] Refresh manual iniciado")
+            _state.value = _state.value.copy(isRefreshing = true, error = null)
+
+            val userId = userSession.getUser()?.id ?: return@launch
+
+            val result = notificationRepository.getNotifications(
+                userId = userId,
+                status = null,
+                page = 1,
+                size = 20
+            )
+
+            result.fold(
+                onSuccess = { notifications ->
+                    println("✅ [VIEWMODEL] Refresh exitoso: ${notifications.size} notificaciones")
+
+                    // DEBUG: Mostrar todas las notificaciones con sus estados
+                    notifications.forEach { notification ->
+                        println("🔍 [VIEWMODEL] Notificación: ${notification.id}")
+                        println("   📝 Title: ${notification.title}")
+                        println("   📊 Status: ${notification.status}")
+                        println("   📖 ReadAt: ${notification.readAt}")
+                        println("   🕒 CreatedAt: ${notification.createdAt}")
+                    }
+
+                    allNotifications = notifications
+                    applyFilter()
+                    _state.value = _state.value.copy(isRefreshing = false)
+                    loadUnreadCount()
+                },
+                onFailure = { error ->
+                    println("❌ [VIEWMODEL] Error en refresh: ${error.message}")
+                    _state.value = _state.value.copy(
+                        isRefreshing = false,
+                        error = error.message ?: "Error al actualizar"
+                    )
+                }
             )
         }
     }

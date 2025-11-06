@@ -1,7 +1,6 @@
 package com.softfocus.features.notifications.data.repositories
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.notifications.data.remote.NotificationService
 import com.softfocus.features.notifications.domain.models.*
@@ -9,6 +8,7 @@ import com.softfocus.features.notifications.domain.repositories.NotificationRepo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
+
 
 class NotificationRepositoryImpl @Inject constructor(
     private val notificationService: NotificationService,
@@ -23,21 +23,26 @@ class NotificationRepositoryImpl @Inject constructor(
         size: Int
     ): Result<List<Notification>> {
         return try {
+            // Validar y asegurar valores positivos
+            val validPage = if (page > 0) page else 1
+            val validSize = if (size > 0) size else 20
+
             val response = notificationService.getNotifications(
                 status = status?.name?.lowercase(),
                 type = type?.name?.lowercase(),
-                page = page,
-                size = size
+                page = validPage,  // ✅ Siempre positivo
+                size = validSize   // ✅ Siempre positivo
             )
 
             if (response.isSuccessful && response.body() != null) {
                 val notifications = response.body()!!.notifications.map { it.toDomain() }
                 Result.success(notifications)
             } else {
-                Result.failure(Exception("Error al obtener notificaciones: ${response.code()}"))
+                val errorBody = response.errorBody()?.string()
+                Result.failure(Exception("Error ${response.code()}: ${errorBody ?: "Error al obtener notificaciones"}"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Error de conexión: ${e.message}"))
         }
     }
 
@@ -56,7 +61,7 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendNotification(notification: Notification): Result<Notification> {
-
+        // Este método generalmente es para uso interno del backend
         return Result.failure(Exception("No implementado en cliente"))
     }
 

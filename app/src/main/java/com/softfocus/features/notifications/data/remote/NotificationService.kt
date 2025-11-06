@@ -1,6 +1,6 @@
+// features/notifications/data/remote/NotificationService.kt
 package com.softfocus.features.notifications.data.remote
 
-import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.notifications.data.models.request.UpdatePreferencesRequestDto
 import com.softfocus.features.notifications.data.models.response.*
 import retrofit2.Response
@@ -10,64 +10,74 @@ interface NotificationService {
 
     // ========== NOTIFICATION ENDPOINTS ==========
 
-    // GET /api/notifications - Obtener todas las notificaciones del usuario actual
-    @GET(ApiConstants.Notifications.BASE)
+    // GET /api/v1/notifications - Obtener notificaciones del usuario actual
+    @GET("notifications")
     suspend fun getNotifications(
         @Query("status") status: String? = null,
         @Query("type") type: String? = null,
-        @Query("page") page: Int = 0,
-        @Query("size") size: Int = 20
+        @Query("page") page: Int = 1,  // ✅ Valor por defecto positivo
+        @Query("size") size: Int = 20  // ✅ Valor por defecto positivo
     ): Response<NotificationListResponseDto>
 
-    // GET /api/notifications/{userId} - Obtener notificaciones de un usuario específico (probablemente admin)
-    @GET(ApiConstants.Notifications.BY_USER_ID)
+    // ... mismo cambio para getNotificationsByUserId
+    @GET("notifications/{userId}")
     suspend fun getNotificationsByUserId(
         @Path("userId") userId: String,
         @Query("status") status: String? = null,
         @Query("type") type: String? = null,
-        @Query("page") page: Int = 0,
-        @Query("size") size: Int = 20
+        @Query("page") page: Int = 1,  // ✅ Valor por defecto positivo
+        @Query("size") size: Int = 20  // ✅ Valor por defecto positivo
     ): Response<NotificationListResponseDto>
 
-    // GET /api/notifications/detail/{notificationId} - Obtener una notificación específica
-    @GET(ApiConstants.Notifications.DETAIL)
+    // GET /api/v1/notifications/{userId} - Obtener notificaciones de usuario específico
+    @GET("notifications/{userId}")
+    suspend fun getNotificationsByUserId(
+        @Path("userId") userId: String,
+        @Query("status") status: String? = null,
+        @Query("type") type: String? = null,
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null
+    ): Response<NotificationListResponseDto>
+
+    // GET /api/v1/notifications/detail/{notificationId} - Detalle de notificación
+    @GET("notifications/detail/{notificationId}")
     suspend fun getNotificationById(
         @Path("notificationId") notificationId: String
     ): Response<NotificationResponseDto>
 
-    // POST /api/notifications/{notificationId}/read - Marcar una notificación como leída
-    @POST(ApiConstants.Notifications.MARK_AS_READ)
+    // POST /api/v1/notifications/{notificationId}/read - Marcar como leída
+    @POST("notifications/{notificationId}/read")
     suspend fun markAsRead(
         @Path("notificationId") notificationId: String
     ): Response<Unit>
 
-    // POST /api/notifications/read-all - Marcar todas las notificaciones como leídas
-    @POST(ApiConstants.Notifications.MARK_ALL_READ)
+    // POST /api/v1/notifications/read-all - Marcar todas como leídas
+    @POST("notifications/read-all")
     suspend fun markAllAsRead(): Response<Unit>
 
-    // DELETE /api/notifications/{notificationId} - Eliminar una notificación
-    @DELETE(ApiConstants.Notifications.DELETE)
+    // DELETE /api/v1/notifications/{notificationId} - Eliminar notificación
+    @DELETE("notifications/{notificationId}")
     suspend fun deleteNotification(
         @Path("notificationId") notificationId: String
     ): Response<Unit>
 
-    // GET /api/notifications/unread-count - Obtener el contador de notificaciones no leídas
-    @GET(ApiConstants.Notifications.UNREAD_COUNT)
+    // GET /api/v1/notifications/unread-count - Contador de no leídas
+    @GET("notifications/unread-count")
     suspend fun getUnreadCount(): Response<UnreadCountResponseDto>
 
     // ========== PREFERENCES ENDPOINTS ==========
 
-    // GET /api/preferences - Obtener preferencias de notificación del usuario actual
-    @GET(ApiConstants.Preferences.BASE)
+    // GET /api/v1/preferences - Obtener preferencias
+    @GET("preferences")
     suspend fun getPreferences(): Response<PreferenceListResponseDto>
 
-    // PUT /api/preferences - Actualizar preferencias de notificación
-    @PUT(ApiConstants.Preferences.BASE)
+    // PUT /api/v1/preferences - Actualizar preferencias
+    @PUT("preferences")
     suspend fun updatePreferences(
         @Body request: UpdatePreferencesRequestDto
     ): Response<PreferenceListResponseDto>
 
-    // POST /api/preferences/reset - Restaurar preferencias a valores por defecto
-    @POST(ApiConstants.Preferences.RESET)
+    // POST /api/v1/preferences/reset - Resetear preferencias
+    @POST("preferences/reset")
     suspend fun resetPreferences(): Response<PreferenceListResponseDto>
 }

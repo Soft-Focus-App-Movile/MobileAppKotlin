@@ -102,4 +102,7 @@ dependencies {
     // Debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.material3) // Si no la tienes
+    implementation(libs.androidx.material3.window.size.class1)
 }

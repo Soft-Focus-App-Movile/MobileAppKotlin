@@ -10,7 +10,7 @@ interface NotificationRepository {
         userId: String,
         status: DeliveryStatus? = null,
         type: NotificationType? = null,
-        page: Int = 0,
+        page: Int = 1,
         size: Int = 20
     ): Result<List<Notification>>
 

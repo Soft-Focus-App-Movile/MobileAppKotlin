@@ -26,7 +26,6 @@ import com.softfocus.ui.theme.SourceSansRegular
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsScreen(
@@ -59,6 +58,25 @@ fun NotificationsScreen(
                     }
                 },
                 actions = {
+                    // Botón de Refresh - NUEVO
+                    IconButton(
+                        onClick = { viewModel.refreshNotifications() },
+                        enabled = !state.isRefreshing && !state.isLoading
+                    ) {
+                        if (state.isRefreshing) {
+                            CircularProgressIndicator(
+                                color = Green49,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Refresh,
+                                "Actualizar",
+                                tint = Green49
+                            )
+                        }
+                    }
+
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             Icons.Default.Settings,
@@ -66,6 +84,7 @@ fun NotificationsScreen(
                             tint = Green49
                         )
                     }
+
                     if (state.notifications.any { it.status != DeliveryStatus.READ }) {
                         TextButton(onClick = { viewModel.markAllAsRead() }) {
                             Text(
@@ -88,6 +107,21 @@ fun NotificationsScreen(
                 .padding(padding)
                 .background(Color.White)
         ) {
+            // Indicador de refresh - NUEVO
+            if (state.isRefreshing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LinearProgressIndicator(
+                        color = Green49,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
             // Tabs más centrados y con ancho limitado
             Row(
                 modifier = Modifier
@@ -221,7 +255,7 @@ private fun NotificationItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        color = if (notification.status == DeliveryStatus.READ) {
+        color = if (notification.readAt != null) {
             Color.White
         } else {
             Color(0xFFF5F9F5) // Verde muy tenue para no leídas
@@ -374,7 +408,7 @@ private fun EmptyNotificationsView() {
                 tint = Color.Gray.copy(alpha = 0.3f)
             )
             Text(
-                text = "No hay ninguna notificación no leída",
+                text = "No hay notificaciones",
                 style = SourceSansRegular,
                 fontSize = 16.sp,
                 color = Color.Gray
@@ -417,6 +451,10 @@ private fun ErrorView(error: String, onRetry: () -> Unit) {
 }
 
 private fun getNotificationIcon(type: NotificationType) = when (type) {
+    NotificationType.INFO -> Icons.Default.Info
+    NotificationType.ALERT -> Icons.Default.Warning
+    NotificationType.WARNING -> Icons.Default.Warning
+    NotificationType.EMERGENCY -> Icons.Default.Error
     NotificationType.CHECKIN_REMINDER -> Icons.Default.CheckCircle
     NotificationType.CRISIS_ALERT -> Icons.Default.Warning
     NotificationType.MESSAGE_RECEIVED -> Icons.Default.Email
@@ -426,6 +464,10 @@ private fun getNotificationIcon(type: NotificationType) = when (type) {
 }
 
 private fun getNotificationColor(type: NotificationType) = when (type) {
+    NotificationType.INFO -> Color(0xFF1E88E5)
+    NotificationType.ALERT -> Color(0xFFFB8C00)
+    NotificationType.WARNING -> Color(0xFFF57C00)
+    NotificationType.EMERGENCY -> Color(0xFFE53935)
     NotificationType.CHECKIN_REMINDER -> Green49
     NotificationType.CRISIS_ALERT -> Color(0xFFE53935)
     NotificationType.MESSAGE_RECEIVED -> Color(0xFF1E88E5)
