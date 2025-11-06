@@ -13,6 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.IntOffset
 import com.softfocus.R
 import com.softfocus.ui.theme.*
 
@@ -53,7 +54,7 @@ fun InvitationCard(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
                             onClick = onCopyClick,
@@ -62,12 +63,12 @@ fun InvitationCard(
                                 contentColor = Black
                             ),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = "Copiar",
                                 style = SourceSansRegular,
-                                fontSize = 12.sp
+                                fontSize = 11.sp
                             )
                         }
                         Button(
@@ -77,12 +78,12 @@ fun InvitationCard(
                                 contentColor = Black
                             ),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = "Compartir",
                                 style = SourceSansRegular,
-                                fontSize = 12.sp
+                                fontSize = 11.sp
                             )
                         }
                     }
@@ -95,9 +96,9 @@ fun InvitationCard(
             painter = painterResource(id = R.drawable.koala_focus),
             contentDescription = "Koala",
             modifier = Modifier
-                .size(160.dp)
+                .size(180.dp)
                 .align(Alignment.CenterEnd)
-                .offset(x = 20.dp, y = (-10).dp)
+                .offset(x =29.dp, y = (-20).dp)
         )
     }
 }
