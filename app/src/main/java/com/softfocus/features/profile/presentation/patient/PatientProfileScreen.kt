@@ -1,4 +1,4 @@
-package com.softfocus.features.profile.presentation.general
+package com.softfocus.features.profile.presentation.patient
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,8 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.ui.res.painterResource
-import com.softfocus.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,18 +26,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.softfocus.features.profile.presentation.ProfileViewModel
 import com.softfocus.ui.theme.CrimsonSemiBold
-import com.softfocus.ui.theme.Gray828
 import com.softfocus.ui.theme.SourceSansRegular
-import java.net.URL
-import android.graphics.BitmapFactory
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.GreenA3
+import com.softfocus.ui.theme.ButtonPrimary
+import com.softfocus.R
+import java.net.URL
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.clickable
+import com.softfocus.ui.theme.Blue77
+import com.softfocus.ui.theme.RedE8
+import com.softfocus.ui.theme.SourceSansBold
+import com.softfocus.ui.theme.White
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -48,10 +53,10 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GeneralProfileScreen(
+fun PatientProfileScreen(
     onNavigateToConnect: () -> Unit,
+    onNavigateToEditProfile: () -> Unit,
     onNavigateBack: () -> Unit,
-    onNavigateToEditProfile: () -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -76,7 +81,7 @@ fun GeneralProfileScreen(
                         text = "Editar información Personal",
                         style = CrimsonSemiBold,
                         fontSize = 20.sp,
-                        color = Gray828
+                        color = Black
                     )
                 },
                 navigationIcon = {
@@ -161,18 +166,22 @@ fun GeneralProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // Mi Terapeuta Actual Section
+            CurrentTherapistCard(
+                therapistName = "Dra. Herrera",
+                therapistImageUrl = null,
+                onUnlinkClick = onNavigateToConnect
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Menu Options
             ProfileOptionDrawable(
                 iconRes = R.drawable.ic_edit_information,
                 title = "Editar información Personal",
                 onClick = onNavigateToEditProfile
-            )
-
-            ProfileOptionDrawable(
-                iconRes = R.drawable.ic_connect_psychology,
-                title = "Conectar con Psicólogo",
-                onClick = onNavigateToConnect
             )
 
             ProfileOptionDrawable(
@@ -206,6 +215,103 @@ fun GeneralProfileScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun CurrentTherapistCard(
+    therapistName: String,
+    therapistImageUrl: String?,
+    onUnlinkClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF5F5F5)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Mi Terapeuta Actual",
+                style = CrimsonSemiBold,
+                fontSize = 20.sp,
+                color = Black
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Columna 1: Imagen
+                therapistImageUrl?.let { imageUrl ->
+                    AsyncImageLoader(
+                        imageUrl = imageUrl,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                    )
+                } ?: Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(GreenA3)
+                )
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                Column(
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = therapistName,
+                        style = CrimsonSemiBold,
+                        fontSize = 18.sp,
+                        color = Black
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Ver perfil",
+                        style = SourceSansRegular,
+                        fontSize = 13.sp,
+                        color = Blue77,
+                        modifier = Modifier.clickable {
+                            // TODO: Dejar vacío o implementar la lógica de clic
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = onUnlinkClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = RedE8
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = "Desvincular",
+                    style = SourceSansBold,
+                    fontSize = 14.sp,
+                    color = White
+                )
+            }
         }
     }
 }
@@ -353,7 +459,7 @@ private fun calculateAge(dateOfBirth: String): Int? {
 
 @Preview(showBackground = true)
 @Composable
-fun GeneralProfileScreenPreview() {
+fun PatientProfileScreenPreview() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -363,7 +469,7 @@ fun GeneralProfileScreenPreview() {
     ) {
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Profile Section - Image and Info side by side
+        // Profile Section
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -371,7 +477,6 @@ fun GeneralProfileScreenPreview() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Profile Image
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -379,7 +484,6 @@ fun GeneralProfileScreenPreview() {
                     .background(GreenA3)
             )
 
-            // User Info
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -390,16 +494,14 @@ fun GeneralProfileScreenPreview() {
                     fontSize = 28.sp,
                     color = Black
                 )
-
                 Text(
-                    text = "21 años",
+                    text = "20 años",
                     style = CrimsonSemiBold,
                     fontSize = 18.sp,
                     color = Black
                 )
-
                 Text(
-                    text = "patient1@test.com",
+                    text = "laura@gmail.com",
                     style = CrimsonSemiBold,
                     fontSize = 18.sp,
                     color = Black
@@ -407,17 +509,20 @@ fun GeneralProfileScreenPreview() {
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Current Therapist Card
+        CurrentTherapistCard(
+            therapistName = "Dra. Herrera",
+            therapistImageUrl = null,
+            onUnlinkClick = { }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         ProfileOptionDrawable(
             iconRes = R.drawable.ic_edit_information,
             title = "Editar información Personal",
-            onClick = { }
-        )
-
-        ProfileOptionDrawable(
-            iconRes = R.drawable.ic_connect_psychology,
-            title = "Conectar con Psicólogo",
             onClick = { }
         )
 
@@ -430,6 +535,12 @@ fun GeneralProfileScreenPreview() {
         ProfileOptionDrawable(
             iconRes = R.drawable.ic_subscription_plan,
             title = "Mi plan",
+            onClick = { }
+        )
+
+        ProfileOptionDrawable(
+            iconRes = R.drawable.ic_policy_privacy,
+            title = "Términos y Condiciones",
             onClick = { }
         )
 

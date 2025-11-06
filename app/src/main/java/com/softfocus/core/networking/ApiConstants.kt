@@ -36,6 +36,10 @@ object ApiConstants {
         const val VERIFY_PSYCHOLOGIST = "users/{id}/verify"
         const val CHANGE_STATUS = "users/{id}/status"
         const val PSYCHOLOGIST_INVITATION_CODE = "users/psychologist/invitation-code"
+        const val PSYCHOLOGIST_COMPLETE_PROFILE = "users/psychologist/complete"
+        const val PSYCHOLOGIST_PROFESSIONAL_DATA = "users/psychologist/professional"
+        const val PSYCHOLOGIST_VERIFICATION = "users/psychologist/verification"
+        const val PSYCHOLOGIST_STATS = "users/psychologist/stats"
 
         fun getById(id: String) = BY_ID.replace("{id}", id)
         fun verifyPsychologist(id: String) = VERIFY_PSYCHOLOGIST.replace("{id}", id)

@@ -181,19 +181,19 @@ fun GeneralBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = currentRoute == Route.Profile.path) {
+                BottomNavIcon(isSelected = currentRoute == Route.GeneralProfile.path) {
                     Icon(
-                        imageVector = if (currentRoute == Route.Profile.path) Icons.Filled.Person else Icons.Outlined.Person,
+                        imageVector = if (currentRoute == Route.GeneralProfile.path) Icons.Filled.Person else Icons.Outlined.Person,
                         contentDescription = "Perfil",
                         modifier = Modifier.size(24.dp)
                     )
                 }
             },
             label = { Text("Perfil", fontSize = 12.sp, style = SourceSansRegular) },
-            selected = currentRoute == Route.Profile.path,
+            selected = currentRoute == Route.GeneralProfile.path,
             onClick = {
-                if (currentRoute != Route.Profile.path) {
-                    navController.navigate(Route.Profile.path)
+                if (currentRoute != Route.GeneralProfile.path) {
+                    navController.navigate(Route.GeneralProfile.path)
                 }
             },
             colors = NavigationBarItemDefaults.colors(

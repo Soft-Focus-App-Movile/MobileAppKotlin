@@ -34,6 +34,7 @@ import com.softfocus.features.psychologist.presentation.di.PsychologistPresentat
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Gray828
 import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.components.InvitationCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -174,78 +175,12 @@ fun PsychologistHomeScreen(viewModel: PsychologistHomeViewModel) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8DC)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Tienes código de tu psicólogo?",
-                                style = SourceSansRegular,
-                                fontSize = 14.sp,
-                                color = Gray828
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = invitationCode.value?.code ?: "Cargando...",
-                                style = CrimsonSemiBold,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Button(
-                                    onClick = { viewModel.copyCodeToClipboard() },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFC5D9A4)
-                                    ),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text(
-                                        text = "Copiar",
-                                        style = SourceSansRegular,
-                                        fontSize = 14.sp,
-                                        color = Color.Black
-                                    )
-                                }
-                                Button(
-                                    onClick = { viewModel.shareCode() },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFC5D9A4)
-                                    ),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text(
-                                        text = "Compartir",
-                                        style = SourceSansRegular,
-                                        fontSize = 14.sp,
-                                        color = Color.Black
-                                    )
-                                }
-                            }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFF5F5F5))
-                        )
-                    }
-                }
+                InvitationCard(
+                    code = invitationCode.value?.code ?: "Cargando...",
+                    onCopyClick = { viewModel.copyCodeToClipboard() },
+                    onShareClick = { viewModel.shareCode() },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 

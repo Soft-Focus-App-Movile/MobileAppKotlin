@@ -14,21 +14,76 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistScreen
+import com.softfocus.features.profile.presentation.general.GeneralProfileScreen
+import com.softfocus.features.profile.presentation.general.ConnectPsychologistScreen
+import com.softfocus.features.profile.presentation.edit.EditProfileScreen
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.ui.components.navigation.GeneralBottomNav
 import com.softfocus.ui.components.navigation.PatientBottomNav
+import com.softfocus.core.utils.SessionManager
 
 /**
  * General user navigation graph.
  * Contains routes specific to GENERAL users (users without a psychologist).
+ * - GeneralProfile (profile screen for general users)
+ * - EditProfile (edit profile information)
  * - ConnectPsychologist (to connect with a psychologist and become a Patient)
- * - Future general-specific routes can be added here
  */
 fun NavGraphBuilder.generalNavigation(
     navController: NavHostController,
     context: Context
 ) {
+    // General Profile Screen
+    composable(Route.GeneralProfile.path) {
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isLoading = homeViewModel.isLoading.collectAsState()
+
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF6B8E6F))
+            }
+        } else {
+            Scaffold(
+                containerColor = Color.Transparent,
+                bottomBar = { GeneralBottomNav(navController) }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    GeneralProfileScreen(
+                        onNavigateToConnect = {
+                            navController.navigate(Route.ConnectPsychologist.path)
+                        },
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        },
+                        onNavigateToEditProfile = {
+                            navController.navigate(Route.EditProfile.path)
+                        },
+                        onLogout = {
+                            SessionManager.logout(context)
+                            navController.navigate(Route.Login.path) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // Edit Profile Screen (shared by General users)
+    composable(Route.EditProfile.path) {
+        EditProfileScreen(
+            onNavigateBack = {
+                navController.popBackStack()
+            }
+        )
+    }
+
     // Connect with Psychologist Screen
     composable(Route.ConnectPsychologist.path) {
         val connectViewModel = remember { TherapyPresentationModule.getConnectPsychologistViewModel(context) }

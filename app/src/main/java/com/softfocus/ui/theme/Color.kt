@@ -3,6 +3,8 @@ package com.softfocus.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Grays & Neutrals
+val Gray070 = Color(0xFF777070)
+
 val Black = Color(0xFF000000)
 val Transparent = Color(0x00000000)
 val Gray222 = Color(0xFF222222)
@@ -102,6 +104,8 @@ val PurpleFE = Color(0xFFFEF7FF)
 // Reds
 val Red2E = Color(0xFF2E2A2A)
 val RedE6 = Color(0xFFE62729)
+
+val RedE8 = Color(0xFFBD4141)
 
 // Semantic Colors - Light Theme
 val TextNeutralTertiary = Gray767

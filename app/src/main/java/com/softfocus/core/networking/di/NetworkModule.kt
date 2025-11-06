@@ -1,5 +1,6 @@
 package com.softfocus.core.networking.di
 
+import android.content.Context
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.library.data.remote.AssignmentsService
@@ -10,6 +11,7 @@ import com.softfocus.features.notifications.data.remote.NotificationService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -25,41 +27,33 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(userSession: UserSession): Interceptor {
-        return Interceptor { chain ->
-            val token = userSession.getUser()?.token
-
-            val request = chain.request().newBuilder().apply {
-                if (!token.isNullOrEmpty()) {
-                    addHeader("Authorization", "Bearer $token")
-                }
-                addHeader("Content-Type", "application/json")
-            }.build()
-
-            chain.proceed(request)
-        }
-    }
-
-    @Provides
-    @Singleton
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
+    fun provideOkHttpClient(
+        @ApplicationContext context: Context
+    ): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-    }
 
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(
-        authInterceptor: Interceptor,
-        loggingInterceptor: HttpLoggingInterceptor
-    ): OkHttpClient {
+        val authInterceptor = Interceptor { chain ->
+            val userSession = UserSession(context)
+            val token = userSession.getUser()?.token
+
+            val requestBuilder = chain.request().newBuilder()
+                .addHeader("Content-Type", "application/json") // Añadido desde tu HEAD
+
+            if (token != null && token.isNotEmpty()) { // Lógica mejorada
+                requestBuilder.addHeader("Authorization", "Bearer $token")
+            }
+
+            chain.proceed(requestBuilder.build())
+        }
+
         return OkHttpClient.Builder()
-            .addInterceptor(authInterceptor)
-            .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(authInterceptor)
+            .addInterceptor(loggingInterceptor)
             .build()
     }
 
@@ -80,7 +74,7 @@ object NetworkModule {
     }
 
     // ============================================================
-    // LIBRARY SERVICES
+    // LIBRARY SERVICES (Mantenidos de tu rama HEAD)
     // ============================================================
 
     @Provides

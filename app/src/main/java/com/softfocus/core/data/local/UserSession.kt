@@ -15,6 +15,20 @@ class UserSession(context: Context) {
             .putBoolean(KEY_IS_VERIFIED, user.isVerified)
             .putString(KEY_TOKEN, user.token)
             .putString(KEY_FULL_NAME, user.fullName)
+            .putString(KEY_FIRST_NAME, user.firstName)
+            .putString(KEY_LAST_NAME, user.lastName)
+            .putString(KEY_DATE_OF_BIRTH, user.dateOfBirth)
+            .putString(KEY_GENDER, user.gender)
+            .putString(KEY_PHONE, user.phone)
+            .putString(KEY_PROFILE_IMAGE_URL, user.profileImageUrl)
+            .putString(KEY_BIO, user.bio)
+            .putString(KEY_COUNTRY, user.country)
+            .putString(KEY_CITY, user.city)
+            .putStringSet(KEY_INTERESTS, user.interests?.toSet())
+            .putStringSet(KEY_MENTAL_HEALTH_GOALS, user.mentalHealthGoals?.toSet())
+            .putBoolean(KEY_EMAIL_NOTIFICATIONS, user.emailNotifications)
+            .putBoolean(KEY_PUSH_NOTIFICATIONS, user.pushNotifications)
+            .putBoolean(KEY_IS_PROFILE_PUBLIC, user.isProfilePublic)
             .apply()
     }
 
@@ -34,7 +48,21 @@ class UserSession(context: Context) {
             userType = userType,
             isVerified = prefs.getBoolean(KEY_IS_VERIFIED, false),
             token = prefs.getString(KEY_TOKEN, null),
-            fullName = prefs.getString(KEY_FULL_NAME, null)
+            fullName = prefs.getString(KEY_FULL_NAME, null),
+            firstName = prefs.getString(KEY_FIRST_NAME, null),
+            lastName = prefs.getString(KEY_LAST_NAME, null),
+            dateOfBirth = prefs.getString(KEY_DATE_OF_BIRTH, null),
+            gender = prefs.getString(KEY_GENDER, null),
+            phone = prefs.getString(KEY_PHONE, null),
+            profileImageUrl = prefs.getString(KEY_PROFILE_IMAGE_URL, null),
+            bio = prefs.getString(KEY_BIO, null),
+            country = prefs.getString(KEY_COUNTRY, null),
+            city = prefs.getString(KEY_CITY, null),
+            interests = prefs.getStringSet(KEY_INTERESTS, null)?.toList(),
+            mentalHealthGoals = prefs.getStringSet(KEY_MENTAL_HEALTH_GOALS, null)?.toList(),
+            emailNotifications = prefs.getBoolean(KEY_EMAIL_NOTIFICATIONS, true),
+            pushNotifications = prefs.getBoolean(KEY_PUSH_NOTIFICATIONS, true),
+            isProfilePublic = prefs.getBoolean(KEY_IS_PROFILE_PUBLIC, false)
         )
     }
 
@@ -49,5 +77,19 @@ class UserSession(context: Context) {
         private const val KEY_IS_VERIFIED = "user_is_verified"
         private const val KEY_TOKEN = "user_token"
         private const val KEY_FULL_NAME = "user_full_name"
+        private const val KEY_FIRST_NAME = "user_first_name"
+        private const val KEY_LAST_NAME = "user_last_name"
+        private const val KEY_DATE_OF_BIRTH = "user_date_of_birth"
+        private const val KEY_GENDER = "user_gender"
+        private const val KEY_PHONE = "user_phone"
+        private const val KEY_PROFILE_IMAGE_URL = "user_profile_image_url"
+        private const val KEY_BIO = "user_bio"
+        private const val KEY_COUNTRY = "user_country"
+        private const val KEY_CITY = "user_city"
+        private const val KEY_INTERESTS = "user_interests"
+        private const val KEY_MENTAL_HEALTH_GOALS = "user_mental_health_goals"
+        private const val KEY_EMAIL_NOTIFICATIONS = "user_email_notifications"
+        private const val KEY_PUSH_NOTIFICATIONS = "user_push_notifications"
+        private const val KEY_IS_PROFILE_PUBLIC = "user_is_profile_public"
     }
 }

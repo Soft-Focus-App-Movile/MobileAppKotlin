@@ -26,13 +26,11 @@ import com.softfocus.features.home.presentation.psychologist.PsychologistHomeScr
 import com.softfocus.features.notifications.presentation.di.NotificationPresentationModule
 import com.softfocus.features.notifications.presentation.list.NotificationsScreen
 import com.softfocus.features.notifications.presentation.preferences.NotificationPreferencesScreen
-import com.softfocus.features.profile.presentation.general.GeneralProfileScreen
 import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.ui.components.navigation.GeneralBottomNav
 import com.softfocus.ui.components.navigation.PatientBottomNav
 import com.softfocus.ui.components.navigation.PsychologistBottomNav
-import com.softfocus.core.utils.SessionManager
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -41,7 +39,6 @@ import java.nio.charset.StandardCharsets
  * Shared navigation graph.
  * Contains routes shared by General, Patient, and Psychologist users (post-login):
  * - Home (with different screens per user type)
- * - Profile
  * - Notifications
  * - AI Chat
  */
@@ -115,51 +112,6 @@ fun NavGraphBuilder.sharedNavigation(
         }
     }
 
-    // Profile Screen
-    composable(Route.Profile.path) {
-        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
-        val isPatient = homeViewModel.isPatient.collectAsState()
-        val isLoading = homeViewModel.isLoading.collectAsState()
-
-        if (isLoading.value) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Color(0xFF6B8E6F))
-            }
-        } else {
-            Scaffold(
-                containerColor = Color.Transparent,
-                bottomBar = {
-                    if (isPatient.value) {
-                        PatientBottomNav(navController)
-                    } else {
-                        GeneralBottomNav(navController)
-                    }
-                }
-            ) { paddingValues ->
-                Box(
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    GeneralProfileScreen(
-                        onNavigateToConnect = {
-                            navController.navigate(Route.ConnectPsychologist.path)
-                        },
-                        onNavigateBack = {
-                            navController.popBackStack()
-                        },
-                        onLogout = {
-                            SessionManager.logout(context)
-                            navController.navigate(Route.Login.path) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
-                    )
-                }
-            }
-        }
-    }
 
     // Notifications Screen
     composable(Route.Notifications.path) {
