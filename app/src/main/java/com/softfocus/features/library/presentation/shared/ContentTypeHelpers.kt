@@ -9,12 +9,6 @@ import com.softfocus.features.library.domain.models.ContentType
 /**
  * Obtiene el emoji para cada tipo de contenido
  */
-fun ContentType.getEmoji(): String = when (this) {
-    ContentType.Movie -> "🎬"
-    ContentType.Music -> "🎵"
-    ContentType.Video -> "▶️"
-    ContentType.Place -> "📍"
-}
 
 /**
  * Obtiene el nombre legible para cada tipo de contenido

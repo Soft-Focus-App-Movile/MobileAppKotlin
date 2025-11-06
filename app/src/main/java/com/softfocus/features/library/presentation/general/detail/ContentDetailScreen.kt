@@ -1,5 +1,6 @@
 package com.softfocus.features.library.presentation.general.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -49,7 +50,9 @@ fun ContentDetailScreen(
     when (uiState) {
         is ContentDetailUiState.Loading -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = Green29)
@@ -63,6 +66,7 @@ fun ContentDetailScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
+                    .background(Color.Black)
                     .verticalScroll(scrollState)
             ) {
                 // Imagen hero con botón de volver
@@ -114,7 +118,9 @@ fun ContentDetailScreen(
 
         is ContentDetailUiState.Error -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -131,7 +137,7 @@ fun ContentDetailScreen(
                     Text(
                         text = (uiState as ContentDetailUiState.Error).message,
                         style = SourceSansRegular.copy(fontSize = 14.sp),
-                        color = Gray828,
+                        color = Color.White,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(16.dp))
