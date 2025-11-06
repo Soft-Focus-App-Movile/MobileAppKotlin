@@ -64,6 +64,25 @@ object ApiConstants {
         fun getChatSessionMessages(sessionId: String) = CHAT_SESSION_MESSAGES.replace("{sessionId}", sessionId)
     }
 
+    // Tracking endpoints
+    object Tracking {
+        // Check-ins
+        const val CHECK_INS = "tracking/check-ins"
+        const val CHECK_IN_BY_ID = "tracking/check-ins/{id}"
+        const val CHECK_IN_TODAY = "tracking/check-ins/today"
+
+        // Emotional Calendar
+        const val EMOTIONAL_CALENDAR = "tracking/emotional-calendar"
+        const val EMOTIONAL_CALENDAR_BY_DATE = "tracking/emotional-calendar/{date}"
+
+        // Dashboard
+        const val DASHBOARD = "tracking/dashboard"
+
+        // Helper functions for dynamic parameters
+        fun getCheckInById(id: String) = CHECK_IN_BY_ID.replace("{id}", id)
+        fun getEmotionalCalendarByDate(date: String) = EMOTIONAL_CALENDAR_BY_DATE.replace("{date}", date)
+    }
+
     // Notification endpoints
     object Notifications {
         const val BASE = "notifications"
