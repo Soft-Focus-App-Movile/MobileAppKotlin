@@ -761,7 +761,7 @@ http://98.90.172.251:5000/swagger/index.html
 
 1. Laura Gomez
    - Email: patient1@test.com                                                                                                                                                                                                      
-   - Password: veo
+   - Password: Patient123!
 2. Carlos Martinez
    - Email: patient2@test.com                                                                                                                                                                                                      
    - Password: Patient123!

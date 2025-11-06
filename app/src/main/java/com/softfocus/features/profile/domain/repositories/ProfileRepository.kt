@@ -2,11 +2,13 @@ package com.softfocus.features.profile.domain.repositories
 
 import android.net.Uri
 import com.softfocus.features.auth.domain.models.User
+import com.softfocus.features.profile.domain.models.AssignedPsychologist
 import com.softfocus.features.profile.domain.models.PsychologistProfile
 
 interface ProfileRepository {
     suspend fun getProfile(): Result<User>
     suspend fun getPsychologistCompleteProfile(): Result<PsychologistProfile>
+    suspend fun getAssignedPsychologist(): Result<AssignedPsychologist?>
     suspend fun updateProfile(
         firstName: String?,
         lastName: String?,

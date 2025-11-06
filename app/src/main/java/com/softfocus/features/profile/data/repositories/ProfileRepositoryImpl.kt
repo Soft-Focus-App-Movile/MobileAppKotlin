@@ -6,7 +6,9 @@ import android.provider.OpenableColumns
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.auth.domain.models.User
 import com.softfocus.features.profile.data.remote.ProfileService
+import com.softfocus.features.profile.domain.models.AssignedPsychologist
 import com.softfocus.features.profile.domain.repositories.ProfileRepository
+import com.softfocus.features.therapy.data.remote.TherapyService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -17,6 +19,7 @@ import javax.inject.Inject
 
 class ProfileRepositoryImpl @Inject constructor(
     private val profileService: ProfileService,
+    private val therapyService: TherapyService,
     private val userSession: UserSession,
     private val context: Context
 ) : ProfileRepository {
@@ -50,6 +53,41 @@ class ProfileRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    override suspend fun getAssignedPsychologist(): Result<AssignedPsychologist?> {
+        return try {
+            // First, get the therapeutic relationship to obtain the psychologist ID
+            val relationshipResponse = therapyService.getMyRelationship()
+
+            if (!relationshipResponse.hasRelationship || relationshipResponse.relationship == null) {
+                // Patient doesn't have an assigned psychologist
+                return Result.success(null)
+            }
+
+            val psychologistId = relationshipResponse.relationship!!.psychologistId
+
+            // Now get the psychologist's complete profile
+            val psychologistResponse = profileService.getUserById(psychologistId)
+
+            if (psychologistResponse.isSuccessful && psychologistResponse.body() != null) {
+                val profile = psychologistResponse.body()!!
+                val assignedPsychologist = AssignedPsychologist(
+                    id = profile.id,
+                    fullName = profile.fullName,
+                    profileImageUrl = profile.profileImageUrl,
+                    professionalBio = profile.professionalBio,
+                    specialties = profile.specialties
+                )
+                Result.success(assignedPsychologist)
+            } else {
+                Result.failure(Exception("Error al obtener datos del psicólogo asignado: ${psychologistResponse.code()}"))
+            }
+        } catch (e: Exception) {
+            // If there's an error, return null instead of failing
+            // This allows the profile screen to still work even if psychologist data fails to load
+            Result.success(null)
         }
     }
 

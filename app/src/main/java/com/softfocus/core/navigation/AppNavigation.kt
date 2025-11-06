@@ -1,7 +1,11 @@
 package com.softfocus.core.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -30,7 +34,15 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val userSession = remember { UserSession(context) }
-    val currentUser = userSession.getUser()
+
+    // Make currentUser observable to trigger recomposition when user type changes
+    var currentUser by remember { mutableStateOf(userSession.getUser()) }
+
+    // Update currentUser when the composition is active
+    DisposableEffect(Unit) {
+        currentUser = userSession.getUser()
+        onDispose { }
+    }
 
     NavHost(
         navController = navController,
@@ -46,6 +58,9 @@ fun AppNavigation() {
         when (currentUser?.userType) {
             UserType.GENERAL -> {
                 generalNavigation(navController, context)
+                // General users can become patients dynamically when assigned a psychologist
+                // so we need to register patient routes for them as well
+                patientNavigation(navController, context)
             }
             UserType.PATIENT -> {
                 generalNavigation(navController, context) // Patients also need general routes

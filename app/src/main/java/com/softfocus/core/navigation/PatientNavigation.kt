@@ -4,21 +4,12 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.softfocus.features.profile.presentation.patient.PatientProfileScreen
 import com.softfocus.features.profile.presentation.edit.EditProfileScreen
-import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.ui.components.navigation.PatientBottomNav
 import com.softfocus.core.utils.SessionManager
 
@@ -42,42 +33,30 @@ fun NavGraphBuilder.patientNavigation(
 ) {
     // Patient Profile Screen
     composable(Route.PatientProfile.path) {
-        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
-        val isLoading = homeViewModel.isLoading.collectAsState()
-
-        if (isLoading.value) {
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            bottomBar = { PatientBottomNav(navController) }
+        ) { paddingValues ->
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.padding(paddingValues)
             ) {
-                CircularProgressIndicator(color = Color(0xFF6B8E6F))
-            }
-        } else {
-            Scaffold(
-                containerColor = Color.Transparent,
-                bottomBar = { PatientBottomNav(navController) }
-            ) { paddingValues ->
-                Box(
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    PatientProfileScreen(
-                        onNavigateToConnect = {
-                            navController.navigate(Route.ConnectPsychologist.path)
-                        },
-                        onNavigateBack = {
-                            navController.popBackStack()
-                        },
-                        onNavigateToEditProfile = {
-                            navController.navigate(Route.EditProfile.path)
-                        },
-                        onLogout = {
-                            SessionManager.logout(context)
-                            navController.navigate(Route.Login.path) {
-                                popUpTo(0) { inclusive = true }
-                            }
+                PatientProfileScreen(
+                    onNavigateToConnect = {
+                        navController.navigate(Route.ConnectPsychologist.path)
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToEditProfile = {
+                        navController.navigate(Route.EditProfile.path)
+                    },
+                    onLogout = {
+                        SessionManager.logout(context)
+                        navController.navigate(Route.Login.path) {
+                            popUpTo(0) { inclusive = true }
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }

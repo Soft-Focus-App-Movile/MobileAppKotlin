@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.auth.domain.models.User
+import com.softfocus.features.profile.domain.models.AssignedPsychologist
 import com.softfocus.features.profile.domain.repositories.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,9 @@ class ProfileViewModel @Inject constructor(
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user.asStateFlow()
 
+    private val _assignedPsychologist = MutableStateFlow<AssignedPsychologist?>(null)
+    val assignedPsychologist: StateFlow<AssignedPsychologist?> = _assignedPsychologist.asStateFlow()
+
     init {
         loadProfile()
     }
@@ -42,11 +46,27 @@ class ProfileViewModel @Inject constructor(
                 .onSuccess { user ->
                     _user.value = user
                     _uiState.value = ProfileUiState.Success
+
+                    // Load assigned psychologist if user is a patient
+                    loadAssignedPsychologist()
                 }
                 .onFailure { error ->
                     _uiState.value = ProfileUiState.Error(
                         error.message ?: "Error al cargar perfil"
                     )
+                }
+        }
+    }
+
+    private fun loadAssignedPsychologist() {
+        viewModelScope.launch {
+            profileRepository.getAssignedPsychologist()
+                .onSuccess { psychologist ->
+                    _assignedPsychologist.value = psychologist
+                }
+                .onFailure {
+                    // Silently fail - psychologist data is optional
+                    _assignedPsychologist.value = null
                 }
         }
     }

@@ -5,6 +5,7 @@ import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.profile.data.remote.ProfileService
 import com.softfocus.features.profile.data.repositories.ProfileRepositoryImpl
 import com.softfocus.features.profile.domain.repositories.ProfileRepository
+import com.softfocus.features.therapy.data.remote.TherapyService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,9 +28,10 @@ object ProfileDataModule {
     @Singleton
     fun provideProfileRepository(
         profileService: ProfileService,
+        therapyService: TherapyService,
         userSession: UserSession,
         @ApplicationContext context: Context
     ): ProfileRepository {
-        return ProfileRepositoryImpl(profileService, userSession, context)
+        return ProfileRepositoryImpl(profileService, therapyService, userSession, context)
     }
 }

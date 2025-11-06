@@ -62,6 +62,7 @@ fun PatientProfileScreen(
 ) {
     val user by viewModel.user.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val assignedPsychologist by viewModel.assignedPsychologist.collectAsState()
 
     if (uiState is com.softfocus.features.profile.presentation.ProfileUiState.Loading) {
         Box(
@@ -169,13 +170,24 @@ fun PatientProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Mi Terapeuta Actual Section
-            CurrentTherapistCard(
-                therapistName = "Dra. Herrera",
-                therapistImageUrl = null,
-                onUnlinkClick = onNavigateToConnect
-            )
+            // Patient users ALWAYS have an assigned psychologist (they become patients only after connecting)
+            assignedPsychologist?.let { psychologist ->
+                CurrentTherapistCard(
+                    therapistName = psychologist.fullName,
+                    therapistImageUrl = psychologist.profileImageUrl,
+                    onUnlinkClick = onNavigateToConnect
+                )
+            } ?: run {
+                // Fallback while loading psychologist data
+                CurrentTherapistCard(
+                    therapistName = "Cargando...",
+                    therapistImageUrl = null,
+                    onUnlinkClick = onNavigateToConnect
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
+
 
             // Menu Options
             ProfileOptionDrawable(
