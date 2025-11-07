@@ -8,6 +8,7 @@ import com.softfocus.features.library.data.remote.ContentSearchService
 import com.softfocus.features.library.data.remote.FavoritesService
 import com.softfocus.features.library.data.remote.RecommendationsService
 import com.softfocus.features.notifications.data.remote.NotificationService
+import com.softfocus.features.search.data.remote.PsychologistSearchService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -99,5 +100,15 @@ object NetworkModule {
     @Singleton
     fun provideRecommendationsService(retrofit: Retrofit): RecommendationsService {
         return retrofit.create(RecommendationsService::class.java)
+    }
+
+    // ============================================================
+    // SEARCH SERVICES
+    // ============================================================
+
+    @Provides
+    @Singleton
+    fun providePsychologistSearchService(retrofit: Retrofit): PsychologistSearchService {
+        return retrofit.create(PsychologistSearchService::class.java)
     }
 }

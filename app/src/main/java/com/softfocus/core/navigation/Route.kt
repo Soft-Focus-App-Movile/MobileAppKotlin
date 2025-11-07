@@ -29,6 +29,12 @@ Route(val path: String) {
         fun createRoute(contentId: String): String = "library_general_detail/$contentId"
     }
 
+    // Search Psychologist routes
+    data object SearchPsychologist : Route("search_psychologist")
+    data object PsychologistDetail : Route("psychologist_detail/{psychologistId}") {
+        fun createRoute(psychologistId: String): String = "psychologist_detail/$psychologistId"
+    }
+
     // AI routes
 
     data object Library : Route("library")

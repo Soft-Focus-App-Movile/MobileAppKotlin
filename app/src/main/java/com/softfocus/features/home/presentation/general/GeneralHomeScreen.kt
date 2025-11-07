@@ -2,6 +2,7 @@ package com.softfocus.features.home.presentation.general
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.utils.LocationHelper
@@ -52,6 +54,8 @@ fun GeneralHomeScreen(
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToLibrary: () -> Unit = {},
     onNavigateToContentDetail: (String) -> Unit = {},
+    onNavigateToSearchPsychologist: () -> Unit = {},
+    onNavigateToAIChat: () -> Unit = {},
     viewModel: GeneralHomeViewModel = libraryViewModel { GeneralHomeViewModel(it) }
 ) {
     val context = LocalContext.current
@@ -175,7 +179,12 @@ fun GeneralHomeScreen(
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .shadow(4.dp, RoundedCornerShape(8.dp)),
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                onNavigateToSearchPsychologist()
+                            }
+                        }
+                        .clickable(onClick = onNavigateToSearchPsychologist),
                     shape = RoundedCornerShape(8.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
@@ -183,11 +192,13 @@ fun GeneralHomeScreen(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent
-                    )
+                    ),
+                    readOnly = true,
+                    enabled = false
                 )
 
                 IconButton(
-                    onClick = { },
+                    onClick = onNavigateToSearchPsychologist,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(8.dp))
@@ -227,8 +238,8 @@ fun GeneralHomeScreen(
                 daysRegistered = 4,
                 totalDays = 7,
                 daysFeelingSad = 3,
-                onAIChatClick = { /* TODO: Navegar a IA */ },
-                onSearchPsychologistClick = { /* TODO: Navegar a buscar psicólogo */ }
+                onAIChatClick = onNavigateToAIChat,
+                onSearchPsychologistClick = onNavigateToSearchPsychologist
             )
 
             Spacer(modifier = Modifier.height(24.dp))

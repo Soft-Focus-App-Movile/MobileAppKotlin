@@ -41,9 +41,14 @@ object ApiConstants {
         const val PSYCHOLOGIST_VERIFICATION = "users/psychologist/verification"
         const val PSYCHOLOGIST_STATS = "users/psychologist/stats"
 
+        // Public psychologist directory endpoints
+        const val PSYCHOLOGISTS_DIRECTORY = "users/psychologists/directory"
+        const val PSYCHOLOGIST_DETAIL = "users/psychologists/{id}"
+
         fun getById(id: String) = BY_ID.replace("{id}", id)
         fun verifyPsychologist(id: String) = VERIFY_PSYCHOLOGIST.replace("{id}", id)
         fun changeStatus(id: String) = CHANGE_STATUS.replace("{id}", id)
+        fun getPsychologistDetail(id: String) = PSYCHOLOGIST_DETAIL.replace("{id}", id)
     }
 
     // Therapy endpoints
