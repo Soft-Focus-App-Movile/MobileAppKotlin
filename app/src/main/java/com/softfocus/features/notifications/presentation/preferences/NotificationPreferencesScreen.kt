@@ -1,21 +1,24 @@
 package com.softfocus.features.notifications.presentation.preferences
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.content.Context
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.softfocus.features.notifications.domain.models.*
-
+import com.softfocus.features.notifications.domain.models.NotificationType
+import com.softfocus.ui.theme.*
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,24 +27,48 @@ fun NotificationPreferencesScreen(
     viewModel: NotificationPreferencesViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var showResetDialog by remember { mutableStateOf(false) }
+    var showTimePickerDialog by remember { mutableStateOf(false) }
+
+    // Extraer las preferencias específicas del estado
+    val dailyCheckIn = remember(state.preferences) {
+        state.preferences.find { it.notificationType == NotificationType.CHECKIN_REMINDER }
+    }
+
+    val dailySuggestions = remember(state.preferences) {
+        state.preferences.find { it.notificationType == NotificationType.INFO }
+    }
+
+    val promotions = remember(state.preferences) {
+        state.preferences.find { it.notificationType == NotificationType.SYSTEM_UPDATE }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Preferencias de notificaciones") },
+                title = {
+                    Text(
+                        text = "Notificaciones",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Green49
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Gray222
+                        )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { showResetDialog = true }) {
-                        Icon(Icons.Default.Refresh, "Restaurar")
-                    }
-                }
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = White,
+                    titleContentColor = Gray222
+                )
             )
-        }
+        },
+        containerColor = White
     ) { padding ->
         when {
             state.isLoading && state.preferences.isEmpty() -> {
@@ -51,9 +78,10 @@ fun NotificationPreferencesScreen(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = Green49)
                 }
             }
+
             state.error != null -> {
                 Box(
                     modifier = Modifier
@@ -63,325 +91,272 @@ fun NotificationPreferencesScreen(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(24.dp)
                     ) {
                         Text(
                             text = state.error!!,
-                            color = MaterialTheme.colorScheme.error
+                            color = RedE8
                         )
-                        Button(onClick = { viewModel.loadPreferences() }) {
+                        Button(
+                            onClick = { viewModel.loadPreferences() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Green49
+                            )
+                        ) {
                             Text("Reintentar")
                         }
                     }
                 }
             }
+
             else -> {
-                LazyColumn(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    contentAlignment = Alignment.Center
                 ) {
-                    item {
-                        Text(
-                            text = "Configura qué notificaciones deseas recibir y cómo",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    items(state.preferences) { preference ->
-                        NotificationPreferenceCard(
-                            preference = preference,
-                            onToggle = { viewModel.togglePreference(preference) },
-                            onDeliveryMethodChange = { method ->
-                                viewModel.updateDeliveryMethod(preference, method)
-                            },
-                            onScheduleChange = { schedule ->
-                                viewModel.updateSchedule(preference, schedule)
-                            }
-                        )
-                    }
-
-                    if (state.isSaving) {
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp, vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Card contenedor con título y preferencias
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = GrayF5
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp)
                             ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                    }
-
-                    if (state.successMessage != null) {
-                        item {
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                // Título "Configuración"
+                                Text(
+                                    text = "Configuración",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Gray222,
+                                    modifier = Modifier.padding(bottom = 16.dp)
                                 )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+
+                                // Preferencias
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.CheckCircle,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(state.successMessage!!)
+                                    // Recordatorios de registro diario
+                                    dailyCheckIn?.let { pref ->
+                                        NotificationPreferenceItem(
+                                            title = "Recordatorios de registro diario",
+                                            subtitle = if (pref.isEnabled && pref.schedule != null) {
+                                                pref.schedule.startTime.format(
+                                                    DateTimeFormatter.ofPattern("HH:mm")
+                                                )
+                                            } else null,
+                                            checked = pref.isEnabled,
+                                            onCheckedChange = {
+                                                viewModel.togglePreference(pref)
+                                            },
+                                            onItemClick = {
+                                                if (pref.isEnabled) {
+                                                    showTimePickerDialog = true
+                                                }
+                                            }
+                                        )
+
+                                        HorizontalDivider(color = GrayD9, thickness = 0.5.dp)
+                                    }
+
+                                    // Sugerencias diarias
+                                    dailySuggestions?.let { pref ->
+                                        NotificationPreferenceItem(
+                                            title = "Sugerencias diarias",
+                                            checked = pref.isEnabled,
+                                            onCheckedChange = {
+                                                viewModel.togglePreference(pref)
+                                            }
+                                        )
+
+                                        HorizontalDivider(color = GrayD9, thickness = 0.5.dp)
+                                    }
+
+                                    // Promociones y novedades
+                                    promotions?.let { pref ->
+                                        NotificationPreferenceItem(
+                                            title = "Promociones y novedades",
+                                            checked = pref.isEnabled,
+                                            onCheckedChange = {
+                                                viewModel.togglePreference(pref)
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
+
+                        // Indicador de guardado
+                        if (state.isSaving) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            CircularProgressIndicator(
+                                color = Green49,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        // Mensaje de guardado exitoso
+                        if (state.successMessage != null) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = GreenEC
+                                )
+                            ) {
+                                Text(
+                                    text = state.successMessage!!,
+                                    modifier = Modifier.padding(12.dp),
+                                    color = Green37,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    if (showResetDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text("Restaurar configuración") },
-            text = { Text("¿Deseas restaurar todas las preferencias a sus valores por defecto?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.resetToDefaults()
-                        showResetDialog = false
-                    }
-                ) {
-                    Text("Restaurar")
-                }
+    // Diálogo de selector de hora
+    if (showTimePickerDialog && dailyCheckIn != null) {
+        val currentTime = dailyCheckIn.schedule?.startTime ?: LocalTime.of(9, 0)
+
+        TimePickerDialog(
+            onDismiss = { showTimePickerDialog = false },
+            onConfirm = { hour, minute ->
+                val newTime = LocalTime.of(hour, minute)
+                viewModel.updateCheckInTime(dailyCheckIn, newTime)
+                showTimePickerDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancelar")
-                }
-            }
+            initialHour = currentTime.hour,
+            initialMinute = currentTime.minute
         )
     }
 }
 
-
 @Composable
-private fun NotificationPreferenceCard(
-    preference: NotificationPreference,
-    onToggle: () -> Unit,
-    onDeliveryMethodChange: (DeliveryMethod) -> Unit,
-    onScheduleChange: (NotificationSchedule?) -> Unit
+private fun NotificationPreferenceItem(
+    title: String,
+    subtitle: String? = null,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onItemClick: (() -> Unit)? = null
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.weight(1f)
         ) {
-            // Header with toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = getNotificationTypeLabel(preference.notificationType),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = getNotificationTypeDescription(preference.notificationType),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(
-                    checked = preference.isEnabled,
-                    onCheckedChange = { onToggle() }
-                )
-            }
-
-            // Expanded settings
-            if (preference.isEnabled && expanded) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-
-                // Delivery method
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                color = Gray222,
+                fontWeight = FontWeight.Normal
+            )
+            subtitle?.let {
                 Text(
-                    text = "Método de entrega",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    text = it,
+                    fontSize = 12.sp,
+                    color = Gray808,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
-
-                DeliveryMethodSelector(
-                    selected = preference.deliveryMethod,
-                    onSelect = onDeliveryMethodChange
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Schedule (only for non-critical notifications)
-                if (preference.notificationType != NotificationType.CRISIS_ALERT) {
-                    Text(
-                        text = "Horario",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    ScheduleSelector(
-                        schedule = preference.schedule,
-                        onScheduleChange = onScheduleChange
-                    )
-                }
-            }
-
-            // Toggle expand
-            if (preference.isEnabled) {
-                TextButton(
-                    onClick = { expanded = !expanded },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(if (expanded) "Ocultar opciones" else "Más opciones")
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = null
-                    )
-                }
             }
         }
+
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = CheckboxDefaults.colors(
+                checkedColor = Green49,
+                uncheckedColor = GrayB2,
+                checkmarkColor = White
+            )
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DeliveryMethodSelector(
-    selected: DeliveryMethod,
-    onSelect: (DeliveryMethod) -> Unit
+private fun TimePickerDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (hour: Int, minute: Int) -> Unit,
+    initialHour: Int = 9,
+    initialMinute: Int = 0
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        DeliveryMethod.entries.filter { it != DeliveryMethod.NONE }.forEach { method ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialHour,
+        initialMinute = initialMinute,
+        is24Hour = true
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(timePickerState.hour, timePickerState.minute)
+            }) {
+                Text("Aceptar", color = Green49)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = Gray808)
+            }
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                RadioButton(
-                    selected = selected == method,
-                    onClick = { onSelect(method) }
+                Text(
+                    text = "Seleccionar hora",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Gray222,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(
-                        text = when (method) {
-                            DeliveryMethod.PUSH -> "Notificación push"
-                            DeliveryMethod.EMAIL -> "Correo electrónico"
-                            DeliveryMethod.BOTH -> "Ambos"
-                            DeliveryMethod.NONE -> "Ninguno"
-                        },
-                        style = MaterialTheme.typography.bodyMedium
+                TimePicker(
+                    state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        clockDialColor = GrayF5,
+                        clockDialSelectedContentColor = White,
+                        clockDialUnselectedContentColor = Gray222,
+                        selectorColor = Green49,
+                        containerColor = White,
+                        periodSelectorBorderColor = GrayE0,
+                        periodSelectorSelectedContainerColor = Green49,
+                        periodSelectorUnselectedContainerColor = GrayF5,
+                        periodSelectorSelectedContentColor = White,
+                        periodSelectorUnselectedContentColor = Gray222,
+                        timeSelectorSelectedContainerColor = Green49,
+                        timeSelectorUnselectedContainerColor = GrayF5,
+                        timeSelectorSelectedContentColor = White,
+                        timeSelectorUnselectedContentColor = Gray222
                     )
-                    Text(
-                        text = when (method) {
-                            DeliveryMethod.PUSH -> "En la app"
-                            DeliveryMethod.EMAIL -> "A tu correo"
-                            DeliveryMethod.BOTH -> "Push y email"
-                            DeliveryMethod.NONE -> ""
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                )
             }
-        }
-    }
-}
-
-
-@Composable
-private fun ScheduleSelector(
-    schedule: NotificationSchedule?,
-    onScheduleChange: (NotificationSchedule?) -> Unit
-) {
-    var hasSchedule by remember(schedule) { mutableStateOf(schedule != null) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Checkbox(
-            checked = hasSchedule,
-            onCheckedChange = { enabled ->
-                hasSchedule = enabled
-                if (!enabled) {
-                    onScheduleChange(null)
-                } else {
-                    onScheduleChange(
-                        NotificationSchedule(
-                            startTime = java.time.LocalTime.of(8, 0),
-                            endTime = java.time.LocalTime.of(22, 0),
-                            daysOfWeek = listOf(1, 2, 3, 4, 5, 6, 7)
-                        )
-                    )
-                }
-            }
-        )
-        Text("Programar horario de notificaciones")
-    }
-
-    if (hasSchedule && schedule != null) {
-        Column(
-            modifier = Modifier.padding(start = 40.dp, top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = "De ${schedule.startTime} a ${schedule.endTime}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Días: ${schedule.daysOfWeek.joinToString(", ") { getDayName(it) }}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-private fun getNotificationTypeLabel(type: NotificationType) = when (type) {
-    NotificationType.INFO -> "Notificaciones informativas"
-    NotificationType.ALERT -> "Alertas importantes"
-    NotificationType.WARNING -> "Advertencias"
-    NotificationType.EMERGENCY -> "Emergencias"
-    NotificationType.CHECKIN_REMINDER -> "Recordatorios de registro"
-    NotificationType.CRISIS_ALERT -> "Alertas de crisis"
-    NotificationType.MESSAGE_RECEIVED -> "Mensajes recibidos"
-    NotificationType.ASSIGNMENT_DUE -> "Tareas pendientes"
-    NotificationType.APPOINTMENT_REMINDER -> "Recordatorios de citas"
-    NotificationType.SYSTEM_UPDATE -> "Actualizaciones del sistema"
-}
-
-private fun getNotificationTypeDescription(type: NotificationType) = when (type) {
-    NotificationType.INFO -> "Información general y actualizaciones"
-    NotificationType.ALERT -> "Alertas que requieren tu atención"
-    NotificationType.WARNING -> "Advertencias sobre situaciones importantes"
-    NotificationType.EMERGENCY -> "Notificaciones de emergencia crítica"
-    NotificationType.CHECKIN_REMINDER -> "Te recuerda registrar tu estado de ánimo"
-    NotificationType.CRISIS_ALERT -> "Notificaciones críticas que requieren atención inmediata"
-    NotificationType.MESSAGE_RECEIVED -> "Cuando recibes un nuevo mensaje"
-    NotificationType.ASSIGNMENT_DUE -> "Cuando se acerca la fecha límite de una tarea"
-    NotificationType.APPOINTMENT_REMINDER -> "Te recuerda tus citas programadas"
-    NotificationType.SYSTEM_UPDATE -> "Noticias y actualizaciones de la plataforma"
-}
-
-private fun getDayName(day: Int) = when (day) {
-    1 -> "Lun"
-    2 -> "Mar"
-    3 -> "Mié"
-    4 -> "Jue"
-    5 -> "Vie"
-    6 -> "Sáb"
-    7 -> "Dom"
-    else -> ""
+        },
+        containerColor = White
+    )
 }

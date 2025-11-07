@@ -171,11 +171,45 @@ fun NavGraphBuilder.sharedNavigation(
 
     // Notification Preferences Screen
     composable(Route.NotificationPreferences.path) {
-        NotificationPreferencesScreen(
-            onNavigateBack = {
-                navController.popBackStack()
+        val userSession = remember { UserSession(context) }
+        val currentUser = userSession.getUser()
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isPatient = homeViewModel.isPatient.collectAsState()
+        val isLoading = homeViewModel.isLoading.collectAsState()
+
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF6B8E6F))
             }
-        )
+        } else {
+            Scaffold(
+                containerColor = Color.Transparent,
+                bottomBar = {
+                    when (currentUser?.userType) {
+                        UserType.PSYCHOLOGIST -> PsychologistBottomNav(navController)
+                        UserType.GENERAL, UserType.PATIENT -> {
+                            if (isPatient.value) {
+                                PatientBottomNav(navController)
+                            } else {
+                                GeneralBottomNav(navController)
+                            }
+                        }
+                        else -> GeneralBottomNav(navController)
+                    }
+                }
+            ) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    NotificationPreferencesScreen(
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+            }
+        }
     }
 
     // AI Welcome Screen
