@@ -1,6 +1,9 @@
 package com.softfocus.core.navigation
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -210,7 +213,22 @@ fun NavGraphBuilder.generalNavigation(
                 ) {
                     com.softfocus.features.library.presentation.general.browse.GeneralLibraryScreen(
                         onContentClick = { content ->
-                            navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
+                            // Detectar si es música para abrir Spotify directamente
+                            if (content.type == com.softfocus.features.library.domain.models.ContentType.Music) {
+                                // Abrir Spotify con la canción
+                                if (!content.spotifyUrl.isNullOrBlank()) {
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(content.spotifyUrl))
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "No se pudo abrir Spotify", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(context, "Esta canción no tiene enlace de Spotify", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
+                            }
                         }
                     )
                 }
