@@ -53,7 +53,7 @@ fun NavGraphBuilder.psychologistNavigation(
                         navController.navigate(Route.InvitationCode.path)
                     },
                     onNavigateToNotifications = {
-                        navController.navigate(Route.Notifications.path)
+                        navController.navigate(Route.NotificationPreferences.path)
                     },
                     onNavigateToPlan = {
                         navController.navigate(Route.PsychologistPlan.path)

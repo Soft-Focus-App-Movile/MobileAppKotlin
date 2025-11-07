@@ -38,7 +38,8 @@ import com.softfocus.ui.components.InvitationCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PsychologistHomeScreen(viewModel: PsychologistHomeViewModel) {
+fun PsychologistHomeScreen(viewModel: PsychologistHomeViewModel,
+                           onNavigateToNotifications: () -> Unit = {}) {
     val invitationCode = viewModel.invitationCode.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
 
@@ -90,7 +91,7 @@ fun PsychologistHomeScreen(viewModel: PsychologistHomeViewModel) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = onNavigateToNotifications) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_notification_bell),
                             contentDescription = "Notificaciones",

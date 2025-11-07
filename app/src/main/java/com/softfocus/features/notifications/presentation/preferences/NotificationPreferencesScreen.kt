@@ -168,7 +168,7 @@ fun NotificationPreferencesScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 private fun NotificationPreferenceCard(
     preference: NotificationPreference,

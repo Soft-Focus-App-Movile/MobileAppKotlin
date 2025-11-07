@@ -57,6 +57,7 @@ fun PatientProfileScreen(
     onNavigateToConnect: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
     onNavigateBack: () -> Unit,
+    onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -199,7 +200,7 @@ fun PatientProfileScreen(
             ProfileOptionDrawable(
                 iconRes = R.drawable.ic_notification_bell,
                 title = "Notificaciones",
-                onClick = { }
+                onClick = onNavigateToNotifications
             )
 
             ProfileOptionDrawable(

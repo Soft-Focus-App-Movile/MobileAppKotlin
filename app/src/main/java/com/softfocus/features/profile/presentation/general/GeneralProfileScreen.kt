@@ -52,6 +52,7 @@ fun GeneralProfileScreen(
     onNavigateToConnect: () -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToEditProfile: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -169,7 +170,7 @@ fun GeneralProfileScreen(
             ProfileOptionDrawable(
                 iconRes = R.drawable.ic_notification_bell,
                 title = "Notificaciones",
-                onClick = { }
+                onClick = onNavigateToNotifications
             )
 
             ProfileOptionDrawable(

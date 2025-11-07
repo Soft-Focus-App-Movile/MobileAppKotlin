@@ -50,6 +50,9 @@ fun NavGraphBuilder.patientNavigation(
                     onNavigateToEditProfile = {
                         navController.navigate(Route.EditProfile.path)
                     },
+                    onNavigateToNotifications = { // ← AGREGAR ESTAS 3 LÍNEAS
+                        navController.navigate(Route.NotificationPreferences.path)
+                    },
                     onLogout = {
                         SessionManager.logout(context)
                         navController.navigate(Route.Login.path) {

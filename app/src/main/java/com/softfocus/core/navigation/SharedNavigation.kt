@@ -63,7 +63,12 @@ fun NavGraphBuilder.sharedNavigation(
                     Box(
                         modifier = Modifier.padding(paddingValues)
                     ) {
-                        PsychologistHomeScreen(psychologistHomeViewModel)
+                        PsychologistHomeScreen(
+                            psychologistHomeViewModel,
+                            onNavigateToNotifications = {
+                                navController.navigate(Route.Notifications.path)
+                            }
+                        )
                     }
                 }
             }
@@ -94,7 +99,12 @@ fun NavGraphBuilder.sharedNavigation(
                             modifier = Modifier.padding(paddingValues)
                         ) {
                             if (isPatient.value) {
-                                PatientHomeScreen(navController)
+                                PatientHomeScreen(
+                                    navController,
+                                    onNavigateToNotifications = {
+                                        navController.navigate(Route.Notifications.path)
+                                    }
+                                )
                             } else {
                                 GeneralHomeScreen(
                                     onNavigateToNotifications = {

@@ -43,7 +43,8 @@ import com.softfocus.ui.theme.SourceSansRegular
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientHomeScreen(navController: NavController) {
+fun PatientHomeScreen(navController: NavController,
+                      onNavigateToNotifications: () -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var locationText by remember { mutableStateOf("Lima, Peru") }
@@ -109,7 +110,7 @@ fun PatientHomeScreen(navController: NavController) {
                             }
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = onNavigateToNotifications) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_notification_bell),
                                 contentDescription = "Notificaciones",
