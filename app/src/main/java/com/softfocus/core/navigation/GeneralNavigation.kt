@@ -1,8 +1,10 @@
 package com.softfocus.core.navigation
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -216,32 +218,67 @@ fun NavGraphBuilder.generalNavigation(
                             when (content.type) {
                                 // Detectar si es música para abrir Spotify directamente
                                 com.softfocus.features.library.domain.models.ContentType.Music -> {
-                                    if (!content.spotifyUrl.isNullOrBlank()) {
+                                    val spotifyUrl = content.spotifyUrl
+                                    Log.d("GeneralNavigation", "Intentando abrir Spotify: URL=$spotifyUrl")
+
+                                    if (!spotifyUrl.isNullOrBlank()) {
                                         try {
-                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(content.spotifyUrl))
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUrl))
                                             context.startActivity(intent)
+                                            Log.d("GeneralNavigation", "✅ Spotify abierto exitosamente")
+                                        } catch (e: ActivityNotFoundException) {
+                                            Log.w("GeneralNavigation", "❌ Spotify no instalado, abriendo en navegador")
+                                            // Fallback: abrir en navegador web
+                                            try {
+                                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUrl))
+                                                context.startActivity(webIntent)
+                                            } catch (ex: Exception) {
+                                                Log.e("GeneralNavigation", "❌ Error al abrir navegador: ${ex.message}")
+                                                Toast.makeText(context, "No se pudo abrir Spotify", Toast.LENGTH_SHORT).show()
+                                            }
                                         } catch (e: Exception) {
-                                            Toast.makeText(context, "No se pudo abrir Spotify", Toast.LENGTH_SHORT).show()
+                                            Log.e("GeneralNavigation", "❌ Error inesperado: ${e.message}", e)
+                                            Toast.makeText(context, "Error al abrir Spotify: ${e.message}", Toast.LENGTH_SHORT).show()
                                         }
                                     } else {
+                                        Log.w("GeneralNavigation", "⚠️ URL de Spotify vacía para: ${content.title}")
                                         Toast.makeText(context, "Esta canción no tiene enlace de Spotify", Toast.LENGTH_SHORT).show()
                                     }
                                 }
+
                                 // Detectar si es video para abrir YouTube directamente
                                 com.softfocus.features.library.domain.models.ContentType.Video -> {
-                                    if (!content.youtubeUrl.isNullOrBlank()) {
+                                    val youtubeUrl = content.youtubeUrl
+                                    Log.d("GeneralNavigation", "Intentando abrir YouTube: URL=$youtubeUrl")
+
+                                    if (!youtubeUrl.isNullOrBlank()) {
                                         try {
-                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(content.youtubeUrl))
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl))
                                             context.startActivity(intent)
+                                            Log.d("GeneralNavigation", "✅ YouTube abierto exitosamente")
+                                        } catch (e: ActivityNotFoundException) {
+                                            Log.w("GeneralNavigation", "❌ YouTube no instalado, abriendo en navegador")
+                                            // Fallback: abrir en navegador web
+                                            try {
+                                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl))
+                                                context.startActivity(webIntent)
+                                            } catch (ex: Exception) {
+                                                Log.e("GeneralNavigation", "❌ Error al abrir navegador: ${ex.message}")
+                                                Toast.makeText(context, "No se pudo abrir YouTube", Toast.LENGTH_SHORT).show()
+                                            }
                                         } catch (e: Exception) {
-                                            Toast.makeText(context, "No se pudo abrir YouTube", Toast.LENGTH_SHORT).show()
+                                            Log.e("GeneralNavigation", "❌ Error inesperado: ${e.message}", e)
+                                            Toast.makeText(context, "Error al abrir YouTube: ${e.message}", Toast.LENGTH_SHORT).show()
                                         }
                                     } else {
+                                        Log.w("GeneralNavigation", "⚠️ URL de YouTube vacía para: ${content.title}")
                                         Toast.makeText(context, "Este video no tiene enlace de YouTube", Toast.LENGTH_SHORT).show()
                                     }
                                 }
+
                                 // Para otros tipos, navegar a la pantalla de detalle
                                 else -> {
+                                    Log.d("GeneralNavigation", "Navegando a detalle: ${content.title}")
                                     navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
                                 }
                             }

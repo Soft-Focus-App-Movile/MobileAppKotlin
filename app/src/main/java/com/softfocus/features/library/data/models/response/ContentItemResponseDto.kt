@@ -134,10 +134,28 @@ data class ContentItemResponseDto(
             artist = artist,
             album = album,
             previewUrl = previewUrl,
-            spotifyUrl = spotifyUrl,
+            // Fallback para Spotify: si spotifyUrl es null o vacío, construirlo desde externalId
+            spotifyUrl = spotifyUrl?.takeIf { it.isNotBlank() } ?: run {
+                // externalId formato esperado: "spotify-track-TRACK_ID"
+                if (externalId.startsWith("spotify-track-")) {
+                    val trackId = externalId.removePrefix("spotify-track-")
+                    if (trackId.isNotBlank()) {
+                        "https://open.spotify.com/track/$trackId"
+                    } else null
+                } else null
+            },
             // Video
             channelName = channelName,
-            youtubeUrl = youtubeUrl,
+            // Fallback para YouTube: si youtubeUrl es null o vacío, construirlo desde externalId
+            youtubeUrl = youtubeUrl?.takeIf { it.isNotBlank() } ?: run {
+                // externalId formato esperado: "youtube-video-VIDEO_ID"
+                if (externalId.startsWith("youtube-video-")) {
+                    val videoId = externalId.removePrefix("youtube-video-")
+                    if (videoId.isNotBlank()) {
+                        "https://www.youtube.com/watch?v=$videoId"
+                    } else null
+                } else null
+            },
             thumbnailUrl = thumbnailUrl,
             // Place
             category = category,

@@ -11,11 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.softfocus.R
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.YellowCB9D
 import com.softfocus.ui.theme.Gray828
@@ -83,15 +83,18 @@ private fun CategoryIcon(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            // Por ahora usamos un ícono placeholder
-            // Reemplazaremos con los SVG proporcionados
-            Text(
-                text = when (category) {
-                    VideoCategory.MEDITATION -> "🧘"
-                    VideoCategory.BREATHING -> "🫁"
-                    VideoCategory.RELAXATION -> "🤲"
-                },
-                fontSize = 32.sp
+            // Iconos vectoriales
+            Icon(
+                painter = painterResource(
+                    id = when (category) {
+                        VideoCategory.MEDITATION -> R.drawable.ic_meditation
+                        VideoCategory.BREATHING -> R.drawable.ic_breathing
+                        VideoCategory.RELAXATION -> R.drawable.ic_relaxation
+                    }
+                ),
+                contentDescription = category.displayName,
+                tint = if (isSelected) Color.Black else Color.White,
+                modifier = Modifier.size(32.dp)
             )
         }
 
