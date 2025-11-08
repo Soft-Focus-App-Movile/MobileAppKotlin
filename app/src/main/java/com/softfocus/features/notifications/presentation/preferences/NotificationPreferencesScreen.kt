@@ -1,6 +1,7 @@
 package com.softfocus.features.notifications.presentation.preferences
 
 import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,8 +51,7 @@ fun NotificationPreferencesScreen(
                     Text(
                         text = "Notificaciones",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Green49
+                        fontWeight = FontWeight.Normal
                     )
                 },
                 navigationIcon = {
@@ -261,12 +262,29 @@ private fun NotificationPreferenceItem(
     onItemClick: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (onItemClick != null && checked) {
+                    Modifier.clickable(onClick = onItemClick)
+                } else {
+                    Modifier
+                }
+            )
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .then(
+                    if (onItemClick != null && checked) {
+                        Modifier.clickable(onClick = onItemClick)
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             Text(
                 text = title,
@@ -275,12 +293,32 @@ private fun NotificationPreferenceItem(
                 fontWeight = FontWeight.Normal
             )
             subtitle?.let {
-                Text(
-                    text = it,
-                    fontSize = 12.sp,
-                    color = Gray808,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 4.dp)
-                )
+                ) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_recent_history),
+                        contentDescription = "Hora",
+                        tint = Gray808,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = it,
+                        fontSize = 12.sp,
+                        color = Gray808
+                    )
+                    if (onItemClick != null && checked) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "• Toca para cambiar",
+                            fontSize = 11.sp,
+                            color = Green49,
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                        )
+                    }
+                }
             }
         }
 

@@ -230,10 +230,26 @@ class NotificationPreferencesViewModel @Inject constructor(
 
             // Filtrar solo las preferencias que nos interesan
             val filteredPrefs = preferences.filter { it.notificationType in mainTypes }
-            val mutablePrefs = filteredPrefs.toMutableList()
+            val mutablePrefs = mutableListOf<NotificationPreference>()
 
             // 1. Recordatorios de registro diario (CHECKIN_REMINDER)
-            if (filteredPrefs.none { it.notificationType == NotificationType.CHECKIN_REMINDER }) {
+            val checkInPref = filteredPrefs.find { it.notificationType == NotificationType.CHECKIN_REMINDER }
+            if (checkInPref != null) {
+                // Si existe pero no tiene schedule, agregarlo
+                val prefWithSchedule = if (checkInPref.schedule == null) {
+                    checkInPref.copy(
+                        schedule = NotificationSchedule(
+                            startTime = LocalTime.of(9, 0),
+                            endTime = LocalTime.of(9, 0),
+                            daysOfWeek = listOf(1, 2, 3, 4, 5, 6, 7)
+                        )
+                    )
+                } else {
+                    checkInPref
+                }
+                mutablePrefs.add(prefWithSchedule)
+            } else {
+                // Crear nueva
                 android.util.Log.d("NotifPrefVM", "Creando preferencia por defecto: CHECKIN_REMINDER")
                 mutablePrefs.add(
                     NotificationPreference(
@@ -252,7 +268,10 @@ class NotificationPreferencesViewModel @Inject constructor(
             }
 
             // 2. Sugerencias diarias (INFO)
-            if (filteredPrefs.none { it.notificationType == NotificationType.INFO }) {
+            val infoPref = filteredPrefs.find { it.notificationType == NotificationType.INFO }
+            if (infoPref != null) {
+                mutablePrefs.add(infoPref)
+            } else {
                 android.util.Log.d("NotifPrefVM", "Creando preferencia por defecto: INFO")
                 mutablePrefs.add(
                     NotificationPreference(
@@ -267,7 +286,10 @@ class NotificationPreferencesViewModel @Inject constructor(
             }
 
             // 3. Promociones y novedades (SYSTEM_UPDATE)
-            if (filteredPrefs.none { it.notificationType == NotificationType.SYSTEM_UPDATE }) {
+            val systemPref = filteredPrefs.find { it.notificationType == NotificationType.SYSTEM_UPDATE }
+            if (systemPref != null) {
+                mutablePrefs.add(systemPref)
+            } else {
                 android.util.Log.d("NotifPrefVM", "Creando preferencia por defecto: SYSTEM_UPDATE")
                 mutablePrefs.add(
                     NotificationPreference(
@@ -291,7 +313,7 @@ class NotificationPreferencesViewModel @Inject constructor(
                 }
             }
 
-            android.util.Log.d("NotifPrefVM", "Preferencias finales después de ensure: ${sorted.map { "${it.notificationType}=${it.isEnabled}" }}")
+            android.util.Log.d("NotifPrefVM", "Preferencias finales después de ensure: ${sorted.map { "${it.notificationType}=${it.isEnabled}, schedule=${it.schedule}" }}")
             return sorted
         } catch (e: Exception) {
             android.util.Log.e("NotifPrefVM", "Error en ensureMainPreferences", e)
