@@ -1,6 +1,11 @@
 package com.softfocus.core.navigation
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -401,6 +406,151 @@ fun NavGraphBuilder.sharedNavigation(
                 ProgressScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
+            }
+        }
+    }
+
+    composable(
+        route = Route.LibraryGeneralDetail.path,
+        arguments = listOf(
+            navArgument("contentId") {
+                type = NavType.StringType
+            }
+        )
+    ) { backStackEntry ->
+        val contentId = backStackEntry.arguments?.getString("contentId") ?: ""
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isPatient = homeViewModel.isPatient.collectAsState()
+        val isLoading = homeViewModel.isLoading.collectAsState()
+
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF6B8E6F))
+            }
+        } else {
+            Scaffold(
+                containerColor = Color.Transparent,
+                bottomBar = {
+                    if (isPatient.value) {
+                        PatientBottomNav(navController)
+                    } else {
+                        GeneralBottomNav(navController)
+                    }
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    com.softfocus.features.library.presentation.general.detail.ContentDetailScreen(
+                        contentId = contentId,
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        },
+                        onRelatedContentClick = { content ->
+                            navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    composable(Route.LibraryGeneralBrowse.path) {
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isPatient = homeViewModel.isPatient.collectAsState()
+        val isLoading = homeViewModel.isLoading.collectAsState()
+
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF6B8E6F))
+            }
+        } else {
+            Scaffold(
+                containerColor = Color.Transparent,
+                bottomBar = {
+                    if (isPatient.value) {
+                        PatientBottomNav(navController)
+                    } else {
+                        GeneralBottomNav(navController)
+                    }
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    com.softfocus.features.library.presentation.general.browse.GeneralLibraryScreen(
+                        onContentClick = { content ->
+                            when (content.type) {
+                                com.softfocus.features.library.domain.models.ContentType.Music -> {
+                                    val spotifyUrl = content.spotifyUrl
+                                    Log.d("SharedNavigation", "Intentando abrir Spotify: URL=$spotifyUrl")
+
+                                    if (!spotifyUrl.isNullOrBlank()) {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUrl))
+                                            context.startActivity(intent)
+                                            Log.d("SharedNavigation", "✅ Spotify abierto exitosamente")
+                                        } catch (e: ActivityNotFoundException) {
+                                            Log.w("SharedNavigation", "❌ Spotify no instalado, abriendo en navegador")
+                                            try {
+                                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUrl))
+                                                context.startActivity(webIntent)
+                                            } catch (ex: Exception) {
+                                                Log.e("SharedNavigation", "❌ Error al abrir navegador: ${ex.message}")
+                                                Toast.makeText(context, "No se pudo abrir Spotify", Toast.LENGTH_SHORT).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("SharedNavigation", "❌ Error inesperado: ${e.message}", e)
+                                            Toast.makeText(context, "Error al abrir Spotify: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else {
+                                        Log.w("SharedNavigation", "⚠️ URL de Spotify vacía para: ${content.title}")
+                                        Toast.makeText(context, "Esta canción no tiene enlace de Spotify", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                                com.softfocus.features.library.domain.models.ContentType.Video -> {
+                                    val youtubeUrl = content.youtubeUrl
+                                    Log.d("SharedNavigation", "Intentando abrir YouTube: URL=$youtubeUrl")
+
+                                    if (!youtubeUrl.isNullOrBlank()) {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl))
+                                            context.startActivity(intent)
+                                            Log.d("SharedNavigation", "✅ YouTube abierto exitosamente")
+                                        } catch (e: ActivityNotFoundException) {
+                                            Log.w("SharedNavigation", "❌ YouTube no instalado, abriendo en navegador")
+                                            try {
+                                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl))
+                                                context.startActivity(webIntent)
+                                            } catch (ex: Exception) {
+                                                Log.e("SharedNavigation", "❌ Error al abrir navegador: ${ex.message}")
+                                                Toast.makeText(context, "No se pudo abrir YouTube", Toast.LENGTH_SHORT).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("SharedNavigation", "❌ Error inesperado: ${e.message}", e)
+                                            Toast.makeText(context, "Error al abrir YouTube: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else {
+                                        Log.w("SharedNavigation", "⚠️ URL de YouTube vacía para: ${content.title}")
+                                        Toast.makeText(context, "Este video no tiene enlace de YouTube", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+
+                                else -> {
+                                    Log.d("SharedNavigation", "Navegando a detalle: ${content.title}")
+                                    navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
+                                }
+                            }
+                        }
+                    )
+                }
             }
         }
     }
