@@ -24,6 +24,14 @@ class ProfileRepositoryImpl @Inject constructor(
     private val context: Context
 ) : ProfileRepository {
 
+    private fun getAuthToken(): String {
+        val token = userSession.getUser()?.token
+        if (token.isNullOrEmpty()) {
+            throw IllegalStateException("Token no disponible. Usuario debe iniciar sesión nuevamente.")
+        }
+        return "Bearer $token"
+    }
+
     override suspend fun getProfile(): Result<User> {
         return try {
             val response = profileService.getProfile()
@@ -58,18 +66,17 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun getAssignedPsychologist(): Result<AssignedPsychologist?> {
         return try {
-            // First, get the therapeutic relationship to obtain the psychologist ID
-            val relationshipResponse = therapyService.getMyRelationship()
+            val relationshipResponse = therapyService.getMyRelationship(
+                token = getAuthToken()
+            )
 
             if (!relationshipResponse.hasRelationship || relationshipResponse.relationship == null) {
-                // Patient doesn't have an assigned psychologist
                 return Result.success(null)
             }
 
             val psychologistId = relationshipResponse.relationship!!.psychologistId
 
-            // Now get the psychologist's complete profile
-            val psychologistResponse = profileService.getUserById(psychologistId)
+            val psychologistResponse = profileService.getPsychologistById(psychologistId)
 
             if (psychologistResponse.isSuccessful && psychologistResponse.body() != null) {
                 val profile = psychologistResponse.body()!!

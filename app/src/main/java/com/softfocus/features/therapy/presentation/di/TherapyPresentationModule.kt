@@ -11,7 +11,6 @@ import com.softfocus.features.therapy.domain.usecases.ConnectWithPsychologistUse
 import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
 import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistViewModel
 import com.softfocus.features.home.presentation.HomeViewModel
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -20,19 +19,10 @@ import java.util.concurrent.TimeUnit
 
 object TherapyPresentationModule {
 
-    private var authToken: String? = null
     private var applicationContext: Context? = null
 
     fun init(context: Context) {
         applicationContext = context.applicationContext
-    }
-
-    fun setAuthToken(token: String) {
-        authToken = token
-    }
-
-    fun clearAuthToken() {
-        authToken = null
     }
 
     private fun getTherapyService(): TherapyService {
@@ -48,14 +38,6 @@ object TherapyPresentationModule {
     }
 
     private fun getOkHttpClient(): OkHttpClient {
-        val authInterceptor = Interceptor { chain ->
-            val requestBuilder = chain.request().newBuilder()
-            authToken?.let {
-                requestBuilder.addHeader("Authorization", "Bearer $it")
-            }
-            chain.proceed(requestBuilder.build())
-        }
-
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -64,10 +46,8 @@ object TherapyPresentationModule {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
 
-        // Add 401 interceptor if context is available
         applicationContext?.let {
             builder.addInterceptor(Auth401Interceptor(it))
         }
@@ -76,7 +56,10 @@ object TherapyPresentationModule {
     }
 
     private fun getTherapyRepository(): TherapyRepository {
-        return TherapyRepositoryImpl(getTherapyService())
+        return TherapyRepositoryImpl(
+            getTherapyService(),
+            applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
+        )
     }
 
     fun getGetMyRelationshipUseCase(): GetMyRelationshipUseCase {

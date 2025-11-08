@@ -38,6 +38,7 @@ import com.softfocus.ui.theme.Gray828
 import com.softfocus.ui.theme.SourceSansRegular
 import java.net.URL
 import android.graphics.BitmapFactory
+import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.GreenA3
 import kotlinx.coroutines.Dispatchers
@@ -104,19 +105,14 @@ fun GeneralProfileScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                // Profile Image
-                user?.profileImageUrl?.let { imageUrl ->
-                    AsyncImageLoader(
-                        imageUrl = imageUrl,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                    )
-                } ?: Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(GreenA3)
+
+                ProfileAvatar(
+                    imageUrl = user?.profileImageUrl,
+                    fullName = user?.fullName ?: "Usuario",
+                    size = 120.dp,
+                    fontSize = 48.sp,
+                    backgroundColor = GreenA3,
+                    textColor = Color.White
                 )
 
                 // User Info

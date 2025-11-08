@@ -238,8 +238,9 @@ fun GeneralHomeScreen(
                 daysRegistered = 4,
                 totalDays = 7,
                 daysFeelingSad = 3,
+                secondButtonText = "Buscar Psicólogo",
                 onAIChatClick = onNavigateToAIChat,
-                onSearchPsychologistClick = onNavigateToSearchPsychologist
+                onSecondButtonClick = onNavigateToSearchPsychologist
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -313,8 +314,9 @@ fun GeneralHomeScreenPreview() {
             daysRegistered = 4,
             totalDays = 7,
             daysFeelingSad = 3,
+            secondButtonText = "Buscar Psicólogo",
             onAIChatClick = {},
-            onSearchPsychologistClick = {}
+            onSecondButtonClick = {}
         )
     }
 }

@@ -41,6 +41,7 @@ import com.softfocus.R
 import java.net.URL
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.clickable
+import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.Blue77
 import com.softfocus.ui.theme.RedE8
 import com.softfocus.ui.theme.SourceSansBold
@@ -64,6 +65,7 @@ fun PatientProfileScreen(
     val user by viewModel.user.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val assignedPsychologist by viewModel.assignedPsychologist.collectAsState()
+    val psychologistLoadState by viewModel.psychologistLoadState.collectAsState()
 
     if (uiState is com.softfocus.features.profile.presentation.ProfileUiState.Loading) {
         Box(
@@ -120,18 +122,13 @@ fun PatientProfileScreen(
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 // Profile Image
-                user?.profileImageUrl?.let { imageUrl ->
-                    AsyncImageLoader(
-                        imageUrl = imageUrl,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                    )
-                } ?: Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(GreenA3)
+                ProfileAvatar(
+                    imageUrl = user?.profileImageUrl,
+                    fullName = user?.fullName ?: "Usuario",
+                    size = 120.dp,
+                    fontSize = 48.sp,
+                    backgroundColor = GreenA3,
+                    textColor = Color.White
                 )
 
                 // User Info
@@ -170,21 +167,82 @@ fun PatientProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Mi Terapeuta Actual Section
-            // Patient users ALWAYS have an assigned psychologist (they become patients only after connecting)
-            assignedPsychologist?.let { psychologist ->
-                CurrentTherapistCard(
-                    therapistName = psychologist.fullName,
-                    therapistImageUrl = psychologist.profileImageUrl,
-                    onUnlinkClick = onNavigateToConnect
-                )
-            } ?: run {
-                // Fallback while loading psychologist data
-                CurrentTherapistCard(
-                    therapistName = "Cargando...",
-                    therapistImageUrl = null,
-                    onUnlinkClick = onNavigateToConnect
-                )
+            when (psychologistLoadState) {
+                is com.softfocus.features.profile.presentation.PsychologistLoadState.Success -> {
+                    assignedPsychologist?.let { psychologist ->
+                        CurrentTherapistCard(
+                            therapistName = psychologist.fullName,
+                            therapistImageUrl = psychologist.profileImageUrl,
+                            onUnlinkClick = onNavigateToConnect
+                        )
+                    }
+                }
+                is com.softfocus.features.profile.presentation.PsychologistLoadState.Loading -> {
+                    CurrentTherapistCard(
+                        therapistName = "Cargando...",
+                        therapistImageUrl = null,
+                        onUnlinkClick = onNavigateToConnect
+                    )
+                }
+                is com.softfocus.features.profile.presentation.PsychologistLoadState.NoTherapist -> {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFF5F5F5)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "No tienes un terapeuta asignado",
+                                style = SourceSansRegular,
+                                fontSize = 16.sp,
+                                color = Black
+                            )
+                        }
+                    }
+                }
+                is com.softfocus.features.profile.presentation.PsychologistLoadState.Error -> {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFF5F5F5)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Error al cargar información del terapeuta",
+                                style = SourceSansRegular,
+                                fontSize = 16.sp,
+                                color = RedE8
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextButton(onClick = { viewModel.loadProfile() }) {
+                                Text(
+                                    text = "Reintentar",
+                                    style = SourceSansBold,
+                                    fontSize = 14.sp,
+                                    color = Blue77
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -269,18 +327,13 @@ fun CurrentTherapistCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Columna 1: Imagen
-                therapistImageUrl?.let { imageUrl ->
-                    AsyncImageLoader(
-                        imageUrl = imageUrl,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                    )
-                } ?: Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(GreenA3)
+                ProfileAvatar(
+                    imageUrl = therapistImageUrl,
+                    fullName = therapistName,
+                    size = 100.dp,
+                    fontSize = 40.sp,
+                    backgroundColor = GreenA3,
+                    textColor = Color.White
                 )
 
                 Spacer(modifier = Modifier.width(24.dp))

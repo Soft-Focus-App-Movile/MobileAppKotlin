@@ -1,13 +1,26 @@
 package com.softfocus.features.search.data.repositories
 
+import android.content.Context
+import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.search.data.remote.PsychologistSearchService
 import com.softfocus.features.search.domain.models.Psychologist
 import com.softfocus.features.search.domain.repositories.SearchRepository
 import javax.inject.Inject
 
 class SearchRepositoryImpl @Inject constructor(
-    private val service: PsychologistSearchService
+    private val service: PsychologistSearchService,
+    private val context: Context
 ) : SearchRepository {
+
+    private val userSession = UserSession(context)
+
+    private fun getAuthToken(): String {
+        val token = userSession.getUser()?.token
+        if (token.isNullOrEmpty()) {
+            throw IllegalStateException("Token no disponible. Usuario debe iniciar sesión nuevamente.")
+        }
+        return "Bearer $token"
+    }
 
     override suspend fun searchPsychologists(
         page: Int,
@@ -23,6 +36,7 @@ class SearchRepositoryImpl @Inject constructor(
     ): Result<Pair<List<Psychologist>, Int>> {
         return try {
             val response = service.searchPsychologists(
+                token = getAuthToken(),
                 page = page,
                 pageSize = pageSize,
                 specialties = specialties,
@@ -46,7 +60,10 @@ class SearchRepositoryImpl @Inject constructor(
 
     override suspend fun getPsychologistById(id: String): Result<Psychologist> {
         return try {
-            val response = service.getPsychologistById(id)
+            val response = service.getPsychologistById(
+                token = getAuthToken(),
+                id = id
+            )
             Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)

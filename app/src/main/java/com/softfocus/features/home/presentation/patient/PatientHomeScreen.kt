@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.ui.res.painterResource
 import com.softfocus.R
@@ -29,6 +28,7 @@ import coil3.request.crossfade
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.utils.LocationHelper
 import com.softfocus.features.home.presentation.components.RecommendationsSection
+import com.softfocus.features.home.presentation.components.TrackingHome
 import com.softfocus.features.home.presentation.components.WelcomeCard
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
@@ -53,6 +53,7 @@ import com.softfocus.ui.theme.Gray787
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.SourceSansSemiBold
 import com.softfocus.features.home.presentation.patient.di.patientHomeViewModel
+import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.YellowCB9D
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -221,109 +222,18 @@ fun PatientHomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = YellowCB9D)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Has registrado 4 días\nesta semana",
-                        style = SourceSansSemiBold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.CheckCircle,
-                        contentDescription = null,
-                        tint = Green49,
-                        modifier = Modifier.size(60.dp)
-                    )
+            TrackingHome(
+                daysRegistered = 4,
+                totalDays = 7,
+                daysFeelingSad = 3,
+                secondButtonText = "Hablar con mi terapeuta",
+                onAIChatClick = {
+                    navController.navigate(Route.AIWelcome.path)
+                },
+                onSecondButtonClick = {
+                    // TODO: Navegar al chat con el terapeuta asignado
                 }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFF5F5F5))
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Llevas 3 días sintiéndote mal,",
-                            style = SourceSansRegular,
-                            fontSize = 14.sp,
-                            color = Green29
-                        )
-                        Text(
-                            text = "¿necesitas ayuda?",
-                            style = SourceSansRegular,
-                            fontSize = 14.sp,
-                            color = Green29
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = {
-                                navController.navigate(Route.AIWelcome.path)
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = YellowCB9D
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Hablar con IA",
-                                style = SourceSansRegular,
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = { },
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            Text(
-                                text = "Hablar con él",
-                                style = SourceSansRegular,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                }
-            }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -382,34 +292,14 @@ fun TherapistChatCard(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (therapistState.psychologist.profileImageUrl != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(therapistState.psychologist.profileImageUrl)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(Color.White),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = therapistState.psychologist.fullName.firstOrNull()?.toString() ?: "T",
-                                style = SourceSansSemiBold,
-                                fontSize = 18.sp,
-                                color = Green49
-                            )
-                        }
-                    }
+                    ProfileAvatar(
+                        imageUrl = therapistState.psychologist.profileImageUrl,
+                        fullName = therapistState.psychologist.fullName,
+                        size = 48.dp,
+                        fontSize = 18.sp,
+                        backgroundColor = Color.White,
+                        textColor = Green49
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(

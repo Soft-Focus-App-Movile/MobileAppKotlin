@@ -110,7 +110,6 @@ fun LoginScreen(
             onAdminLoginSuccess()
         } else {
             currentUser.token?.let { token ->
-                TherapyPresentationModule.setAuthToken(token)
                 if (currentUser.userType == com.softfocus.features.auth.domain.models.UserType.PSYCHOLOGIST) {
                     PsychologistPresentationModule.setAuthToken(token)
                 }

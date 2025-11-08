@@ -4,16 +4,15 @@ import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.search.data.models.response.PsychologistDirectoryResponseDto
 import com.softfocus.features.search.data.models.response.PsychologistResponseDto
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-/**
- * Servicio Retrofit para búsqueda de psicólogos
- */
 interface PsychologistSearchService {
 
     @GET(ApiConstants.Users.PSYCHOLOGISTS_DIRECTORY)
     suspend fun searchPsychologists(
+        @Header("Authorization") token: String,
         @Query("page") page: Int = 1,
         @Query("pageSize") pageSize: Int = 20,
         @Query("specialties") specialties: List<String>? = null,
@@ -28,6 +27,7 @@ interface PsychologistSearchService {
 
     @GET(ApiConstants.Users.PSYCHOLOGIST_DETAIL)
     suspend fun getPsychologistById(
+        @Header("Authorization") token: String,
         @Path("id") id: String
     ): PsychologistResponseDto
 }

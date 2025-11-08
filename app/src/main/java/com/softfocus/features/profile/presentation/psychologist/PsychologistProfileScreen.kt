@@ -30,6 +30,7 @@ import com.softfocus.R
 import com.softfocus.ui.theme.*
 import java.net.URL
 import android.graphics.BitmapFactory
+import com.softfocus.ui.components.ProfileAvatar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -101,19 +102,13 @@ fun PsychologistProfileScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(20.dp)
                         ) {
-                            // Profile Image
-                            psychProfile.profileImageUrl?.let { imageUrl ->
-                                AsyncImageLoader(
-                                    imageUrl = imageUrl,
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape)
-                                )
-                            } ?: Box(
-                                modifier = Modifier
-                                    .size(120.dp)
-                                    .clip(CircleShape)
-                                    .background(GreenA3)
+                            ProfileAvatar(
+                                imageUrl = psychProfile.profileImageUrl,
+                                fullName = psychProfile.fullName,
+                                size = 120.dp,
+                                fontSize = 48.sp,
+                                backgroundColor = GreenA3,
+                                textColor = Color.White
                             )
 
                             // User Info

@@ -19,6 +19,9 @@ interface ProfileService {
     @GET(ApiConstants.Users.BY_ID)
     suspend fun getUserById(@Path("id") userId: String): Response<PsychologistCompleteProfileResponseDto>
 
+    @GET(ApiConstants.Users.PSYCHOLOGIST_DETAIL)
+    suspend fun getPsychologistById(@Path("id") psychologistId: String): Response<PsychologistCompleteProfileResponseDto>
+
     @Multipart
     @PUT(ApiConstants.Users.PROFILE)
     suspend fun updateProfileWithImage(

@@ -50,14 +50,12 @@ fun SplashScreen(
                 SessionManager.logout(context)
                 onNavigateToLogin()
             } else {
-                // Token still valid - restore session
                 val user = SessionManager.getCurrentUser(context)
                 user?.token?.let { token ->
-                    TherapyPresentationModule.setAuthToken(token)
                     when (user.userType) {
                         UserType.ADMIN -> AdminPresentationModule.setAuthToken(token)
                         UserType.PSYCHOLOGIST -> PsychologistPresentationModule.setAuthToken(token)
-                        else -> {} // GENERAL and PATIENT only need TherapyModule
+                        else -> {}
                     }
                 }
                 onNavigateToHome()

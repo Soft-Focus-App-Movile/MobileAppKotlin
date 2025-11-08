@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.home.presentation.patient.PatientHomeViewModel
 import com.softfocus.features.library.data.di.LibraryDataModule
@@ -17,6 +18,7 @@ import com.softfocus.features.search.domain.repositories.SearchRepository
 import com.softfocus.features.therapy.data.remote.TherapyService
 import com.softfocus.features.therapy.data.repositories.TherapyRepositoryImpl
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -51,14 +53,14 @@ fun provideLibraryRepository(context: Context): LibraryRepository {
     )
 }
 
-fun provideTherapyRepository(): TherapyRepository {
+fun provideTherapyRepository(context: Context): TherapyRepository {
     val therapyService = getRetrofitInstance().create(TherapyService::class.java)
-    return TherapyRepositoryImpl(therapyService)
+    return TherapyRepositoryImpl(therapyService, context)
 }
 
-fun provideSearchRepository(): SearchRepository {
+fun provideSearchRepository(context: Context): SearchRepository {
     val searchService = getRetrofitInstance().create(PsychologistSearchService::class.java)
-    return SearchRepositoryImpl(searchService)
+    return SearchRepositoryImpl(searchService, context)
 }
 
 @Composable
@@ -69,8 +71,8 @@ fun patientHomeViewModel(): PatientHomeViewModel {
             @Suppress("UNCHECKED_CAST")
             override fun <VM : ViewModel> create(modelClass: Class<VM>): VM {
                 val libraryRepository = provideLibraryRepository(context)
-                val therapyRepository = provideTherapyRepository()
-                val searchRepository = provideSearchRepository()
+                val therapyRepository = provideTherapyRepository(context)
+                val searchRepository = provideSearchRepository(context)
                 return PatientHomeViewModel(
                     libraryRepository,
                     therapyRepository,

@@ -140,20 +140,6 @@ fun AIWelcomeScreen(
                 )
         )
 
-        IconButton(
-            onClick = onClose,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Cerrar",
-                tint = Color.White,
-                modifier = Modifier.size(28.dp)
-            )
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -301,6 +287,21 @@ fun AIWelcomeScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // Close button on top of everything
+        IconButton(
+            onClick = onClose,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Cerrar",
+                tint = Color.White,
+                modifier = Modifier.size(28.dp)
+            )
         }
     }
 }

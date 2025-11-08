@@ -32,8 +32,9 @@ fun TrackingHome(
     daysRegistered: Int = 4,
     totalDays: Int = 7,
     daysFeelingSad: Int = 3,
+    secondButtonText: String = "Buscar Psicólogo",
     onAIChatClick: () -> Unit = {},
-    onSearchPsychologistClick: () -> Unit = {}
+    onSecondButtonClick: () -> Unit = {}
 ) {
     Column {
         // Primera Card: Progreso semanal
@@ -134,7 +135,7 @@ fun TrackingHome(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = onSearchPsychologistClick,
+                            onClick = onSecondButtonClick,
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
@@ -142,7 +143,7 @@ fun TrackingHome(
                             )
                         ) {
                             Text(
-                                text = "Buscar Psicólogo",
+                                text = secondButtonText,
                                 style = SourceSansRegular,
                                 fontSize = 14.sp,
                                 color = Color.Black
@@ -178,8 +179,9 @@ fun TrackingHomePreview() {
             daysRegistered = 4,
             totalDays = 7,
             daysFeelingSad = 3,
+            secondButtonText = "Buscar Psicólogo",
             onAIChatClick = {},
-            onSearchPsychologistClick = {}
+            onSecondButtonClick = {}
         )
     }
 }

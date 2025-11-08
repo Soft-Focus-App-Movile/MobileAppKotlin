@@ -6,12 +6,18 @@ import com.softfocus.features.therapy.data.models.response.ConnectResponseDto
 import com.softfocus.features.therapy.data.models.response.MyRelationshipResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface TherapyService {
     @GET(ApiConstants.Therapy.MY_RELATIONSHIP)
-    suspend fun getMyRelationship(): MyRelationshipResponseDto
+    suspend fun getMyRelationship(
+        @Header("Authorization") token: String
+    ): MyRelationshipResponseDto
 
     @POST(ApiConstants.Therapy.CONNECT)
-    suspend fun connectWithPsychologist(@Body request: ConnectWithPsychologistRequestDto): ConnectResponseDto
+    suspend fun connectWithPsychologist(
+        @Header("Authorization") token: String,
+        @Body request: ConnectWithPsychologistRequestDto
+    ): ConnectResponseDto
 }

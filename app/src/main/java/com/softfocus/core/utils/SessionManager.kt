@@ -30,11 +30,9 @@ object SessionManager {
         val localUserDataSource = LocalUserDataSource(context)
         localUserDataSource.clear()
 
-        // Clear static auth tokens in presentation modules
         AdminPresentationModule.clearAuthToken()
         NotificationPresentationModule.clearAuthToken()
         PsychologistPresentationModule.clearAuthToken()
-        TherapyPresentationModule.clearAuthToken()
 
         // Clear library repository singleton
         LibraryDataModule.clearRepository()

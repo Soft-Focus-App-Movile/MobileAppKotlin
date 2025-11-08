@@ -29,6 +29,9 @@ class ProfileViewModel @Inject constructor(
     private val _assignedPsychologist = MutableStateFlow<AssignedPsychologist?>(null)
     val assignedPsychologist: StateFlow<AssignedPsychologist?> = _assignedPsychologist.asStateFlow()
 
+    private val _psychologistLoadState = MutableStateFlow<PsychologistLoadState>(PsychologistLoadState.Loading)
+    val psychologistLoadState: StateFlow<PsychologistLoadState> = _psychologistLoadState.asStateFlow()
+
     init {
         loadProfile()
     }
@@ -40,6 +43,14 @@ class ProfileViewModel @Inject constructor(
             val cachedUser = userSession.getUser()
             if (cachedUser != null) {
                 _user.value = cachedUser
+            } else {
+                _uiState.value = ProfileUiState.Error("Sesión expirada. Por favor, inicia sesión nuevamente.")
+                return@launch
+            }
+
+            if (cachedUser.token.isNullOrEmpty()) {
+                _uiState.value = ProfileUiState.Error("Token no válido. Por favor, inicia sesión nuevamente.")
+                return@launch
             }
 
             profileRepository.getProfile()
@@ -60,13 +71,20 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadAssignedPsychologist() {
         viewModelScope.launch {
+            _psychologistLoadState.value = PsychologistLoadState.Loading
             profileRepository.getAssignedPsychologist()
                 .onSuccess { psychologist ->
-                    _assignedPsychologist.value = psychologist
+                    if (psychologist != null) {
+                        _assignedPsychologist.value = psychologist
+                        _psychologistLoadState.value = PsychologistLoadState.Success
+                    } else {
+                        _psychologistLoadState.value = PsychologistLoadState.NoTherapist
+                    }
                 }
-                .onFailure {
-                    // Silently fail - psychologist data is optional
-                    _assignedPsychologist.value = null
+                .onFailure { error ->
+                    _psychologistLoadState.value = PsychologistLoadState.Error(
+                        error.message ?: "Error al cargar información del terapeuta"
+                    )
                 }
         }
     }
@@ -174,4 +192,11 @@ sealed class ProfileUiState {
     object Success : ProfileUiState()
     object UpdateSuccess : ProfileUiState()
     data class Error(val message: String) : ProfileUiState()
+}
+
+sealed class PsychologistLoadState {
+    object Loading : PsychologistLoadState()
+    object Success : PsychologistLoadState()
+    object NoTherapist : PsychologistLoadState()
+    data class Error(val message: String) : PsychologistLoadState()
 }
