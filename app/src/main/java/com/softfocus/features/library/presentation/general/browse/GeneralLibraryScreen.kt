@@ -72,12 +72,35 @@ fun GeneralLibraryScreen(
     viewModel: GeneralLibraryViewModel = libraryViewModel { GeneralLibraryViewModel(it) },
     onContentClick: (ContentItem) -> Unit = {},
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
     val selectedEmotion by viewModel.selectedEmotion.collectAsState()
     val selectedVideoCategory by viewModel.selectedVideoCategory.collectAsState()
     val favoriteIds by viewModel.favoriteIds.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+
+    // Cargar lugares cuando se selecciona el tab Place
+    LaunchedEffect(selectedType) {
+        if (selectedType == ContentType.Place) {
+            // Intentar obtener ubicación actual, o usar Lima por defecto
+            val location = com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
+            val latitude = location?.latitude ?: -12.0464  // Lima, Peru por defecto
+            val longitude = location?.longitude ?: -77.0428
+
+            // Log para debugging de ubicación
+            android.util.Log.d("GeneralLibraryScreen", "📍 Ubicación GPS obtenida:")
+            android.util.Log.d("GeneralLibraryScreen", "  - Location object: ${if (location != null) "✅ Disponible" else "❌ Null (usando default)"}")
+            android.util.Log.d("GeneralLibraryScreen", "  - Latitud: $latitude")
+            android.util.Log.d("GeneralLibraryScreen", "  - Longitud: $longitude")
+            if (location != null) {
+                android.util.Log.d("GeneralLibraryScreen", "  - Precisión: ${location.accuracy} metros")
+                android.util.Log.d("GeneralLibraryScreen", "  - Proveedor: ${location.provider}")
+            }
+
+            viewModel.loadPlacesWithWeather(latitude, longitude)
+        }
+    }
 
     LaunchedEffect(searchQuery) {
         kotlinx.coroutines.delay(500)
@@ -181,20 +204,28 @@ fun GeneralLibraryScreenContent(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Para videos: mostrar iconos de categorías
+            // Para lugares: no mostrar búsqueda (se basa en ubicación/clima)
             // Para otros tipos: mostrar barra de búsqueda con filtro
-            if (selectedType == ContentType.Video) {
-                CategoryIcons(
-                    selectedCategory = selectedVideoCategory,
-                    onCategoryClick = onVideoCategorySelected,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            } else {
-                // Barra de búsqueda con filtro
-                SearchBarWithFilter(
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = onSearchQueryChange,
-                    onFilterClick = { showFilterSheet = true }
-                )
+            when (selectedType) {
+                ContentType.Video -> {
+                    CategoryIcons(
+                        selectedCategory = selectedVideoCategory,
+                        onCategoryClick = onVideoCategorySelected,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
+                ContentType.Place -> {
+                    // No mostrar búsqueda para lugares (se basa en GPS y clima)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                else -> {
+                    // Barra de búsqueda con filtro para Movies y Music
+                    SearchBarWithFilter(
+                        searchQuery = searchQuery,
+                        onSearchQueryChange = onSearchQueryChange,
+                        onFilterClick = { showFilterSheet = true }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -246,36 +277,50 @@ fun GeneralLibraryScreenContent(
                         }
                     } else {
                         // Para Videos: usar lista vertical con VideoCard
+                        // Para Places: usar PlacesWeatherView con clima
                         // Para otros tipos: usar grilla con ContentCard
-                        if (selectedType == ContentType.Video) {
-                            LazyColumn(
-                                contentPadding = PaddingValues(vertical = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(content) { item ->
-                                    VideoCard(
-                                        content = item,
-                                        isFavorite = favoriteIds.contains(item.externalId),
-                                        onFavoriteClick = { onFavoriteClick(item) },
-                                        onViewClick = { onContentClick(item) }
+                        when (selectedType) {
+                            ContentType.Video -> {
+                                LazyColumn(
+                                    contentPadding = PaddingValues(vertical = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    items(content) { item ->
+                                        VideoCard(
+                                            content = item,
+                                            isFavorite = favoriteIds.contains(item.externalId),
+                                            onFavoriteClick = { onFavoriteClick(item) },
+                                            onViewClick = { onContentClick(item) }
+                                        )
+                                    }
+                                }
+                            }
+                            ContentType.Place -> {
+                                // Vista especial para lugares con clima
+                                uiState.weatherCondition?.let { weather ->
+                                    com.softfocus.features.library.presentation.general.browse.components.PlacesWeatherView(
+                                        weather = weather,
+                                        places = content,
+                                        onPlaceClick = onContentClick
                                     )
                                 }
                             }
-                        } else {
-                            // Grilla de contenido para Movies, Music, Places
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                items(content) { item ->
-                                    ContentCard(
-                                        content = item,
-                                        isFavorite = favoriteIds.contains(item.externalId),
-                                        onFavoriteClick = { onFavoriteClick(item) },
-                                        onClick = { onContentClick(item) }
-                                    )
+                            else -> {
+                                // Grilla de contenido para Movies, Music
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(2),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    items(content) { item ->
+                                        ContentCard(
+                                            content = item,
+                                            isFavorite = favoriteIds.contains(item.externalId),
+                                            onFavoriteClick = { onFavoriteClick(item) },
+                                            onClick = { onContentClick(item) }
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -261,7 +261,7 @@ class LibraryRepositoryImpl(
             )
 
             val weather = response.weather.toDomain()
-            val places = response.recommendedPlaces.map { it.toDomain() }
+            val places = response.places.map { it.toDomain() }
 
             Result.success(Pair(weather, places))
         } catch (e: Exception) {

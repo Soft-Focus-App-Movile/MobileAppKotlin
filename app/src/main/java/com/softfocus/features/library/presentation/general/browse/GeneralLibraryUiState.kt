@@ -2,6 +2,7 @@ package com.softfocus.features.library.presentation.general.browse
 
 import com.softfocus.features.library.domain.models.ContentItem
 import com.softfocus.features.library.domain.models.ContentType
+import com.softfocus.features.library.domain.models.WeatherCondition
 
 /**
  * Estados de UI para la pantalla de biblioteca general
@@ -17,10 +18,12 @@ sealed class GeneralLibraryUiState {
      *
      * @property contentByType Mapa de tipo de contenido a lista de items
      * @property selectedType Tipo de contenido seleccionado actualmente
+     * @property weatherCondition Información del clima (solo para Places)
      */
     data class Success(
         val contentByType: Map<ContentType, List<ContentItem>>,
-        val selectedType: ContentType = ContentType.Movie
+        val selectedType: ContentType = ContentType.Movie,
+        val weatherCondition: WeatherCondition? = null
     ) : GeneralLibraryUiState() {
         /**
          * Obtiene el contenido del tipo seleccionado

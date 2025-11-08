@@ -10,9 +10,28 @@ data class WeatherPlaceResponseDto(
     @SerializedName("weather")
     val weather: WeatherDto,
 
-    @SerializedName("recommendedPlaces")
-    val recommendedPlaces: List<ContentItemResponseDto>
+    @SerializedName("places")
+    val places: List<ContentItemResponseDto>,
+
+    @SerializedName("totalPlaces")
+    val totalPlaces: Int? = null,
+
+    @SerializedName("location")
+    val location: LocationDto? = null,
+
+    @SerializedName("emotionFilter")
+    val emotionFilter: String? = null
 ) {
+    /**
+     * DTO para información de ubicación
+     */
+    data class LocationDto(
+        @SerializedName("latitude")
+        val latitude: Double,
+
+        @SerializedName("longitude")
+        val longitude: Double
+    )
     /**
      * DTO interno para información del clima
      */
