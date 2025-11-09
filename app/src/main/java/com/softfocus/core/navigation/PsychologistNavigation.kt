@@ -17,6 +17,8 @@ import com.softfocus.features.profile.presentation.psychologist.MyInvitationCode
 import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
 import com.softfocus.ui.components.navigation.PsychologistBottomNav
 import com.softfocus.core.utils.SessionManager
+import com.softfocus.features.crisis.presentation.psychologist.CrisisAlertsScreen
+import com.softfocus.features.crisis.presentation.di.CrisisInjection
 
 
 /**
@@ -108,6 +110,34 @@ fun NavGraphBuilder.psychologistNavigation(
             },
             viewModel = psychologistHomeViewModel
         )
+    }
+
+    // Crisis Alerts Screen
+    composable(Route.CrisisAlerts.path) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = { PsychologistBottomNav(navController) }
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                val crisisAlertsViewModel = remember {
+                    CrisisInjection.getCrisisAlertsViewModel(context)
+                }
+                CrisisAlertsScreen(
+                    viewModel = crisisAlertsViewModel,
+                    onNavigateBack = {
+                        navController.navigate(Route.Home.path) {
+                            popUpTo(Route.Home.path) { inclusive = true }
+                        }
+                    },
+                    onViewPatientProfile = { patientId ->
+                        // TODO: Navigate to patient profile
+                    },
+                    onSendMessage = { patientId ->
+                        // TODO: Navigate to messaging
+                    }
+                )
+            }
+        }
     }
 
 }

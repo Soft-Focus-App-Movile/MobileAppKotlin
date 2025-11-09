@@ -81,7 +81,7 @@ fun GeneralHomeScreen(
                 locationText = if (location != null) {
                     LocationHelper.getCityAndCountry(context, location)
                 } else {
-                    "Lima, Peru"
+                    "No ubication located"
                 }
             }
         }

@@ -32,9 +32,19 @@ val GrayE6 = Color(0xFFE6E6E6)
 val GrayF5 = Color(0xFFF5F5F5)
 val GrayF4 = Color(0xFFF4F4F4)
 val GrayFB = Color(0xFFFBFBFB)
+val Gray89 = Color(0xFF898787)
+
 val White = Color(0xFFFFFFFF)
 val WhiteAlpha08 = Color(0x14FFFFFF)
 val WhiteAlpha30 = Color(0x4DFFFFFF)
+
+val Pending= Color(0xFFFFF3CD)
+val Attended = Color(0xFFD1ECF1)
+val Resolved = Color(0xFFD4EDDA)
+val Dismissed = Color(0xFFF8D7DA)
+
+val PendingButton= Color(0xFFFFC107)
+val AttendedButton = Color(0xFF2196F3)
 
 // Browns
 val Brown4A = Color(0xFF4A4848)

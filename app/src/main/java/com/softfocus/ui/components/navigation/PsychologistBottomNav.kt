@@ -137,25 +137,31 @@ fun PsychologistBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = false) {
+                BottomNavIcon(isSelected = currentRoute == Route.CrisisAlerts.path) {
                     Icon(
-                        imageVector = Icons.Outlined.Announcement,
+                        painter = painterResource(
+                            id = if (currentRoute == Route.CrisisAlerts.path)
+                                R.drawable.ic_siren_filled
+                            else
+                                R.drawable.ic_siren
+                        ),
                         contentDescription = "Alertas",
                         modifier = Modifier.size(24.dp)
                     )
                 }
             },
             label = { Text("Alertas", fontSize = 12.sp, style = SourceSansRegular) },
-            selected = false,
-            onClick = { /* No implementado aún */ },
-            enabled = false,
+            selected = currentRoute == Route.CrisisAlerts.path,
+            onClick = {
+                if (currentRoute != Route.CrisisAlerts.path) {
+                    navController.navigate(Route.CrisisAlerts.path)
+                }
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
                 unselectedTextColor = Color.Gray,
-                disabledIconColor = Color.LightGray,
-                disabledTextColor = Color.LightGray,
                 indicatorColor = Color.Transparent
             )
         )

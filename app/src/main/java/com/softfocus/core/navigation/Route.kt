@@ -17,6 +17,8 @@ Route(val path: String) {
     data object AccountSuccess : Route("account_success")
     data object AccountDenied : Route("account_denied")
 
+    data object Permissions : Route("permissions")
+
     // Main app routes (for future implementation)
     data object Home : Route("home")
     data object Tracking : Route("tracking")
@@ -55,6 +57,8 @@ Route(val path: String) {
     data object InvitationCode : Route("invitation_code")
     data object PsychologistPlan : Route("psychologist_plan")
     data object PsychologistStats : Route("psychologist_stats")
+
+    data object CrisisAlerts : Route("crisis_alerts")
 
     data object AIWelcome : Route("ai_welcome")
     data object AIChat : Route("ai_chat_screen/{initialMessage}?sessionId={sessionId}") {
