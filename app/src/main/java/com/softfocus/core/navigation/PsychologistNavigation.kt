@@ -19,6 +19,7 @@ import com.softfocus.ui.components.navigation.PsychologistBottomNav
 import com.softfocus.core.utils.SessionManager
 import com.softfocus.features.crisis.presentation.psychologist.CrisisAlertsScreen
 import com.softfocus.features.crisis.presentation.di.CrisisInjection
+import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.features.therapy.presentation.psychologist.patientlist.PatientListScreen
 
 
@@ -147,7 +148,26 @@ fun NavGraphBuilder.psychologistNavigation(
             bottomBar = { PsychologistBottomNav(navController) }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
+
+                // 1. Aquí se "usa" la función del módulo para obtener el ViewModel
+                val patientListViewModel = remember {
+                    TherapyPresentationModule.getPatientListViewModel()
+                }
+
+                // 2. Se inyecta el ViewModel en la pantalla
                 PatientListScreen(
+                    viewModel = patientListViewModel,
+                    onPatientClick = { patient ->
+                        // 3. (Extra) Manejar la navegación al detalle del paciente
+                        // Esta ruta ya existe en tu archivo Route.kt
+                        navController.navigate(
+                            Route.PsychologistPatientDetail.createRoute(
+                                patientId = patient.patientId,
+                                relationshipId = patient.id, // El ID del PatientDirectory es el RelationshipId
+                                patientName = patient.patientName
+                            )
+                        )
+                    }
                 )
             }
         }

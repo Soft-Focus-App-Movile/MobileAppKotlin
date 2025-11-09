@@ -4,6 +4,7 @@ import android.content.Context
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.therapy.data.models.request.ConnectWithPsychologistRequestDto
 import com.softfocus.features.therapy.data.remote.TherapyService
+import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.therapy.domain.models.TherapeuticRelationship
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 
@@ -46,6 +47,18 @@ class TherapyRepositoryImpl(
                 request = request
             )
             Result.success(response.relationshipId)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getMyPatients(): Result<List<PatientDirectory>> {
+        return try {
+            val response = therapyService.getMyPatients(
+                token = getAuthToken()
+            )
+            val patients = response.map { it.toDomain() }
+            Result.success(patients)
         } catch (e: Exception) {
             Result.failure(e)
         }

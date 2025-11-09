@@ -4,6 +4,7 @@ import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.therapy.data.models.request.ConnectWithPsychologistRequestDto
 import com.softfocus.features.therapy.data.models.response.ConnectResponseDto
 import com.softfocus.features.therapy.data.models.response.MyRelationshipResponseDto
+import com.softfocus.features.therapy.data.models.response.PatientDirectoryResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -20,4 +21,9 @@ interface TherapyService {
         @Header("Authorization") token: String,
         @Body request: ConnectWithPsychologistRequestDto
     ): ConnectResponseDto
+
+    @GET(ApiConstants.Therapy.PATIENTS)
+    suspend fun getMyPatients(
+        @Header("Authorization") token: String
+    ): List<PatientDirectoryResponseDto>
 }

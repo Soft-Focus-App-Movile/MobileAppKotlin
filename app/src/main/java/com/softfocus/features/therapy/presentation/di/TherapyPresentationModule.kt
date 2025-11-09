@@ -11,6 +11,8 @@ import com.softfocus.features.therapy.domain.usecases.ConnectWithPsychologistUse
 import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
 import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistViewModel
 import com.softfocus.features.home.presentation.HomeViewModel
+import com.softfocus.features.therapy.domain.usecases.GetMyPatientsUseCase
+import com.softfocus.features.therapy.presentation.psychologist.patientlist.PatientListViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -66,6 +68,10 @@ object TherapyPresentationModule {
         return GetMyRelationshipUseCase(getTherapyRepository())
     }
 
+    fun getGetMyPatientsUseCase(): GetMyPatientsUseCase {
+        return GetMyPatientsUseCase(getTherapyRepository())
+    }
+
     fun getConnectWithPsychologistUseCase(): ConnectWithPsychologistUseCase {
         return ConnectWithPsychologistUseCase(getTherapyRepository())
     }
@@ -86,5 +92,9 @@ object TherapyPresentationModule {
             getGetMyRelationshipUseCase(),
             getLocalUserDataSource(context)
         )
+    }
+
+    fun getPatientListViewModel(): PatientListViewModel {
+        return PatientListViewModel(getGetMyPatientsUseCase())
     }
 }

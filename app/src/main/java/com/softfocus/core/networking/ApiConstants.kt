@@ -55,6 +55,7 @@ object ApiConstants {
     object Therapy {
         const val MY_RELATIONSHIP = "therapy/my-relationship"
         const val CONNECT = "therapy/connect"
+        const val PATIENTS = "therapy/patients"
     }
 
     // AI endpoints
