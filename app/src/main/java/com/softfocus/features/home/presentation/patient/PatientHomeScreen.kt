@@ -22,7 +22,7 @@ import com.softfocus.core.utils.LocationHelper
 import com.softfocus.features.home.presentation.components.RecommendationsSection
 import com.softfocus.features.home.presentation.components.TrackingHome
 import com.softfocus.features.home.presentation.components.WelcomeCard
-import com.softfocus.features.home.presentation.patient.components.CrisisButton
+import com.softfocus.features.crisis.presentation.components.CrisisButton
 import com.softfocus.features.home.presentation.patient.components.TasksSection
 import com.softfocus.features.home.presentation.patient.components.TherapistChatCard
 import kotlinx.coroutines.launch
@@ -99,9 +99,7 @@ fun PatientHomeScreen(
                         }
                     },
                     actions = {
-                        CrisisButton(onClick = {
-                            // TODO: Navegar a pantalla de crisis
-                        })
+                        CrisisButton()
                         Spacer(modifier = Modifier.width(8.dp))
                         IconButton(onClick = onNavigateToNotifications) {
                             Icon(

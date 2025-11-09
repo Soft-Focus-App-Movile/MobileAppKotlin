@@ -778,7 +778,7 @@ http://98.90.172.251:5000/swagger/index.html
   ---
 
 👨‍⚕ Psicólogos Verificados (3)
-
+SBUDX5KU
 1. Dra. Patricia Sanchez
    - Email: psychologist1@test.com                                                                                                                                                                                                 
    - Password: Psy123!

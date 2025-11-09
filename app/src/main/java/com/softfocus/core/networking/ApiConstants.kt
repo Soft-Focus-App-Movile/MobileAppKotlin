@@ -110,6 +110,20 @@ object ApiConstants {
         const val RESET = "preferences/reset"
     }
 
+    // Crisis endpoints
+    object Crisis {
+        const val ALERT = "crisis/alert"
+        const val ALERTS_BY_PATIENT = "crisis/alerts/patient"
+        const val ALERTS_BY_PSYCHOLOGIST = "crisis/alerts/psychologist"
+        const val ALERT_BY_ID = "crisis/alerts/{id}"
+        const val UPDATE_STATUS = "crisis/alerts/{id}/status"
+        const val UPDATE_SEVERITY = "crisis/alerts/{id}/severity"
+
+        fun getAlertById(id: String) = ALERT_BY_ID.replace("{id}", id)
+        fun updateStatus(id: String) = UPDATE_STATUS.replace("{id}", id)
+        fun updateSeverity(id: String) = UPDATE_SEVERITY.replace("{id}", id)
+    }
+
     // Library endpoints
     object Library {
         const val BASE = "library"

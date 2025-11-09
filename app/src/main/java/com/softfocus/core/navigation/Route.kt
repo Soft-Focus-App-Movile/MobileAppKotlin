@@ -17,6 +17,8 @@ Route(val path: String) {
     data object AccountSuccess : Route("account_success")
     data object AccountDenied : Route("account_denied")
 
+    data object Permissions : Route("permissions")
+
     // Main app routes (for future implementation)
     data object Home : Route("home")
     data object Tracking : Route("tracking")

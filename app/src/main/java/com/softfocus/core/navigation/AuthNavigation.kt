@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.softfocus.core.permissions.shouldShowPermissions
 import com.softfocus.features.auth.presentation.accountreview.AccountReviewScreen
 import com.softfocus.features.auth.presentation.di.PresentationModule
 import com.softfocus.features.auth.presentation.login.LoginScreen
@@ -32,7 +33,12 @@ fun NavGraphBuilder.authNavigation(
                 }
             },
             onNavigateToHome = {
-                navController.navigate(Route.Home.path) {
+                val destination = if (shouldShowPermissions(context)) {
+                    Route.Permissions.path
+                } else {
+                    Route.Home.path
+                }
+                navController.navigate(destination) {
                     popUpTo(Route.Splash.path) { inclusive = true }
                 }
             }
@@ -45,7 +51,12 @@ fun NavGraphBuilder.authNavigation(
         LoginScreen(
             viewModel = viewModel,
             onLoginSuccess = {
-                navController.navigate(Route.Home.path) {
+                val destination = if (shouldShowPermissions(context)) {
+                    Route.Permissions.path
+                } else {
+                    Route.Home.path
+                }
+                navController.navigate(destination) {
                     popUpTo(Route.Login.path) { inclusive = true }
                 }
             },
@@ -96,7 +107,12 @@ fun NavGraphBuilder.authNavigation(
                         popUpTo(Route.Register.path) { inclusive = true }
                     }
                 } else {
-                    navController.navigate(Route.Home.path) {
+                    val destination = if (shouldShowPermissions(context)) {
+                        Route.Permissions.path
+                    } else {
+                        Route.Home.path
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Route.Register.path) { inclusive = true }
                     }
                 }
@@ -148,7 +164,12 @@ fun NavGraphBuilder.authNavigation(
                         popUpTo(Route.Register.path) { inclusive = true }
                     }
                 } else {
-                    navController.navigate(Route.Home.path) {
+                    val destination = if (shouldShowPermissions(context)) {
+                        Route.Permissions.path
+                    } else {
+                        Route.Home.path
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Route.Register.path) { inclusive = true }
                     }
                 }

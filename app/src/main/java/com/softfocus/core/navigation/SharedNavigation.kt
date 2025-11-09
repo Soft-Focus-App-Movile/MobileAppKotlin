@@ -22,6 +22,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.softfocus.core.data.local.UserSession
+import com.softfocus.core.permissions.PermissionsScreen
+import com.softfocus.core.permissions.shouldShowPermissions
 import com.softfocus.features.ai.presentation.chat.AIChatScreen
 import com.softfocus.features.ai.presentation.welcome.AIWelcomeScreen
 import com.softfocus.features.auth.domain.models.UserType
@@ -56,6 +58,16 @@ fun NavGraphBuilder.sharedNavigation(
     navController: NavHostController,
     context: Context
 ) {
+    composable(Route.Permissions.path) {
+        PermissionsScreen(
+            onPermissionsGranted = {
+                navController.navigate(Route.Home.path) {
+                    popUpTo(Route.Permissions.path) { inclusive = true }
+                }
+            }
+        )
+    }
+
     // Home Screen (different content per user type)
     composable(Route.Home.path) {
         val userSession = remember { UserSession(context) }
