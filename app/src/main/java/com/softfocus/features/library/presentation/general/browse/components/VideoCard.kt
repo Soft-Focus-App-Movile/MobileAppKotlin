@@ -1,7 +1,9 @@
 package com.softfocus.features.library.presentation.general.browse.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,8 +40,10 @@ import com.softfocus.ui.theme.*
  * @param onFavoriteClick Callback al hacer clic en el botón de favorito
  * @param onViewClick Callback al hacer clic en el botón "Ver"
  * @param onClick Callback al hacer clic en el card (para selección)
+ * @param onLongClick Callback al mantener presionado el card
  * @param modifier Modificador opcional
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VideoCard(
     content: ContentItem,
@@ -49,13 +53,17 @@ fun VideoCard(
     onFavoriteClick: () -> Unit = {},
     onViewClick: () -> Unit = {},
     onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable(enabled = isSelectionMode, onClick = onClick),
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelectionMode && isSelected) {

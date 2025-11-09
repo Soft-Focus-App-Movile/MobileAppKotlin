@@ -1,6 +1,8 @@
 package com.softfocus.features.library.presentation.general.browse.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -42,8 +44,10 @@ import com.softfocus.ui.theme.SourceSansLight
  * @param isSelectionMode Si está en modo selección (mostrar overlay)
  * @param onFavoriteClick Callback al hacer clic en el botón de favorito
  * @param onClick Callback al hacer clic en el card
+ * @param onLongClick Callback al mantener presionado el card (para activar modo selección)
  * @param modifier Modificador opcional
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContentCard(
     content: ContentItem,
@@ -52,12 +56,16 @@ fun ContentCard(
     isSelectionMode: Boolean = false,
     onFavoriteClick: () -> Unit = {},
     onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .width(160.dp)
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         // 1. Imagen con botón de favorito o indicador de selección
         Box(

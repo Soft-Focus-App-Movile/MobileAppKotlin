@@ -26,4 +26,5 @@ interface TherapyService {
     suspend fun getMyPatients(
         @Header("Authorization") token: String
     ): List<PatientDirectoryResponseDto>
+
 }

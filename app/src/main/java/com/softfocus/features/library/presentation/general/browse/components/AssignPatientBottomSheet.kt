@@ -20,42 +20,34 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import com.softfocus.features.library.domain.models.MockPatientsData
-import com.softfocus.features.library.domain.models.Patient
+import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Gray828
 import com.softfocus.ui.theme.SourceSansSemiBold
 import com.softfocus.ui.theme.SourceSansRegular
 
-/**
- * Bottom Sheet para seleccionar un paciente al que asignar contenido
- * Solo visible para psicólogos
- *
- * @param selectedCount Cantidad de contenido seleccionado
- * @param onPatientSelected Callback cuando se selecciona un paciente (patient, patientId, patientName)
- * @param onDismiss Callback para cerrar el bottom sheet
- * @param modifier Modificador opcional
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssignPatientBottomSheet(
     selectedCount: Int,
+    patients: List<PatientDirectory>,
+    isLoading: Boolean,
+    errorMessage: String?,
     onPatientSelected: (patientId: String, patientName: String) -> Unit,
     onDismiss: () -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val patients = remember { MockPatientsData.patients }
 
-    // Filtrar pacientes por búsqueda
-    val filteredPatients = remember(searchQuery) {
+    val filteredPatients = remember(searchQuery, patients) {
         if (searchQuery.isBlank()) {
             patients
         } else {
             patients.filter { patient ->
-                patient.name.contains(searchQuery, ignoreCase = true) ||
-                patient.email.contains(searchQuery, ignoreCase = true)
+                patient.patientName.contains(searchQuery, ignoreCase = true)
             }
         }
     }
@@ -144,36 +136,75 @@ fun AssignPatientBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Lista de pacientes
-            if (filteredPatients.isEmpty()) {
-                // Estado vacío
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No se encontraron pacientes",
-                        style = SourceSansRegular.copy(fontSize = 14.sp),
-                        color = Gray828
-                    )
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Green49)
+                    }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filteredPatients) { patient ->
-                        PatientItem(
-                            patient = patient,
-                            onClick = {
-                                onPatientSelected(patient.id, patient.name)
-                                onDismiss()
+
+                errorMessage != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = errorMessage,
+                                style = SourceSansRegular.copy(fontSize = 14.sp),
+                                color = Gray828
+                            )
+                            Button(
+                                onClick = onRetry,
+                                colors = ButtonDefaults.buttonColors(containerColor = Green49)
+                            ) {
+                                Text("Reintentar", color = Color.Black)
                             }
+                        }
+                    }
+                }
+
+                filteredPatients.isEmpty() -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No se encontraron pacientes",
+                            style = SourceSansRegular.copy(fontSize = 14.sp),
+                            color = Gray828
                         )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(filteredPatients) { patient ->
+                            PatientItem(
+                                patient = patient,
+                                onClick = {
+                                    onPatientSelected(patient.id, patient.patientName)
+                                    onDismiss()
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -183,12 +214,9 @@ fun AssignPatientBottomSheet(
     }
 }
 
-/**
- * Item individual de paciente en la lista
- */
 @Composable
 private fun PatientItem(
-    patient: Patient,
+    patient: PatientDirectory,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -205,42 +233,23 @@ private fun PatientItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Foto del paciente
-            if (patient.photoUrl != null) {
-                AsyncImage(
-                    model = patient.photoUrl,
-                    contentDescription = patient.name,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Gray828)
-                )
-            } else {
-                // Inicial si no hay foto
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Green49),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = patient.name.first().uppercase(),
-                        style = SourceSansSemiBold.copy(fontSize = 20.sp),
-                        color = Color.Black
-                    )
-                }
-            }
+            AsyncImage(
+                model = patient.profilePhotoUrl,
+                contentDescription = patient.patientName,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Gray828)
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Información del paciente
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = patient.name,
+                    text = patient.patientName,
                     style = SourceSansSemiBold.copy(fontSize = 16.sp),
                     color = Color.White,
                     maxLines = 1,
@@ -248,7 +257,7 @@ private fun PatientItem(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = patient.email,
+                    text = patient.age.toString(),
                     style = SourceSansRegular.copy(fontSize = 13.sp),
                     color = Gray828,
                     maxLines = 1,

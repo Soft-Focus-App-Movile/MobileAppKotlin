@@ -136,4 +136,72 @@ fun NavGraphBuilder.generalNavigation(
             }
         }
     }
+
+    // Library Screen for General
+    composable(Route.Library.path) {
+        val homeViewModel = remember { TherapyPresentationModule.getHomeViewModel(context) }
+        val isLoading = homeViewModel.isLoading.collectAsState()
+
+        if (isLoading.value) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF6B8E6F))
+            }
+        } else {
+            Scaffold(
+                containerColor = Color.Transparent,
+                bottomBar = { GeneralBottomNav(navController) }
+            ) { paddingValues ->
+                Box(modifier = Modifier.padding(paddingValues)) {
+                    com.softfocus.features.library.presentation.general.browse.GeneralLibraryScreen(
+                        onContentClick = { content ->
+                            when (content.type) {
+                                com.softfocus.features.library.domain.models.ContentType.Music -> {
+                                    val spotifyUrl = content.spotifyUrl
+                                    if (!spotifyUrl.isNullOrBlank()) {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUrl))
+                                            context.startActivity(intent)
+                                        } catch (e: ActivityNotFoundException) {
+                                            try {
+                                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(spotifyUrl))
+                                                context.startActivity(webIntent)
+                                            } catch (ex: Exception) {
+                                                Toast.makeText(context, "No se pudo abrir Spotify", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "Esta canción no tiene enlace de Spotify", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                com.softfocus.features.library.domain.models.ContentType.Video -> {
+                                    val youtubeUrl = content.youtubeUrl
+                                    if (!youtubeUrl.isNullOrBlank()) {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl))
+                                            context.startActivity(intent)
+                                        } catch (e: ActivityNotFoundException) {
+                                            try {
+                                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl))
+                                                context.startActivity(webIntent)
+                                            } catch (ex: Exception) {
+                                                Toast.makeText(context, "No se pudo abrir YouTube", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "Este video no tiene enlace de YouTube", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                else -> {
+                                    Toast.makeText(context, "Contenido no disponible para visualización", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
 }

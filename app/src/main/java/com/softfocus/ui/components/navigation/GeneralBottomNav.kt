@@ -156,7 +156,7 @@ fun GeneralBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = currentRoute == Route.LibraryGeneralBrowse.path || currentRoute?.startsWith("library_general_detail") == true) {
+                BottomNavIcon(isSelected = currentRoute == Route.Library.path || currentRoute?.startsWith("library_general_detail") == true) {
                     Icon(
                         imageVector = Icons.Outlined.Bookmarks,
                         contentDescription = "Biblioteca",
@@ -165,9 +165,9 @@ fun GeneralBottomNav(navController: NavController) {
                 }
             },
             label = { Text("Biblioteca", fontSize = 12.sp, style = SourceSansRegular) },
-            selected = currentRoute == Route.LibraryGeneralBrowse.path || currentRoute?.startsWith("library_general_detail") == true,
+            selected = currentRoute == Route.Library.path || currentRoute?.startsWith("library_general_detail") == true,
             onClick = {
-                navController.navigate(Route.LibraryGeneralBrowse.path)
+                navController.navigate(Route.Library.path)
             },
             enabled = true,
             colors = NavigationBarItemDefaults.colors(

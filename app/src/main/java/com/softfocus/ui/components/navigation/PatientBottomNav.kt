@@ -164,7 +164,7 @@ fun PatientBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = currentRoute == Route.LibraryGeneralBrowse.path) {
+                BottomNavIcon(isSelected = currentRoute == Route.Library.path) {
                     Icon(
                         imageVector = Icons.Outlined.Bookmarks,
                         contentDescription = "Biblioteca",
@@ -173,10 +173,10 @@ fun PatientBottomNav(navController: NavController) {
                 }
             },
             label = { Text("Biblioteca", fontSize = 12.sp, style = SourceSansRegular) },
-            selected = currentRoute == Route.LibraryGeneralBrowse.path,
+            selected = currentRoute == Route.Library.path,
             onClick = {
-                if (currentRoute != Route.LibraryGeneralBrowse.path) {
-                    navController.navigate(Route.LibraryGeneralBrowse.path)
+                if (currentRoute != Route.Library.path) {
+                    navController.navigate(Route.Library.path)
                 }
             },
             colors = NavigationBarItemDefaults.colors(

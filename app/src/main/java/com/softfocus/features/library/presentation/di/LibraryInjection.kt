@@ -10,6 +10,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.library.data.di.LibraryDataModule
 import com.softfocus.features.library.domain.repositories.LibraryRepository
+import com.softfocus.features.therapy.data.remote.TherapyService
+import com.softfocus.features.therapy.data.repositories.TherapyRepositoryImpl
+import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -39,10 +42,7 @@ private fun getOkHttpClient(): OkHttpClient {
         .build()
 }
 
-/**
- * Crea o reutiliza una instancia de Retrofit
- */
-private fun getRetrofitInstance(): Retrofit {
+fun getRetrofitInstance(): Retrofit {
     return Retrofit.Builder()
         .baseUrl(ApiConstants.BASE_URL)
         .client(getOkHttpClient())
@@ -50,12 +50,6 @@ private fun getRetrofitInstance(): Retrofit {
         .build()
 }
 
-/**
- * Provee el repositorio de Library
- *
- * @param context Contexto de la aplicación
- * @return Instancia del repositorio
- */
 fun provideLibraryRepository(context: Context): LibraryRepository {
     return LibraryDataModule.provideLibraryRepository(
         context = context,
@@ -63,19 +57,12 @@ fun provideLibraryRepository(context: Context): LibraryRepository {
     )
 }
 
-/**
- * Helper Composable para obtener un ViewModel con el repositorio inyectado
- *
- * Ejemplo de uso:
- * ```
- * @Composable
- * fun MyScreen() {
- *     val viewModel: MyViewModel = libraryViewModel { repository ->
- *         MyViewModel(repository)
- *     }
- * }
- * ```
- */
+fun provideTherapyRepository(context: Context): TherapyRepository {
+    val retrofit = getRetrofitInstance()
+    val therapyService = retrofit.create(TherapyService::class.java)
+    return TherapyRepositoryImpl(therapyService, context)
+}
+
 @Composable
 inline fun <reified T : ViewModel> libraryViewModel(
     crossinline creator: (LibraryRepository) -> T
@@ -87,6 +74,24 @@ inline fun <reified T : ViewModel> libraryViewModel(
             override fun <VM : ViewModel> create(modelClass: Class<VM>): VM {
                 val repository = provideLibraryRepository(context)
                 return creator(repository) as VM
+            }
+        }
+    }
+    return viewModel(factory = factory)
+}
+
+@Composable
+inline fun <reified T : ViewModel> libraryViewModelWithTherapy(
+    crossinline creator: (LibraryRepository, TherapyRepository) -> T
+): T {
+    val context = LocalContext.current
+    val factory = remember {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <VM : ViewModel> create(modelClass: Class<VM>): VM {
+                val libraryRepo = provideLibraryRepository(context)
+                val therapyRepo = provideTherapyRepository(context)
+                return creator(libraryRepo, therapyRepo) as VM
             }
         }
     }

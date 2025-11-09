@@ -24,7 +24,8 @@ import kotlinx.coroutines.launch
  * - Lugares
  */
 class GeneralLibraryViewModel(
-    private val repository: LibraryRepository
+    private val repository: LibraryRepository,
+    private val therapyRepository: com.softfocus.features.therapy.domain.repositories.TherapyRepository
 ) : ViewModel() {
 
     companion object {
@@ -48,18 +49,21 @@ class GeneralLibraryViewModel(
 
     private val _favoritesMap = MutableStateFlow<Map<String, String>>(emptyMap())
 
-    // Selection state for psychologist multi-select
     private val _selectedContentIds = MutableStateFlow<Set<String>>(emptySet())
     val selectedContentIds: StateFlow<Set<String>> = _selectedContentIds.asStateFlow()
 
-    // Assigned content for patient view
-    private val _assignedContent = MutableStateFlow<List<ContentItem>>(emptyList())
-    val assignedContent: StateFlow<List<ContentItem>> = _assignedContent.asStateFlow()
+    private val _patients = MutableStateFlow<List<com.softfocus.features.therapy.domain.models.PatientDirectory>>(emptyList())
+    val patients: StateFlow<List<com.softfocus.features.therapy.domain.models.PatientDirectory>> = _patients.asStateFlow()
+
+    private val _patientsLoading = MutableStateFlow(false)
+    val patientsLoading: StateFlow<Boolean> = _patientsLoading.asStateFlow()
+
+    private val _patientsError = MutableStateFlow<String?>(null)
+    val patientsError: StateFlow<String?> = _patientsError.asStateFlow()
 
     init {
         loadAllContent()
         loadFavorites()
-        loadAssignedContent()
     }
 
     /**
@@ -407,52 +411,97 @@ class GeneralLibraryViewModel(
         Log.d(TAG, "toggleContentSelection: ${_selectedContentIds.value.size} items seleccionados")
     }
 
-    /**
-     * Limpia toda la selección
-     */
     fun clearSelection() {
         _selectedContentIds.value = emptySet()
         Log.d(TAG, "clearSelection: Selección limpiada")
     }
 
-    /**
-     * Asigna el contenido seleccionado a un paciente
-     * (Mock implementation - solo simula la asignación)
-     */
-    fun assignContentToPatient(patientId: String, patientName: String) {
+    fun loadPatients() {
         viewModelScope.launch {
-            val selectedIds = _selectedContentIds.value
-            Log.d(TAG, "assignContentToPatient: Asignando ${selectedIds.size} items a $patientName (ID: $patientId)")
+            _patientsLoading.value = true
+            _patientsError.value = null
 
-            // Aquí iría la llamada real al backend
-            // repository.assignContent(patientId, selectedIds)
-
-            // Simulación: esperar un poco y limpiar selección
-            kotlinx.coroutines.delay(500)
-            clearSelection()
-
-            Log.d(TAG, "assignContentToPatient: ✅ Contenido asignado exitosamente")
+            therapyRepository.getMyPatients().fold(
+                onSuccess = { patientList ->
+                    _patients.value = patientList
+                    _patientsLoading.value = false
+                    Log.d(TAG, "loadPatients: ${patientList.size} pacientes cargados")
+                },
+                onFailure = { error ->
+                    _patientsError.value = error.message ?: "Error al cargar pacientes"
+                    _patientsLoading.value = false
+                    Log.e(TAG, "loadPatients: Error: ${error.message}", error)
+                }
+            )
         }
     }
 
     /**
-     * Carga el contenido asignado por el terapeuta (para pacientes)
-     * Usa mock data en lugar de API
+     * Asigna el contenido seleccionado a múltiples pacientes
      */
-    private fun loadAssignedContent() {
-        _assignedContent.value = MockLibraryData.assignedContent
-        Log.d(TAG, "loadAssignedContent: ${_assignedContent.value.size} items asignados cargados (mock)")
-    }
+    fun assignContentToPatients(
+        patientIds: List<String>,
+        notes: String? = null,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val selectedIds = _selectedContentIds.value
+            Log.d(TAG, "assignContentToPatients: Asignando ${selectedIds.size} items a ${patientIds.size} paciente(s)")
 
-    /**
-     * Carga contenido usando mock data en lugar de la API
-     * Útil para desarrollo sin backend
-     */
-    fun loadMockContent() {
-        Log.d(TAG, "loadMockContent: Cargando contenido desde mock data")
-        _uiState.value = GeneralLibraryUiState.Success(
-            contentByType = MockLibraryData.allContent,
-            selectedType = _selectedType.value
-        )
+            if (selectedIds.isEmpty()) {
+                onError("No hay contenido seleccionado")
+                return@launch
+            }
+
+            val currentState = _uiState.value
+            if (currentState !is GeneralLibraryUiState.Success) {
+                onError("Estado inválido")
+                return@launch
+            }
+
+            val allContent = currentState.contentByType.values.flatten()
+
+            try {
+                var successCount = 0
+                var errorCount = 0
+
+                for (contentId in selectedIds) {
+                    val content = allContent.find { it.id == contentId || it.externalId == contentId }
+                    if (content == null) {
+                        Log.w(TAG, "assignContentToPatients: Contenido no encontrado: $contentId")
+                        errorCount++
+                        continue
+                    }
+
+                    repository.assignContent(
+                        patientIds = patientIds,
+                        contentId = content.externalId,
+                        contentType = content.type,
+                        notes = notes
+                    ).fold(
+                        onSuccess = { assignmentIds ->
+                            Log.d(TAG, "assignContentToPatients: ✅ ${assignmentIds.size} asignaciones creadas para ${content.title}")
+                            successCount++
+                        },
+                        onFailure = { error ->
+                            Log.e(TAG, "assignContentToPatients: ❌ Error asignando ${content.title}: ${error.message}")
+                            errorCount++
+                        }
+                    )
+                }
+
+                if (errorCount == 0) {
+                    clearSelection()
+                    onSuccess()
+                    Log.d(TAG, "assignContentToPatients: ✅ Todas las asignaciones exitosas ($successCount)")
+                } else {
+                    onError("$successCount exitosas, $errorCount fallidas")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "assignContentToPatients: ❌ Excepción: ${e.message}", e)
+                onError(e.message ?: "Error al asignar contenido")
+            }
+        }
     }
 }

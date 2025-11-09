@@ -176,7 +176,7 @@ fun PsychologistBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = false) {
+                BottomNavIcon(isSelected = currentRoute == Route.Library.path) {
                     Icon(
                         imageVector = Icons.Outlined.Bookmarks,
                         contentDescription = "Biblioteca",
@@ -185,16 +185,17 @@ fun PsychologistBottomNav(navController: NavController) {
                 }
             },
             label = { Text("Biblioteca", fontSize = 12.sp, style = SourceSansRegular) },
-            selected = false,
-            onClick = { /* TODO: Implementar para Psychologist */ },
-            enabled = false,
+            selected = currentRoute == Route.Library.path,
+            onClick = {
+                if (currentRoute != Route.Library.path) {
+                    navController.navigate(Route.Library.path)
+                }
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
                 unselectedTextColor = Color.Gray,
-                disabledIconColor = Color.LightGray,
-                disabledTextColor = Color.LightGray,
                 indicatorColor = Color.Transparent
             )
         )
