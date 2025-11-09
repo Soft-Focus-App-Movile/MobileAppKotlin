@@ -87,7 +87,17 @@ fun NavGraphBuilder.patientNavigation(
             Box(modifier = Modifier.padding(paddingValues)) {
                 com.softfocus.features.library.presentation.general.browse.GeneralLibraryScreen(
                     onContentClick = { content ->
+                        // Navegar a ContentDetailScreen para Movies y Places
+                        // Abrir directamente Spotify/YouTube para Music y Videos
                         when (content.type) {
+                            com.softfocus.features.library.domain.models.ContentType.Movie -> {
+                                // Navegar a la pantalla de detalle
+                                navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
+                            }
+                            com.softfocus.features.library.domain.models.ContentType.Weather -> {
+                                // Weather solo muestra información, no navega
+                                Toast.makeText(context, "Información del clima en tu ubicación actual", Toast.LENGTH_SHORT).show()
+                            }
                             com.softfocus.features.library.domain.models.ContentType.Music -> {
                                 val spotifyUrl = content.spotifyUrl
                                 if (!spotifyUrl.isNullOrBlank()) {
@@ -123,9 +133,6 @@ fun NavGraphBuilder.patientNavigation(
                                 } else {
                                     Toast.makeText(context, "Este video no tiene enlace de YouTube", Toast.LENGTH_SHORT).show()
                                 }
-                            }
-                            else -> {
-                                Toast.makeText(context, "Contenido no disponible para visualización", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

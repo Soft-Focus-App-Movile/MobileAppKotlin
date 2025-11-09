@@ -14,15 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel para la pantalla de biblioteca general
- *
- * Maneja el estado de la pantalla principal de biblioteca con tabs de:
- * - Películas
- * - Música
- * - Videos
- * - Lugares
- */
 class GeneralLibraryViewModel(
     private val repository: LibraryRepository,
     private val therapyRepository: com.softfocus.features.therapy.domain.repositories.TherapyRepository
@@ -66,9 +57,6 @@ class GeneralLibraryViewModel(
         loadFavorites()
     }
 
-    /**
-     * Carga contenido recomendado para todos los tipos
-     */
     private fun loadAllContent() {
         viewModelScope.launch {
             Log.d(TAG, "loadAllContent: Iniciando carga de contenido")
@@ -78,11 +66,8 @@ class GeneralLibraryViewModel(
                 val contentMap = mutableMapOf<ContentType, List<ContentItem>>()
                 val errors = mutableListOf<String>()
 
-                // Cargar contenido para cada tipo - ESPERAR cada llamada
-                // Omitir Place ya que necesita coordenadas GPS específicas
                 for (type in ContentType.values()) {
-                    if (type == ContentType.Place) {
-                        Log.d(TAG, "loadAllContent: Omitiendo Place (requiere ubicación GPS)")
+                    if (type == ContentType.Weather) {
                         continue
                     }
                     Log.d(TAG, "loadAllContent: Cargando contenido para $type")
@@ -131,9 +116,6 @@ class GeneralLibraryViewModel(
         }
     }
 
-    /**
-     * Carga contenido filtrado por emoción
-     */
     fun loadContentByEmotion(emotion: EmotionalTag) {
         viewModelScope.launch {
             Log.d(TAG, "loadContentByEmotion: Iniciando carga para emoción $emotion")
@@ -144,11 +126,8 @@ class GeneralLibraryViewModel(
                 val contentMap = mutableMapOf<ContentType, List<ContentItem>>()
                 val errors = mutableListOf<String>()
 
-                // Cargar contenido para cada tipo con filtro de emoción - ESPERAR cada llamada
-                // Omitir Place ya que necesita coordenadas GPS específicas
                 for (type in ContentType.values()) {
-                    if (type == ContentType.Place) {
-                        Log.d(TAG, "loadContentByEmotion: Omitiendo Place (requiere ubicación GPS)")
+                    if (type == ContentType.Weather) {
                         continue
                     }
                     Log.d(TAG, "loadContentByEmotion: Cargando $type con emoción $emotion")
@@ -194,17 +173,11 @@ class GeneralLibraryViewModel(
         }
     }
 
-    /**
-     * Limpia el filtro de emoción y recarga todo el contenido
-     */
     fun clearEmotionFilter() {
         _selectedEmotion.value = null
         loadAllContent()
     }
 
-    /**
-     * Carga contenido filtrado por categoría de video
-     */
     fun loadContentByVideoCategory(category: VideoCategory) {
         viewModelScope.launch {
             Log.d(TAG, "loadContentByVideoCategory: Iniciando búsqueda para categoría ${category.displayName}")
@@ -282,21 +255,14 @@ class GeneralLibraryViewModel(
         }
     }
 
-    /**
-     * Cambia el tipo de contenido seleccionado
-     */
     fun selectContentType(type: ContentType) {
         _selectedType.value = type
-        // Actualizar el estado con el nuevo tipo seleccionado
         val currentState = _uiState.value
         if (currentState is GeneralLibraryUiState.Success) {
             _uiState.value = currentState.copy(selectedType = type)
         }
     }
 
-    /**
-     * Carga los IDs de favoritos del usuario
-     */
     private fun loadFavorites() {
         viewModelScope.launch {
             repository.getFavorites().onSuccess { favorites ->
@@ -306,9 +272,6 @@ class GeneralLibraryViewModel(
         }
     }
 
-    /**
-     * Alterna el estado de favorito de un contenido
-     */
     fun toggleFavorite(content: ContentItem) {
         viewModelScope.launch {
             val isFavorite = _favoriteIds.value.contains(content.externalId)
@@ -333,60 +296,25 @@ class GeneralLibraryViewModel(
         }
     }
 
-    /**
-     * Carga lugares recomendados según ubicación y clima actual
-     *
-     * @param latitude Latitud del usuario (o Lima por defecto: -12.0464)
-     * @param longitude Longitud del usuario (o Lima por defecto: -77.0428)
-     */
-    fun loadPlacesWithWeather(latitude: Double, longitude: Double) {
+    suspend fun getMyRelationship(): Result<com.softfocus.features.therapy.domain.models.TherapeuticRelationship?> {
+        return therapyRepository.getMyRelationship()
+    }
+
+    fun loadWeather(latitude: Double, longitude: Double) {
         viewModelScope.launch {
-            Log.d(TAG, "loadPlacesWithWeather: Iniciando carga de lugares con clima (lat: $latitude, lng: $longitude)")
-            _uiState.value = GeneralLibraryUiState.Loading
-
             try {
-                val result = repository.getRecommendedPlaces(
-                    latitude = latitude,
-                    longitude = longitude,
-                    emotionFilter = null,
-                    limit = 10
-                )
-
-                result.onSuccess { (weather, places) ->
-                    Log.d(TAG, "loadPlacesWithWeather: ✅ Clima: ${weather.cityName}, ${weather.temperature}°C")
-                    Log.d(TAG, "loadPlacesWithWeather: ✅ Lugares: ${places.size} encontrados")
-
-                    // Actualizar el estado con los lugares y el clima
+                repository.getWeather(latitude, longitude).onSuccess { weather ->
                     val currentState = _uiState.value
-                    val existingContent = if (currentState is GeneralLibraryUiState.Success) {
-                        currentState.contentByType
-                    } else {
-                        emptyMap()
+                    if (currentState is GeneralLibraryUiState.Success) {
+                        _uiState.value = currentState.copy(weatherCondition = weather)
                     }
-
-                    _uiState.value = GeneralLibraryUiState.Success(
-                        contentByType = existingContent + (ContentType.Place to places),
-                        selectedType = ContentType.Place,
-                        weatherCondition = weather
-                    )
-                }.onFailure { error ->
-                    Log.e(TAG, "loadPlacesWithWeather: ❌ Error: ${error.message}", error)
-                    _uiState.value = GeneralLibraryUiState.Error(
-                        error.message ?: "Error al cargar lugares"
-                    )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "loadPlacesWithWeather: ❌ Excepción: ${e.message}", e)
-                _uiState.value = GeneralLibraryUiState.Error(
-                    e.message ?: "Error al cargar lugares"
-                )
+                Log.e(TAG, "loadWeather: Error: ${e.message}", e)
             }
         }
     }
 
-    /**
-     * Reintenta cargar el contenido
-     */
     fun retry() {
         if (_selectedEmotion.value != null) {
             loadContentByEmotion(_selectedEmotion.value!!)

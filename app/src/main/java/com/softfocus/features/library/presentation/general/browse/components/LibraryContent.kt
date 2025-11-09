@@ -34,8 +34,9 @@ import com.softfocus.ui.theme.*
  * @param favoriteIds IDs de contenidos favoritos
  * @param selectedContentIds IDs de contenidos seleccionados (modo psicólogo)
  * @param isSelectionMode Si está en modo selección
+ * @param isPsychologist Si el usuario es psicólogo (puede seleccionar contenido)
  * @param onContentClick Callback al hacer click en contenido
- * @param onContentLongClick Callback al mantener presionado
+ * @param onContentLongClick Callback al mantener presionado (solo psicólogos)
  * @param onFavoriteClick Callback al marcar favorito
  * @param onRetry Callback para reintentar carga
  */
@@ -47,6 +48,7 @@ fun LibraryContent(
     favoriteIds: Set<String>,
     selectedContentIds: Set<String>,
     isSelectionMode: Boolean,
+    isPsychologist: Boolean,
     onContentClick: (ContentItem) -> Unit,
     onContentLongClick: (ContentItem) -> Unit,
     onFavoriteClick: (ContentItem) -> Unit,
@@ -115,20 +117,38 @@ fun LibraryContent(
                                     onFavoriteClick = { onFavoriteClick(item) },
                                     onViewClick = { onContentClick(item) },
                                     onClick = { onContentClick(item) },
-                                    onLongClick = { onContentLongClick(item) }
+                                    onLongClick = if (isPsychologist) {
+                                        { onContentLongClick(item) }
+                                    } else {
+                                        {} // No hace nada para pacientes
+                                    }
                                 )
                             }
                         }
                     }
-                    ContentType.Place -> {
-                        // Vista especial para lugares con clima
-                        uiState.weatherCondition?.let { weather ->
-                            PlacesWeatherView(
-                                weather = weather,
-                                places = content,
-                                onPlaceClick = onContentClick,
-                                modifier = modifier.fillMaxSize()
-                            )
+                    ContentType.Weather -> {
+                        // Vista simple de clima y ubicación
+                        Box(
+                            modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "☀️ Clima",
+                                    style = SourceSansSemiBold.copy(fontSize = 32.sp),
+                                    color = Green29
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Información del clima en tu ubicación actual",
+                                    style = SourceSansRegular.copy(fontSize = 16.sp),
+                                    color = Gray828,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                     else -> {
@@ -148,7 +168,11 @@ fun LibraryContent(
                                     isSelectionMode = isSelectionMode,
                                     onFavoriteClick = { onFavoriteClick(item) },
                                     onClick = { onContentClick(item) },
-                                    onLongClick = { onContentLongClick(item) }
+                                    onLongClick = if (isPsychologist) {
+                                        { onContentLongClick(item) }
+                                    } else {
+                                        {} // No hace nada para pacientes
+                                    }
                                 )
                             }
                         }

@@ -21,10 +21,11 @@ import com.softfocus.ui.theme.SourceSansRegular
 
 /**
  * Componente de tabs de la biblioteca
- * Muestra tabs de "Contenido/Asignaciones" para pacientes
- * Y tabs de tipos de contenido (Movie, Music, Video, Place)
+ * Para PATIENT: Muestra todas las tabs de contenido (Movies, Music, Videos, Weather) + "Asignados"
+ * Para PSYCHOLOGIST: Muestra solo Movies, Music, Videos
+ * Para GENERAL: Muestra todas las tabs de contenido (Movies, Music, Videos, Weather) SIN "Asignados"
  *
- * @param isPatient Si el usuario es paciente
+ * @param isPatient Si el usuario es PATIENT (con terapeuta asignado)
  * @param currentTab Tab actual ("content" o "assignments")
  * @param onTabChange Callback cuando cambia el tab principal
  * @param selectedType Tipo de contenido seleccionado
@@ -41,10 +42,17 @@ fun LibraryTabs(
     onContentTypeSelected: (ContentType) -> Unit
 ) {
     Column {
-        // Tabs principales para pacientes: Contenido | Asignaciones
+        // Para PATIENT: Tabs de contenido + "Asignados"
+        // Para PSYCHOLOGIST: Solo tabs de contenido
+        // Para GENERAL: Solo tabs de contenido (sin asignados)
         if (isPatient) {
-            val tabs = listOf("Contenido", "Asignaciones")
-            val selectedTabIndex = if (currentTab == "content") 0 else 1
+            // Tabs: Movies | Music | Videos | Weather | Asignados
+            val tabNames = availableTabs.map { it.getDisplayName() } + "Asignados"
+            val selectedTabIndex = if (currentTab == "assignments") {
+                tabNames.size - 1 // Última tab es "Asignados"
+            } else {
+                availableTabs.indexOf(selectedType).takeIf { it >= 0 } ?: 0
+            }
 
             ScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
@@ -52,32 +60,49 @@ fun LibraryTabs(
                 contentColor = Green65,
                 edgePadding = 16.dp,
                 indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = Green65
-                    )
+                    if (tabPositions.isNotEmpty() && selectedTabIndex < tabPositions.size) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                            color = Green65
+                        )
+                    }
                 },
                 divider = {}
             ) {
-                tabs.forEachIndexed { index, tabName ->
-                    val isSelected = selectedTabIndex == index
+                // Tabs de contenido
+                availableTabs.forEach { type ->
+                    val isSelected = currentTab == "content" && selectedType == type
                     Tab(
                         selected = isSelected,
-                        onClick = { onTabChange(if (index == 0) "content" else "assignments") },
+                        onClick = {
+                            onTabChange("content")
+                            onContentTypeSelected(type)
+                        },
                         text = {
                             Text(
-                                text = tabName,
+                                text = type.getDisplayName(),
                                 style = SourceSansRegular.copy(fontSize = 15.sp),
                                 color = if (isSelected) Green65 else Color.White
                             )
                         }
                     )
                 }
-            }
-        }
 
-        // Tabs de tipos de contenido (solo si está en "content" o no es paciente)
-        if (currentTab == "content" || !isPatient) {
+                // Tab "Asignados por mi terapeuta"
+                Tab(
+                    selected = currentTab == "assignments",
+                    onClick = { onTabChange("assignments") },
+                    text = {
+                        Text(
+                            text = "Asignados",
+                            style = SourceSansRegular.copy(fontSize = 15.sp),
+                            color = if (currentTab == "assignments") Green65 else Color.White
+                        )
+                    }
+                )
+            }
+        } else {
+            // Para psicólogos y usuarios generales: Solo tabs de contenido
             val contentTabIndex = availableTabs.indexOf(selectedType).takeIf { it >= 0 } ?: 0
             ScrollableTabRow(
                 selectedTabIndex = contentTabIndex,

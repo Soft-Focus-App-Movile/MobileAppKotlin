@@ -133,12 +133,10 @@ interface LibraryRepository {
      * @param limit Número máximo de resultados (1-50)
      * @return Result con condición climática y lista de lugares
      */
-    suspend fun getRecommendedPlaces(
+    suspend fun getWeather(
         latitude: Double,
-        longitude: Double,
-        emotionFilter: EmotionalTag? = null,
-        limit: Int = 10
-    ): Result<Pair<WeatherCondition, List<ContentItem>>>
+        longitude: Double
+    ): Result<WeatherCondition>
 
     /**
      * Obtiene recomendaciones de contenido basadas en la emoción del usuario

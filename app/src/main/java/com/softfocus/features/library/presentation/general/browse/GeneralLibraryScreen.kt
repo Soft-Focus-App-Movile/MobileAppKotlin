@@ -102,9 +102,32 @@ fun GeneralLibraryScreen(
     var searchQuery by remember { mutableStateOf("") }
     var showAssignBottomSheet by remember { mutableStateOf(false) }
 
-    val isPatient = userType == UserType.PATIENT
     val isPsychologist = userType == UserType.PSYCHOLOGIST
     val isSelectionMode = isPsychologist && selectedContentIds.isNotEmpty()
+
+    val hasTherapist = remember { mutableStateOf<Boolean?>(null) }
+
+    LaunchedEffect(Unit) {
+        if (!isPsychologist) {
+            val relationshipResult = viewModel.getMyRelationship()
+            relationshipResult.onSuccess { relationship ->
+                hasTherapist.value = relationship != null && relationship.isActive
+            }.onFailure {
+                hasTherapist.value = false
+            }
+        }
+    }
+
+    LaunchedEffect(selectedType) {
+        if (selectedType == ContentType.Weather) {
+            val location = com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
+            val latitude = location?.latitude ?: -12.0464
+            val longitude = location?.longitude ?: -77.0428
+            viewModel.loadWeather(latitude, longitude)
+        }
+    }
+
+    val isPatient by remember { androidx.compose.runtime.derivedStateOf { hasTherapist.value == true } }
 
     val assignmentsViewModel: AssignmentsViewModel? = if (isPatient) {
         val retrofit = remember { com.softfocus.features.library.presentation.di.getRetrofitInstance() }
@@ -112,21 +135,12 @@ fun GeneralLibraryScreen(
         viewModel(factory = factory)
     } else null
 
-    LaunchedEffect(selectedType) {
-        if (selectedType == ContentType.Place) {
-            val location = com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
-            val latitude = location?.latitude ?: -12.0464
-            val longitude = location?.longitude ?: -77.0428
-            viewModel.loadPlacesWithWeather(latitude, longitude)
-        }
-    }
 
     LaunchedEffect(searchQuery) {
         kotlinx.coroutines.delay(500)
         viewModel.searchContent(searchQuery)
     }
 
-    // Load assignments when patient enters library
     LaunchedEffect(isPatient, assignmentsViewModel) {
         if (isPatient && assignmentsViewModel != null) {
             assignmentsViewModel.loadAssignedContent(completed = null)
@@ -142,6 +156,7 @@ fun GeneralLibraryScreen(
         favoriteIds = favoriteIds,
         searchQuery = searchQuery,
         userType = userType,
+        isPatient = isPatient,
         isSelectionMode = isSelectionMode,
         selectedContentIds = selectedContentIds,
         assignmentsViewModel = assignmentsViewModel,
@@ -159,7 +174,9 @@ fun GeneralLibraryScreen(
                 onContentClick(it)
             }
         },
-        onContentSelectionToggle = { viewModel.toggleContentSelection(it.id) },
+        onContentSelectionToggle = {
+            viewModel.toggleContentSelection(it.id)
+        },
         onAssignTaskClick = {
             viewModel.loadPatients()
             showAssignBottomSheet = true
@@ -209,6 +226,7 @@ fun GeneralLibraryScreenContent(
     onVideoCategorySelected: (VideoCategory) -> Unit = {},
     onRetry: () -> Unit = {},
     userType: UserType? = null,
+    isPatient: Boolean = false,
     isSelectionMode: Boolean = false,
     selectedContentIds: Set<String> = emptySet(),
     assignmentsViewModel: AssignmentsViewModel? = null,
@@ -219,12 +237,10 @@ fun GeneralLibraryScreenContent(
     var currentTab by remember { mutableStateOf("content") }
 
     val isPsychologist = userType == UserType.PSYCHOLOGIST
-    val isPatient = userType == UserType.PATIENT
 
     val availableTabs = remember(userType) {
         when (userType) {
             UserType.PSYCHOLOGIST -> listOf(ContentType.Movie, ContentType.Music, ContentType.Video)
-            UserType.PATIENT -> ContentType.entries.toList()
             else -> ContentType.entries.toList()
         }
     }
@@ -273,9 +289,6 @@ fun GeneralLibraryScreenContent(
                 onContentTypeSelected = onTabSelected
             )
 
-            // Para videos: mostrar iconos de categorías
-            // Para lugares: no mostrar búsqueda (se basa en ubicación/clima)
-            // Para otros tipos: mostrar barra de búsqueda con filtro
             when (selectedType) {
                 ContentType.Video -> {
                     CategoryIcons(
@@ -284,12 +297,10 @@ fun GeneralLibraryScreenContent(
                         modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
-                ContentType.Place -> {
-                    // No mostrar búsqueda para lugares (se basa en GPS y clima)
+                ContentType.Weather -> {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 else -> {
-                    // Barra de búsqueda con filtro para Movies y Music
                     SearchBarWithFilter(
                         searchQuery = searchQuery,
                         onSearchQueryChange = onSearchQueryChange,
@@ -300,7 +311,6 @@ fun GeneralLibraryScreenContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Content area
             if (isPatient && currentTab == "assignments" && assignmentsViewModel != null) {
                 AssignedContentScreen(
                     viewModel = assignmentsViewModel,
@@ -326,6 +336,7 @@ fun GeneralLibraryScreenContent(
                     favoriteIds = favoriteIds,
                     selectedContentIds = selectedContentIds,
                     isSelectionMode = isSelectionMode,
+                    isPsychologist = isPsychologist,
                     onContentClick = onContentClick,
                     onContentLongClick = onContentSelectionToggle,
                     onFavoriteClick = onFavoriteClick,
@@ -416,7 +427,7 @@ private fun GeneralLibraryScreenPreview() {
                     ),
                     ContentType.Music to emptyList(),
                     ContentType.Video to emptyList(),
-                    ContentType.Place to emptyList()
+                    ContentType.Weather to emptyList()
                 ),
                 selectedType = ContentType.Movie
             ),
@@ -466,7 +477,7 @@ private fun GeneralLibraryScreenEmptyPreview() {
                     ContentType.Movie to emptyList(),
                     ContentType.Music to emptyList(),
                     ContentType.Video to emptyList(),
-                    ContentType.Place to emptyList()
+                    ContentType.Weather to emptyList()
                 ),
                 selectedType = ContentType.Movie
             ),

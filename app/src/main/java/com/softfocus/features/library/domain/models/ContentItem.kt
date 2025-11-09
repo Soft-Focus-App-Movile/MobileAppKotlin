@@ -71,39 +71,19 @@ data class ContentItem(
     val distance: Double? = null,
     val photoUrl: String? = null
 ) {
-    /**
-     * Verifica si el contenido es de tipo Movie
-     */
     fun isMovie(): Boolean = type == ContentType.Movie
 
-    /**
-     * Verifica si el contenido es de tipo Music
-     */
     fun isMusic(): Boolean = type == ContentType.Music
 
-    /**
-     * Verifica si el contenido es de tipo Video
-     */
     fun isVideo(): Boolean = type == ContentType.Video
 
-    /**
-     * Verifica si el contenido es de tipo Place
-     */
-    fun isPlace(): Boolean = type == ContentType.Place
-
-    /**
-     * Obtiene la URL de imagen principal (poster o thumbnail según el tipo)
-     */
     fun getMainImageUrl(): String? = when (type) {
         ContentType.Movie -> posterUrl
-        ContentType.Music -> posterUrl // Album cover
+        ContentType.Music -> posterUrl
         ContentType.Video -> thumbnailUrl
-        ContentType.Place -> photoUrl
+        ContentType.Weather -> null
     }
 
-    /**
-     * Obtiene una descripción corta formateada
-     */
     fun getFormattedDuration(): String? = duration?.let {
         val hours = it / 60
         val minutes = it % 60
@@ -113,20 +93,11 @@ data class ContentItem(
         }
     }
 
-    /**
-     * Obtiene el rating formateado
-     */
     fun getFormattedRating(): String? = rating?.let {
         String.format("%.1f/10", it)
     }
 
-    /**
-     * Obtiene el año de la fecha de lanzamiento
-     * Soporta formatos: "2010-07-16", "2010", etc.
-     */
     fun getReleaseYear(): String? = releaseDate?.let {
-        // Extraer los primeros 4 caracteres si es una fecha completa (YYYY-MM-DD)
-        // o devolver tal cual si ya es un año (YYYY)
         if (it.length >= 4) it.substring(0, 4) else null
     }
 }

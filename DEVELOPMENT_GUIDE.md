@@ -776,9 +776,9 @@ http://98.90.172.251:5000/swagger/index.html
    - Password: Patient123!
 > 
   ---
-XOJ72BGD
+
 👨‍⚕ Psicólogos Verificados (3)
-VFR0BF09
+UI6ODZAB
 1. Dra. Patricia Sanchez
    - Email: psychologist1@test.com                                                                                                                                                                                                 
    - Password: Psy123!
@@ -788,7 +788,7 @@ VFR0BF09
 3. Dra. Sofia Ramirez
    - Email: psychologist3@test.com                                                                                                                                                                                                 
    - Password: Psy123!
-
+     
   ---
 👑 Admin
 

@@ -41,10 +41,18 @@ fun AssignPatientBottomSheet(
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var showAllPatients by remember { mutableStateOf(false) }
 
-    val filteredPatients = remember(searchQuery, patients) {
-        if (searchQuery.isBlank()) {
-            patients
+    // Últimos 4 pacientes (asumiendo que la lista ya viene ordenada por fecha)
+    val recentPatients = remember(patients) {
+        patients.take(4)
+    }
+
+    val filteredPatients = remember(searchQuery, patients, showAllPatients) {
+        if (searchQuery.isBlank() && !showAllPatients) {
+            recentPatients // Mostrar solo los 4 recientes si no hay búsqueda
+        } else if (searchQuery.isBlank()) {
+            patients // Mostrar todos si se expandió
         } else {
             patients.filter { patient ->
                 patient.patientName.contains(searchQuery, ignoreCase = true)
@@ -93,48 +101,62 @@ fun AssignPatientBottomSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Search bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = {
-                    Text(
-                        text = "Buscar...",
-                        style = SourceSansRegular.copy(fontSize = 14.sp),
-                        color = Gray828
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Buscar",
-                        tint = Gray828
-                    )
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Limpiar",
-                                tint = Gray828
-                            )
-                        }
-                    }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Green49,
-                    unfocusedBorderColor = Gray828,
-                    cursorColor = Green49
-                ),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Título de sección "Pacientes Recientes" o "Buscar Paciente"
+            if (searchQuery.isBlank() && !showAllPatients) {
+                Text(
+                    text = "Pacientes Recientes",
+                    style = SourceSansSemiBold.copy(fontSize = 16.sp),
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Search bar (solo visible cuando no está mostrando recientes O cuando hay búsqueda activa)
+            if (showAllPatients || searchQuery.isNotEmpty()) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = {
+                        searchQuery = it
+                        if (it.isNotEmpty()) showAllPatients = true
+                    },
+                    placeholder = {
+                        Text(
+                            text = "Buscar paciente...",
+                            style = SourceSansRegular.copy(fontSize = 14.sp),
+                            color = Gray828
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Buscar",
+                            tint = Gray828
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Limpiar",
+                                    tint = Gray828
+                                )
+                            }
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Green49,
+                        unfocusedBorderColor = Gray828,
+                        cursorColor = Green49
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             when {
                 isLoading -> {
@@ -204,6 +226,42 @@ fun AssignPatientBottomSheet(
                                     onDismiss()
                                 }
                             )
+                        }
+
+                        // Botón "Buscar más pacientes" si no se está mostrando todos
+                        if (!showAllPatients && searchQuery.isBlank() && patients.size > 4) {
+                            item {
+                                Button(
+                                    onClick = { showAllPatients = true },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF2D2D2D),
+                                        contentColor = Green49
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp)
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(vertical = 8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Search,
+                                            contentDescription = null,
+                                            tint = Green49,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Buscar más pacientes",
+                                            style = SourceSansSemiBold.copy(fontSize = 15.sp),
+                                            color = Green49
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

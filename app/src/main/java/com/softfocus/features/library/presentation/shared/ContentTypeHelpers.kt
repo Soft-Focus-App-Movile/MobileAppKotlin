@@ -17,5 +17,5 @@ fun ContentType.getDisplayName(): String = when (this) {
     ContentType.Movie -> "Películas"
     ContentType.Music -> "Música"
     ContentType.Video -> "Videos"
-    ContentType.Place -> "Lugares"
+    ContentType.Weather -> "Clima"
 }

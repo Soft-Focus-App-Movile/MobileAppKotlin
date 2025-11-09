@@ -245,27 +245,23 @@ class LibraryRepositoryImpl(
     // RECOMMENDATIONS
     // ============================================================
 
-    override suspend fun getRecommendedPlaces(
+    override suspend fun getWeather(
         latitude: Double,
-        longitude: Double,
-        emotionFilter: EmotionalTag?,
-        limit: Int
-    ): Result<Pair<WeatherCondition, List<ContentItem>>> {
+        longitude: Double
+    ): Result<WeatherCondition> {
         return try {
             val response = recommendationsService.getRecommendedPlaces(
                 token = getAuthToken(),
                 latitude = latitude,
                 longitude = longitude,
-                emotionFilter = emotionFilter?.name,
-                limit = limit
+                emotionFilter = null,
+                limit = 5
             )
 
             val weather = response.weather.toDomain()
-            val places = response.places.map { it.toDomain() }
-
-            Result.success(Pair(weather, places))
+            Result.success(weather)
         } catch (e: Exception) {
-            Result.failure(Exception("Error al obtener lugares recomendados: ${e.message}", e))
+            Result.failure(Exception("Error al obtener clima: ${e.message}", e))
         }
     }
 
