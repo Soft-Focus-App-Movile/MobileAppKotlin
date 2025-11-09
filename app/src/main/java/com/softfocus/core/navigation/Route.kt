@@ -58,6 +58,13 @@ Route(val path: String) {
     data object PsychologistPlan : Route("psychologist_plan")
     data object PsychologistStats : Route("psychologist_stats")
 
+    // --- RUTAS DE THERAPY (PSICÓLOGO) ---
+    object PsychologistPatientList : Route("psychologist_patient_list")
+    object PsychologistPatientDetail : Route("psychologist_patient_detail/{patientId}/{relationshipId}/{patientName}") {
+        fun createRoute(patientId: String, relationshipId: String, patientName: String) =
+            "psychologist_patient_detail/$patientId/$relationshipId/$patientName"
+    }
+
     data object CrisisAlerts : Route("crisis_alerts")
 
     data object AIWelcome : Route("ai_welcome")

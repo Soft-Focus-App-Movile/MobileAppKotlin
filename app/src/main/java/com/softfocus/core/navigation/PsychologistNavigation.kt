@@ -19,6 +19,7 @@ import com.softfocus.ui.components.navigation.PsychologistBottomNav
 import com.softfocus.core.utils.SessionManager
 import com.softfocus.features.crisis.presentation.psychologist.CrisisAlertsScreen
 import com.softfocus.features.crisis.presentation.di.CrisisInjection
+import com.softfocus.features.therapy.presentation.psychologist.patientlist.PatientListScreen
 
 
 /**
@@ -135,6 +136,18 @@ fun NavGraphBuilder.psychologistNavigation(
                     onSendMessage = { patientId ->
                         // TODO: Navigate to messaging
                     }
+                )
+            }
+        }
+    }
+
+    composable(Route.PsychologistPatientList.path) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = { PsychologistBottomNav(navController) }
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                PatientListScreen(
                 )
             }
         }

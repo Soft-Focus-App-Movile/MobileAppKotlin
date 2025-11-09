@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonalInjury
 import androidx.compose.material.icons.outlined.Announcement
 import androidx.compose.material.icons.outlined.Bookmarks
 import androidx.compose.material.icons.outlined.Notifications
@@ -112,18 +113,25 @@ fun PsychologistBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = false) {
+                BottomNavIcon(isSelected = currentRoute == Route.PsychologistPatientList.path) {
                     Icon(
-                        imageVector = Icons.Outlined.PersonalInjury,
+                        imageVector = if (currentRoute == Route.PsychologistPatientList.path)
+                            Icons.Filled.PersonalInjury
+                        else
+                            Icons.Outlined.PersonalInjury
+                        ,
                         contentDescription = "Pacientes",
                         modifier = Modifier.size(24.dp)
                     )
                 }
             },
             label = { Text("Pacientes", fontSize = 12.sp, style = SourceSansRegular) },
-            selected = false,
-            onClick = { /* No implementado aún */ },
-            enabled = false,
+            selected = currentRoute == Route.PsychologistPatientList.path,
+            onClick = {
+                if (currentRoute != Route.PsychologistPatientList.path) {
+                    navController.navigate(Route.PsychologistPatientList.path)
+                }
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
