@@ -58,6 +58,11 @@ object ApiConstants {
         const val PATIENTS = "therapy/patients"
     }
 
+    object Chat {
+        const val HISTORY = "chat/history"
+        const val SEND = "chat/send"
+    }
+
     // AI endpoints
     object AI {
         const val CHAT_MESSAGE = "ai/chat/message"

@@ -23,7 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.lightGrayText
+import com.softfocus.ui.components.navigation.PsychologistBottomNav
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.SoftFocusMobileTheme
 
@@ -43,10 +45,26 @@ val dummyMessages = listOf(
 // --- Pantalla Principal de Chat ---
 
 @Composable
-fun PatientChatScreen() {
+fun PatientChatScreen(
+    navController: NavHostController,
+    patientName: String
+) {
     Scaffold(
-        topBar = { PatientChatTopBar() },
-        bottomBar = { ChatScreenBottomBar() } // Barra inferior personalizada
+        topBar = {
+            PatientChatTopBar(
+                patientName = patientName,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        },
+        bottomBar = {
+            // Creamos una Columna para apilar las dos barras
+            Column(modifier = Modifier.background(Color.White)) {
+                // 1. La barra de chat (el campo de texto)
+                ChatInputField()
+                // 2. La barra de navegación principal
+                PsychologistBottomNav(navController = navController)
+            }
+        }
     ) { paddingValues ->
         ChatContent(
             messages = dummyMessages,
@@ -58,7 +76,10 @@ fun PatientChatScreen() {
 // --- Componentes de PatientChatScreen ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientChatTopBar() {
+fun PatientChatTopBar(
+    patientName: String,
+    onNavigateBack: () -> Unit
+) {
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -85,7 +106,7 @@ fun PatientChatTopBar() {
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Ana García",
+                        text = patientName,
                         style = CrimsonSemiBold.copy(fontSize = 28.sp)
                     )
                     Text(
@@ -97,7 +118,7 @@ fun PatientChatTopBar() {
             }
         },
         navigationIcon = {
-            IconButton(onClick = { /* Sin acción */ }) {
+            IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Volver",
@@ -114,15 +135,6 @@ fun PatientChatTopBar() {
             subtitleContentColor = Color.White
         )
     )
-}
-
-// --- Barra inferior que combina el Input y la Navegación ---
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ChatScreenBottomBar() {
-    Column(modifier = Modifier.background(Color.White)) {
-        ChatInputField()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -273,6 +285,7 @@ fun ChatBubble(message: Message) {
 }
 
 // --- Preview ---
+/*
 @Preview(showBackground = true)
 @Composable
 fun PatientChatScreenPreview() {
@@ -280,3 +293,4 @@ fun PatientChatScreenPreview() {
         PatientChatScreen()
     }
 }
+*/

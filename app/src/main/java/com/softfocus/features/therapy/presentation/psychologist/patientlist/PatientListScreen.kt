@@ -43,6 +43,7 @@ private val dividerColor = Color(0xFFE0E0E0) // Color para el placeholder de la 
 @Composable
 fun PatientListScreen(
     viewModel: PatientListViewModel,
+    onBack: () -> Unit,
     onPatientClick: (patient: PatientDirectory) -> Unit
 ) {
     // Recolecta el estado del ViewModel
@@ -70,7 +71,7 @@ fun PatientListScreen(
                 )
             },
             navigationIcon = {
-                IconButton(onClick = { /* Sin acción */ }) {
+                IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Volver",
@@ -213,7 +214,7 @@ private fun PatientCard(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 TextButton(
-                    onClick = { /* TODO: Acción para ver el perfil */ },
+                    onClick = onClick,
                     contentPadding = PaddingValues(start = 0.dp, end = 0.dp, top = 0.dp, bottom = 0.dp)
                 ) {
                     Text(

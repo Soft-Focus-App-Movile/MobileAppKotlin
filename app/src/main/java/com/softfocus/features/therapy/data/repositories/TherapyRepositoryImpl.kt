@@ -3,10 +3,13 @@ package com.softfocus.features.therapy.data.repositories
 import android.content.Context
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.therapy.data.models.request.ConnectWithPsychologistRequestDto
+import com.softfocus.features.therapy.data.models.request.SendChatMessageRequestDto
 import com.softfocus.features.therapy.data.remote.TherapyService
+import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.therapy.domain.models.TherapeuticRelationship
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
+import java.time.ZonedDateTime
 
 class TherapyRepositoryImpl(
     private val therapyService: TherapyService,
@@ -59,6 +62,59 @@ class TherapyRepositoryImpl(
             )
             val patients = response.map { it.toDomain() }
             Result.success(patients)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    override suspend fun getChatHistory(relationshipId: String, page: Int, size: Int): Result<List<ChatMessage>> {
+        return try {
+            val response = therapyService.getChatHistory(
+                token = getAuthToken(),
+                relationshipId = relationshipId,
+                page = page,
+                size = size
+            )
+            // Asumimos que el DTO tiene un mapper .toDomain()
+            val messages = response.messages.map { it.toDomain(getUserId()) }
+            Result.success(messages)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun getUserId(): String {
+        return userSession.getUser()?.id ?: throw IllegalStateException("ID de usuario no disponible.")
+    }
+
+    override suspend fun sendChatMessage(relationshipId: String, receiverId: String, content: String): Result<ChatMessage> {
+        return try {
+            val request = SendChatMessageRequestDto(
+                relationshipId = relationshipId,
+                receiverId = receiverId,
+                content = content,
+                messageType = "text"
+            )
+            val response = therapyService.sendChatMessage(
+                token = getAuthToken(),
+                request = request
+            )
+
+            // Creamos un ChatMessage local temporalmente, ya que el backend
+            // solo devuelve el ID. El mensaje real llegará por SignalR.
+            // O, si el backend devuelve el mensaje completo, lo mapeamos.
+            // Por ahora, creamos uno local:
+            val sentMessage = ChatMessage(
+                id = response.messageId,
+                relationshipId = relationshipId,
+                senderId = getUserId(),
+                receiverId = receiverId,
+                content = content,
+                timestamp = ZonedDateTime.now().toString(),
+                isFromMe = true,
+                messageType = " "
+            )
+            Result.success(sentMessage)
+
         } catch (e: Exception) {
             Result.failure(e)
         }

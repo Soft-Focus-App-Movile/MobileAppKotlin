@@ -15,6 +15,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.compose.runtime.remember
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.softfocus.features.profile.presentation.psychologist.PsychologistProfileScreen
 import com.softfocus.features.profile.presentation.psychologist.EditPersonalInfoScreen
 import com.softfocus.features.profile.presentation.psychologist.ProfessionalDataScreen
@@ -26,6 +28,12 @@ import com.softfocus.features.crisis.presentation.psychologist.CrisisAlertsScree
 import com.softfocus.features.crisis.presentation.di.CrisisInjection
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.features.therapy.presentation.psychologist.patientlist.PatientListScreen
+import java.net.URLEncoder
+import java.net.URLDecoder
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientDetailScreen
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientDetailViewModel
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 /**
@@ -165,18 +173,84 @@ fun NavGraphBuilder.psychologistNavigation(
                     onPatientClick = { patient ->
                         // 3. (Extra) Manejar la navegación al detalle del paciente
                         // Esta ruta ya existe en tu archivo Route.kt
+                        val encodedPatientName = URLEncoder.encode(patient.patientName, "UTF-8")
                         navController.navigate(
                             Route.PsychologistPatientDetail.createRoute(
                                 patientId = patient.patientId,
-                                relationshipId = patient.id, // El ID del PatientDirectory es el RelationshipId
-                                patientName = patient.patientName
+                                relationshipId = patient.id,
+                                patientName = encodedPatientName // Usar el nombre codificado
                             )
                         )
-                    }
+                    },
+                    onBack = { navController.popBackStack() }
                 )
             }
         }
     }
+
+    composable(
+        route = Route.PsychologistPatientDetail.path,
+        arguments = listOf(
+            navArgument("patientId") { type = NavType.StringType },
+            navArgument("relationshipId") { type = NavType.StringType },
+            navArgument("patientName") { type = NavType.StringType }
+        ),
+    ) { backStackEntry ->
+        // Extraemos los argumentos
+        val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+        val relationshipId = backStackEntry.arguments?.getString("relationshipId") ?: ""
+        // Decodificamos el nombre
+        val patientName = URLDecoder.decode(backStackEntry.arguments?.getString("patientName") ?: "Paciente", "UTF-8")
+
+        // Creamos el ViewModel pasándole los IDs
+        val viewModel: PatientDetailViewModel = viewModel(
+            factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                    @Suppress("UNCHECKED_CAST")
+                    return PatientDetailViewModel(patientId, relationshipId) as T
+                }
+            }
+        )
+
+        // Llamamos a la pantalla
+        Scaffold(
+            bottomBar = { PsychologistBottomNav(navController) }
+        ) {
+            PatientDetailScreen(
+                navController = navController,
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                patientId = patientId,
+                relationshipId = relationshipId,
+                patientName = patientName
+            )
+        }
+    }
+
+    // --- AÑADIR EL DESTINO PARA PATIENT CHAT ---
+    composable(
+        route = Route.PsychologistPatientChat.path,
+        arguments = listOf(
+            navArgument("patientId") { type = NavType.StringType },
+            navArgument("relationshipId") { type = NavType.StringType },
+            navArgument("patientName") { type = NavType.StringType }
+        )
+    ) { backStackEntry ->
+        // Extraemos los argumentos (los necesitamos para la TopBar y el ViewModel)
+        val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+        val relationshipId = backStackEntry.arguments?.getString("relationshipId") ?: ""
+        val patientName = URLDecoder.decode(backStackEntry.arguments?.getString("patientName") ?: "Paciente", "UTF-8")
+
+        // (Aquí también crearías un ViewModel para el Chat si lo tuvieras)
+        // val chatViewModel: PatientChatViewModel = viewModel(...)
+
+        PatientChatScreen(
+            navController = navController,
+            patientName = patientName
+        )
+    }
+
+
     composable(Route.Library.path) {
         Scaffold(
             containerColor = Color.Transparent,

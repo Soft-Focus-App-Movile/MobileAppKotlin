@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.patrykandpatryk.vico.compose.axis.axisLabelComponent
 import com.patrykandpatryk.vico.compose.axis.horizontal.bottomAxis
 import com.softfocus.ui.theme.CrimsonSemiBold
@@ -41,6 +43,7 @@ import com.patrykandpatryk.vico.core.chart.composed.plus
 import com.patrykandpatryk.vico.core.component.shape.LineComponent
 import com.patrykandpatryk.vico.core.entry.composed.plus
 import com.patrykandpatryk.vico.core.entry.entryModelOf
+import com.softfocus.core.navigation.Route
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
 
 // --- Colores (puedes moverlos a un archivo Theme.kt) ---
@@ -53,13 +56,20 @@ val lightGrayText = Color.Gray
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientDetailScreen() {
+fun PatientDetailScreen(
+    navController: NavHostController, // <-- AÑADIR
+    viewModel: PatientDetailViewModel, // <-- AÑADIR
+    onBack: () -> Unit,
+    patientId: String, // <-- AÑADIR
+    relationshipId: String, // <-- AÑADIR
+    patientName: String
+) {
     // Estado para saber qué pestaña está seleccionada
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Resumen", "Tareas", "Chat")
 
     Scaffold(
-        topBar = { PatientDetailTopBar() }
+        topBar = { PatientDetailTopBar(onBack = onBack) }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -69,7 +79,7 @@ fun PatientDetailScreen() {
         ) {
             // --- Cabecera del Paciente ---
             item {
-                PatientDetailHeader()
+                PatientDetailHeader(patientName = patientName) // <-- MODIFICAR
             }
 
             // --- Pestañas (Tabs) ---
@@ -95,7 +105,13 @@ fun PatientDetailScreen() {
                                 if (index != 2) {
                                     selectedTabIndex = index
                                 } else {
-                                    // TODO: Aquí iría la lógica de navegación
+                                    navController.navigate(
+                                        Route.PsychologistPatientChat.createRoute(
+                                            patientId = patientId,
+                                            relationshipId = relationshipId,
+                                            patientName = patientName
+                                        )
+                                    )
                                 }
                             },
                             text = {
@@ -126,7 +142,9 @@ fun PatientDetailScreen() {
 // --- Componentes de PatientDetailScreen ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientDetailTopBar() {
+fun PatientDetailTopBar(
+    onBack: () -> Unit
+) {
     TopAppBar(
         title = {
             Text(
@@ -138,7 +156,7 @@ fun PatientDetailTopBar() {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /* Sin acción */ }) {
+            IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Volver",
@@ -155,7 +173,7 @@ fun PatientDetailTopBar() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientDetailHeader() {
+fun PatientDetailHeader(patientName: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -347,7 +365,7 @@ fun TareasTabContent() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TareaItemCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, status: String, date: String) {
+fun TareaItemCard(icon: ImageVector, title: String, status: String, date: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -460,10 +478,13 @@ fun EvolucionChart() {
 }
 
 // --- Preview ---
+/*
 @Preview(showBackground = true)
 @Composable
 fun PatientDetailScreenPreview() {
     MaterialTheme {
-        PatientDetailScreen()
+        PatientDetailScreen(
+        )
     }
 }
+*/
