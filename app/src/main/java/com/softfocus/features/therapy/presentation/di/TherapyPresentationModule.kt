@@ -97,4 +97,5 @@ object TherapyPresentationModule {
     fun getPatientListViewModel(): PatientListViewModel {
         return PatientListViewModel(getGetMyPatientsUseCase())
     }
+
 }

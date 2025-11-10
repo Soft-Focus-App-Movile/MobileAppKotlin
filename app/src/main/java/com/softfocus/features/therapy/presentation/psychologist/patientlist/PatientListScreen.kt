@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +29,7 @@ import coil3.compose.rememberAsyncImagePainter
 import com.softfocus.R
 import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Green49
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -59,15 +62,25 @@ fun PatientListScreen(
         TopAppBar(
             title = {
                 Text(
-                    "Mis Pacientes",
-                    style = CrimsonSemiBold.copy(fontSize = 28.sp),
-                    color = primaryGreen,
-                    modifier = Modifier.padding(start = 8.dp) // Ajuste para alinear con el preview
+                    text = "Pacientes",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = CrimsonSemiBold.copy(fontSize = 32.sp),
+                    color = Green49
                 )
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
-            )
+            navigationIcon = {
+                IconButton(onClick = { /* Sin acción */ }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Volver",
+                        tint = Color.Black
+                    )
+                }
+            },
+            actions = {
+                Spacer(modifier = Modifier.width(48.dp)) // Espaciador para centrar título
+            }
         )
 
         // --- Contenido de la Pantalla ---

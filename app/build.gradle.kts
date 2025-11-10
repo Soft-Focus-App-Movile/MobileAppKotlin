@@ -59,7 +59,6 @@ android {
 
 dependencies {
 
-
     // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -72,6 +71,12 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+
+    // Vico
+    val vicoVersion = "1.14.0"
+    implementation("com.patrykandpatryk.vico:compose:$vicoVersion")
+    implementation("com.patrykandpatryk.vico:compose-m3:$vicoVersion")
+    implementation("com.patrykandpatryk.vico:core:$vicoVersion")
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
