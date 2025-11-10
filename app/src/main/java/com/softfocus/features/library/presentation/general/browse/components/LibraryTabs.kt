@@ -46,12 +46,10 @@ fun LibraryTabs(
         // Para PSYCHOLOGIST: Solo tabs de contenido
         // Para GENERAL: Solo tabs de contenido (sin asignados)
         if (isPatient) {
-            // Tabs: Movies | Music | Videos | Weather | Asignados
-            val tabNames = availableTabs.map { it.getDisplayName() } + "Asignados"
             val selectedTabIndex = if (currentTab == "assignments") {
-                tabNames.size - 1 // Última tab es "Asignados"
+                0
             } else {
-                availableTabs.indexOf(selectedType).takeIf { it >= 0 } ?: 0
+                availableTabs.indexOf(selectedType).takeIf { it >= 0 }?.plus(1) ?: 1
             }
 
             ScrollableTabRow(
@@ -69,7 +67,18 @@ fun LibraryTabs(
                 },
                 divider = {}
             ) {
-                // Tabs de contenido
+                Tab(
+                    selected = currentTab == "assignments",
+                    onClick = { onTabChange("assignments") },
+                    text = {
+                        Text(
+                            text = "Asignados",
+                            style = SourceSansRegular.copy(fontSize = 15.sp),
+                            color = if (currentTab == "assignments") Green65 else Color.White
+                        )
+                    }
+                )
+
                 availableTabs.forEach { type ->
                     val isSelected = currentTab == "content" && selectedType == type
                     Tab(
@@ -87,19 +96,6 @@ fun LibraryTabs(
                         }
                     )
                 }
-
-                // Tab "Asignados por mi terapeuta"
-                Tab(
-                    selected = currentTab == "assignments",
-                    onClick = { onTabChange("assignments") },
-                    text = {
-                        Text(
-                            text = "Asignados",
-                            style = SourceSansRegular.copy(fontSize = 15.sp),
-                            color = if (currentTab == "assignments") Green65 else Color.White
-                        )
-                    }
-                )
             }
         } else {
             // Para psicólogos y usuarios generales: Solo tabs de contenido

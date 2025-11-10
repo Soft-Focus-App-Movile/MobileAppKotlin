@@ -234,7 +234,7 @@ fun GeneralLibraryScreenContent(
     onAssignTaskClick: () -> Unit = {}
 ) {
     var showFilterSheet by remember { mutableStateOf(false) }
-    var currentTab by remember { mutableStateOf("content") }
+    var currentTab by remember { mutableStateOf(if (isPatient) "assignments" else "content") }
 
     val isPsychologist = userType == UserType.PSYCHOLOGIST
 
