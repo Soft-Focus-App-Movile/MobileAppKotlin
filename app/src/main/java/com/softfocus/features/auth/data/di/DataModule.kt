@@ -1,7 +1,9 @@
 package com.softfocus.features.auth.data.di
 
+import android.content.Context
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.auth.data.remote.AuthService
+import com.softfocus.features.auth.data.remote.GoogleSignInManager
 import com.softfocus.features.auth.data.repositories.AuthRepositoryImpl
 import com.softfocus.features.auth.domain.repositories.AuthRepository
 import okhttp3.OkHttpClient
@@ -12,8 +14,15 @@ import java.util.concurrent.TimeUnit
 
 object DataModule {
 
-    fun getAuthRepository(): AuthRepository {
-        return AuthRepositoryImpl(getAuthService())
+    fun getAuthRepository(context: Context): AuthRepository {
+        return AuthRepositoryImpl(
+            getAuthService(),
+            context
+        )
+    }
+
+    fun getGoogleSignInManager(context: Context): GoogleSignInManager {
+        return GoogleSignInManager(context)
     }
 
     private fun getAuthService(): AuthService {

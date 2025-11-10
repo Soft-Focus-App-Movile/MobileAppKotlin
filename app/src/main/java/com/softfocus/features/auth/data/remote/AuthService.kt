@@ -1,53 +1,95 @@
 package com.softfocus.features.auth.data.remote
 
+import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.auth.data.models.request.LoginRequestDto
+import com.softfocus.features.auth.data.models.request.OAuthLoginRequestDto
+import com.softfocus.features.auth.data.models.request.OAuthVerifyRequestDto
+import com.softfocus.features.auth.data.models.request.RegisterGeneralUserRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterRequestDto
 import com.softfocus.features.auth.data.models.request.SocialLoginRequestDto
 import com.softfocus.features.auth.data.models.response.LoginResponseDto
+import com.softfocus.features.auth.data.models.response.OAuthVerificationResponseDto
 import com.softfocus.features.auth.data.models.response.RegisterResponseDto
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
-/**
- * Retrofit service interface for authentication-related API endpoints.
- *
- * This interface defines the HTTP operations for user authentication,
- * including email/password login, registration, and social login.
- *
- * Base URL is configured in the Retrofit instance provided by Hilt.
- */
 interface AuthService {
 
-    /**
-     * Authenticates a user with email and password.
-     *
-     * Endpoint: POST /api/auth/login
-     *
-     * @param request Login credentials (email and password)
-     * @return LoginResponseDto containing user data and authentication token
-     */
-    @POST("auth/login")
+
+    @POST(ApiConstants.Auth.LOGIN)
     suspend fun login(@Body request: LoginRequestDto): LoginResponseDto
 
-    /**
-     * Registers a new user in the platform.
-     *
-     * Endpoint: POST /api/auth/register
-     *
-     * @param request Registration data (email, password, userType)
-     * @return RegisterResponseDto containing newly created user data and token
-     */
-    @POST("auth/register")
+
+    @POST(ApiConstants.Auth.REGISTER_GENERAL)
+    suspend fun registerGeneralUser(@Body request: RegisterGeneralUserRequestDto): RegisterResponseDto
+
+
+    @Multipart
+    @POST(ApiConstants.Auth.REGISTER_PSYCHOLOGIST)
+    suspend fun registerPsychologist(
+        @Part firstName: MultipartBody.Part,
+        @Part lastName: MultipartBody.Part,
+        @Part email: MultipartBody.Part,
+        @Part password: MultipartBody.Part,
+        @Part professionalLicense: MultipartBody.Part,
+        @Part yearsOfExperience: MultipartBody.Part,
+        @Part collegiateRegion: MultipartBody.Part,
+        @Part university: MultipartBody.Part,
+        @Part graduationYear: MultipartBody.Part,
+        @Part acceptsPrivacyPolicy: MultipartBody.Part,
+        @Part licenseDocument: MultipartBody.Part,
+        @Part diplomaDocument: MultipartBody.Part,
+        @Part dniDocument: MultipartBody.Part,
+        @Part specialties: MultipartBody.Part? = null,
+        @Part certificationDocuments: List<MultipartBody.Part>? = null
+    ): RegisterResponseDto
+
+
+    @Deprecated("Use registerGeneralUser or registerPsychologist instead")
+    @POST(ApiConstants.Auth.REGISTER)
     suspend fun register(@Body request: RegisterRequestDto): RegisterResponseDto
 
-    /**
-     * Authenticates a user using a social provider (Google, Facebook, etc.).
-     *
-     * Endpoint: POST /api/auth/social-login
-     *
-     * @param request Social login data (provider name and token)
-     * @return LoginResponseDto containing user data and authentication token
-     */
-    @POST("auth/social-login")
+
+    @POST(ApiConstants.Auth.SOCIAL_LOGIN)
     suspend fun socialLogin(@Body request: SocialLoginRequestDto): LoginResponseDto
+
+
+    @POST(ApiConstants.Auth.OAUTH_VERIFY)
+    suspend fun verifyOAuth(@Body request: OAuthVerifyRequestDto): OAuthVerificationResponseDto
+
+
+    @POST(ApiConstants.Auth.OAUTH)
+    suspend fun oauthLogin(@Body request: OAuthLoginRequestDto): LoginResponseDto
+
+
+    @Multipart
+    @POST(ApiConstants.Auth.OAUTH_COMPLETE_REGISTRATION)
+    suspend fun completeOAuthRegistration(
+        @Part tempToken: MultipartBody.Part,
+        @Part userType: MultipartBody.Part,
+        @Part acceptsPrivacyPolicy: MultipartBody.Part
+    ): LoginResponseDto
+
+
+    @Multipart
+    @POST(ApiConstants.Auth.OAUTH_COMPLETE_REGISTRATION)
+    suspend fun completeOAuthRegistrationPsychologist(
+        @Part tempToken: MultipartBody.Part,
+        @Part userType: MultipartBody.Part,
+        @Part acceptsPrivacyPolicy: MultipartBody.Part,
+        @Part professionalLicense: MultipartBody.Part,
+        @Part yearsOfExperience: MultipartBody.Part,
+        @Part collegiateRegion: MultipartBody.Part,
+        @Part university: MultipartBody.Part,
+        @Part graduationYear: MultipartBody.Part,
+        @Part licenseDocument: MultipartBody.Part,
+        @Part diplomaDocument: MultipartBody.Part,
+        @Part dniDocument: MultipartBody.Part,
+        @Part specialties: MultipartBody.Part? = null,
+        @Part certificationDocuments: List<MultipartBody.Part>? = null
+    ): LoginResponseDto
 }

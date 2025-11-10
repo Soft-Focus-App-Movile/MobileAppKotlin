@@ -1,5 +1,7 @@
 package com.softfocus.features.auth.presentation.login
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +49,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.R
-import com.softfocus.core.ui.theme.SoftFocusTheme
+import com.softfocus.core.networking.ApiConstants
+import com.softfocus.ui.theme.SoftFocusMobileTheme
 import com.softfocus.features.auth.presentation.di.PresentationModule.getLoginViewModel
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonSemiBold
@@ -58,35 +61,85 @@ import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.YellowEB
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.SourceSansBold
+import androidx.compose.ui.platform.LocalContext
+import com.softfocus.core.data.local.UserSession
+import com.softfocus.features.admin.presentation.di.AdminPresentationModule
+import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
+import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onAdminLoginSuccess: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToRegisterWithOAuth: (email: String, fullName: String, tempToken: String) -> Unit,
+    onNavigateToPendingVerification: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val user by viewModel.user.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val oauthData by viewModel.oauthDataForRegistration.collectAsState()
+    val googleSignInIntent by viewModel.googleSignInIntent.collectAsState()
+    val psychologistPendingVerification by viewModel.psychologistPendingVerification.collectAsState()
 
     val isPasswordVisible = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val userSession = remember { UserSession(context) }
 
-    // Navigate on success
-    user?.let {
-        onLoginSuccess()
+    // Activity Result Launcher for Google Sign-In
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.handleGoogleSignInResult(result.data)
+    }
+
+    // Launch Google Sign-In Intent when available
+    googleSignInIntent?.let { intent ->
+        googleSignInLauncher.launch(intent)
+        viewModel.clearGoogleSignInIntent()
+    }
+
+    // Navigate on login success based on user type
+    user?.let { currentUser ->
+        userSession.saveUser(currentUser)
+        if (currentUser.userType == com.softfocus.features.auth.domain.models.UserType.ADMIN) {
+            currentUser.token?.let { AdminPresentationModule.setAuthToken(it) }
+            onAdminLoginSuccess()
+        } else {
+            currentUser.token?.let { token ->
+                if (currentUser.userType == com.softfocus.features.auth.domain.models.UserType.PSYCHOLOGIST) {
+                    PsychologistPresentationModule.setAuthToken(token)
+                }
+            }
+            onLoginSuccess()
+        }
+    }
+
+    // Navigate to register with OAuth data
+    oauthData?.let { data ->
+        onNavigateToRegisterWithOAuth(data.email, data.fullName, data.tempToken)
+        viewModel.clearOAuthData()
+    }
+
+    // Navigate to pending verification if psychologist is not verified
+    if (psychologistPendingVerification) {
+        onNavigateToPendingVerification()
+        viewModel.clearPendingVerification()
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 32.dp),
+            .padding(horizontal = 32.dp)
+            .padding(top = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = "Iniciar Sesión",
@@ -94,7 +147,7 @@ fun LoginScreen(
             fontSize = 40.sp,
             color = Green49,
             modifier = Modifier
-                .padding( 10.dp)
+                .padding( 11.dp)
                 .align(Alignment.Start)
         )
 
@@ -256,7 +309,9 @@ fun LoginScreen(
 
         // Google button
         OutlinedButton(
-            onClick = { /* TODO: Google Sign-In */ },
+            onClick = {
+                viewModel.signInWithGoogle(ApiConstants.GOOGLE_SERVER_CLIENT_ID)
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.outlinedButtonColors(
@@ -295,12 +350,16 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    val viewModel = getLoginViewModel()
-    SoftFocusTheme {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val viewModel = getLoginViewModel(context)
+    SoftFocusMobileTheme {
         LoginScreen(
             viewModel = viewModel,
             onLoginSuccess = {},
-            onNavigateToRegister = {}
+            onAdminLoginSuccess = {},
+            onNavigateToRegister = {},
+            onNavigateToRegisterWithOAuth = { _, _, _ -> },
+            onNavigateToPendingVerification = {}
         )
     }
 }

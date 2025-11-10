@@ -62,6 +62,12 @@ val CrimsonRegular = TextStyle(
     lineHeight = 1.2.sp,
     letterSpacing = 0.sp
 )
+val CrimsonMixed = TextStyle(
+    fontFamily = CrimsonText,
+    fontWeight = FontWeight.Medium,
+    lineHeight = 1.2.sp,
+    letterSpacing = 0.sp
+)
 
 // Source Sans Pro Styles
 val SourceSansLight = TextStyle(

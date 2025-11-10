@@ -1,1 +1,33 @@
-/build
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+.claude
+CLAUDE
+# Generated files
+bin/
+gen/
+out/
+build/
+.gradle/
+
+# Local configuration file
+local.properties
+
+# Gradle files
+.gradle/
+gradle-wrapper.jar
+gradle-wrapper.properties
+
+# IntelliJ
+*.iml
+.idea/
+
+# nul file issue
+nul
