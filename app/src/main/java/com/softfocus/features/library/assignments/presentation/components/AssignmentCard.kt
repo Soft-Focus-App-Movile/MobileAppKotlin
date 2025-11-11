@@ -54,11 +54,13 @@ fun AssignmentCard(
 
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
+                    .weight(1f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
                     Text(
                         text = assignment.content.title,
                         style = SourceSansSemiBold.copy(fontSize = 16.sp),
