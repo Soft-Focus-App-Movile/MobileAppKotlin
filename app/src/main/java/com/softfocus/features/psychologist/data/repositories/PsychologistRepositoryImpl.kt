@@ -18,9 +18,9 @@ class PsychologistRepositoryImpl(
         }
     }
 
-    override suspend fun getStats(): Result<PsychologistStats> {
+    override suspend fun getStats(fromDate: String?, toDate: String?): Result<PsychologistStats> {
         return try {
-            val response = psychologistService.getStats()
+            val response = psychologistService.getStats(fromDate, toDate)
             Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)

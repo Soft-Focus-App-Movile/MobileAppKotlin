@@ -92,9 +92,9 @@ class PsychologistHomeViewModel(
         }
     }
 
-    private fun loadStats() {
+    private fun loadStats(fromDate: String? = null, toDate: String? = null) {
         viewModelScope.launch {
-            val result = psychologistRepository.getStats()
+            val result = psychologistRepository.getStats(fromDate, toDate)
             result.onSuccess { statsData ->
                 _stats.value = statsData
             }.onFailure { exception ->
@@ -107,10 +107,10 @@ class PsychologistHomeViewModel(
         loadPatients()
     }
 
-    fun refreshStats() {
+    fun refreshStats(fromDate: String? = null, toDate: String? = null) {
         viewModelScope.launch {
             _isRefreshing.value = true
-            loadStats()
+            loadStats(fromDate, toDate)
             _isRefreshing.value = false
         }
     }
