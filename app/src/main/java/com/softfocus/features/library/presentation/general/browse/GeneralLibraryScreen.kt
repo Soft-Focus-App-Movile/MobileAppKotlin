@@ -295,7 +295,7 @@ fun GeneralLibraryScreenContent(
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(paddingValues)
         ) {
             LibraryTabs(
@@ -331,38 +331,41 @@ fun GeneralLibraryScreenContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (isPatient && currentTab == "assignments" && assignmentsViewModel != null) {
-                AssignedContentScreen(
-                    viewModel = assignmentsViewModel,
-                    onContentClick = { contentId, contentType ->
-                        onContentClick(ContentItem(
-                            id = contentId,
-                            externalId = contentId,
-                            type = contentType,
-                            title = "",
-                            overview = null,
-                            posterUrl = null,
-                            rating = null,
-                            duration = null,
-                            genres = emptyList()
-                        ))
-                    }
-                )
-            } else {
-                LibraryContent(
-                    uiState = uiState,
-                    selectedType = selectedType,
-                    searchQuery = searchQuery,
-                    favoriteIds = favoriteIds,
-                    selectedContentIds = selectedContentIds,
-                    isSelectionMode = isSelectionMode,
-                    isPsychologist = isPsychologist,
-                    onContentClick = onContentClick,
-                    onContentLongClick = onContentSelectionToggle,
-                    onFavoriteClick = onFavoriteClick,
-                    onRetry = onRetry,
-                    selectedEmotion = selectedEmotion
-                )
+            // Envolver el contenido scrollable en Box con weight para evitar altura infinita
+            Box(modifier = Modifier.weight(1f)) {
+                if (isPatient && currentTab == "assignments" && assignmentsViewModel != null) {
+                    AssignedContentScreen(
+                        viewModel = assignmentsViewModel,
+                        onContentClick = { contentId, contentType ->
+                            onContentClick(ContentItem(
+                                id = contentId,
+                                externalId = contentId,
+                                type = contentType,
+                                title = "",
+                                overview = null,
+                                posterUrl = null,
+                                rating = null,
+                                duration = null,
+                                genres = emptyList()
+                            ))
+                        }
+                    )
+                } else {
+                    LibraryContent(
+                        uiState = uiState,
+                        selectedType = selectedType,
+                        searchQuery = searchQuery,
+                        favoriteIds = favoriteIds,
+                        selectedContentIds = selectedContentIds,
+                        isSelectionMode = isSelectionMode,
+                        isPsychologist = isPsychologist,
+                        onContentClick = onContentClick,
+                        onContentLongClick = onContentSelectionToggle,
+                        onFavoriteClick = onFavoriteClick,
+                        onRetry = onRetry,
+                        selectedEmotion = selectedEmotion
+                    )
+                }
             }
         }
     }

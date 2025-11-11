@@ -2,7 +2,9 @@ package com.softfocus.features.library.data.models.response
 
 import com.google.gson.annotations.SerializedName
 import com.softfocus.features.library.domain.models.Assignment
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
@@ -51,17 +53,22 @@ data class AssignmentResponseDto(
 
     companion object {
         /**
-         * Parsea un string de fecha/hora a LocalDateTime
+         * Parsea un string de fecha/hora ISO 8601 (con timezone UTC) a LocalDateTime
+         * Convierte automáticamente de UTC a la zona horaria del dispositivo
          */
         private fun parseDateTime(dateTimeString: String): LocalDateTime {
             return try {
-                LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_DATE_TIME)
+                // Parsear como Instant (entiende UTC y la "Z")
+                val instant = Instant.parse(dateTimeString)
+                // Convertir a LocalDateTime en la zona horaria del sistema
+                LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
             } catch (e: Exception) {
-                // Fallback: intenta otros formatos comunes
+                // Fallback: intenta parsear sin timezone (formato legacy)
                 try {
-                    LocalDateTime.parse(dateTimeString)
+                    LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_DATE_TIME)
                 } catch (e: Exception) {
-                    LocalDateTime.now() // Último fallback
+                    // Último fallback: usa la hora actual
+                    LocalDateTime.now()
                 }
             }
         }
