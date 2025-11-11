@@ -53,7 +53,8 @@ fun LibraryContent(
     onContentLongClick: (ContentItem) -> Unit,
     onFavoriteClick: (ContentItem) -> Unit,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedEmotion: EmotionalTag? = null
 ) {
     when (uiState) {
         is GeneralLibraryUiState.Loading -> {
@@ -89,6 +90,8 @@ fun LibraryContent(
                         Text(
                             text = if (searchQuery.isNotBlank())
                                 "Intenta con otra búsqueda"
+                            else if (selectedEmotion != null)
+                                "Prueba otro filtro"
                             else if (selectedType == ContentType.Video)
                                 "Selecciona una categoría para ver videos"
                             else

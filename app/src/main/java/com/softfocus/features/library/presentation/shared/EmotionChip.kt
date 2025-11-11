@@ -59,8 +59,6 @@ fun EmotionChip(
  */
 fun EmotionalTag.getDisplayName(): String = when (this) {
     EmotionalTag.Happy -> "Feliz"
-    EmotionalTag.Sad -> "Triste"
-    EmotionalTag.Anxious -> "Ansioso"
     EmotionalTag.Calm -> "Calmado"
     EmotionalTag.Energetic -> "Enérgico"
 }

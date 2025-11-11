@@ -234,9 +234,16 @@ fun GeneralLibraryScreenContent(
     onAssignTaskClick: () -> Unit = {}
 ) {
     var showFilterSheet by remember { mutableStateOf(false) }
-    var currentTab by remember { mutableStateOf(if (isPatient) "assignments" else "content") }
 
     val isPsychologist = userType == UserType.PSYCHOLOGIST
+
+    var currentTab by remember { mutableStateOf(if (isPatient) "assignments" else "content") }
+
+    LaunchedEffect(isPatient) {
+        if (isPatient) {
+            currentTab = "assignments"
+        }
+    }
 
     val availableTabs = remember(userType) {
         when (userType) {
@@ -289,23 +296,25 @@ fun GeneralLibraryScreenContent(
                 onContentTypeSelected = onTabSelected
             )
 
-            when (selectedType) {
-                ContentType.Video -> {
-                    CategoryIcons(
-                        selectedCategory = selectedVideoCategory,
-                        onCategoryClick = onVideoCategorySelected,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                }
-                ContentType.Weather -> {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                else -> {
-                    SearchBarWithFilter(
-                        searchQuery = searchQuery,
-                        onSearchQueryChange = onSearchQueryChange,
-                        onFilterClick = { showFilterSheet = true }
-                    )
+            if (currentTab != "assignments") {
+                when (selectedType) {
+                    ContentType.Video -> {
+                        CategoryIcons(
+                            selectedCategory = selectedVideoCategory,
+                            onCategoryClick = onVideoCategorySelected,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
+                    ContentType.Weather -> {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    else -> {
+                        SearchBarWithFilter(
+                            searchQuery = searchQuery,
+                            onSearchQueryChange = onSearchQueryChange,
+                            onFilterClick = { showFilterSheet = true }
+                        )
+                    }
                 }
             }
 
@@ -340,7 +349,8 @@ fun GeneralLibraryScreenContent(
                     onContentClick = onContentClick,
                     onContentLongClick = onContentSelectionToggle,
                     onFavoriteClick = onFavoriteClick,
-                    onRetry = onRetry
+                    onRetry = onRetry,
+                    selectedEmotion = selectedEmotion
                 )
             }
         }

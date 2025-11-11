@@ -59,7 +59,7 @@ object MockLibraryData {
             duration = 10,
             releaseDate = "2023-05-10",
             genres = listOf("Meditación", "Bienestar"),
-            emotionalTags = listOf(EmotionalTag.Calm, EmotionalTag.Anxious),
+            emotionalTags = listOf(EmotionalTag.Calm),
             channelName = "Mindfulness Academy",
             youtubeUrl = "https://www.youtube.com/watch?v=example1"
         ),
@@ -133,7 +133,7 @@ object MockLibraryData {
             duration = 8,
             releaseDate = "2011-10-17",
             genres = listOf("Ambient", "Relajación"),
-            emotionalTags = listOf(EmotionalTag.Calm, EmotionalTag.Anxious),
+            emotionalTags = listOf(EmotionalTag.Calm),
             artist = "Marconi Union",
             album = "Weightless",
             previewUrl = "https://p.scdn.co/mp3-preview/...",
@@ -173,7 +173,7 @@ object MockLibraryData {
             duration = 15,
             releaseDate = "2023-08-20",
             genres = listOf("Meditación", "Respiración"),
-            emotionalTags = listOf(EmotionalTag.Calm, EmotionalTag.Anxious),
+            emotionalTags = listOf(EmotionalTag.Calm),
             channelName = "Breathe with Me",
             youtubeUrl = "https://www.youtube.com/watch?v=example2"
         ),

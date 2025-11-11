@@ -54,23 +54,25 @@ fun AssignmentCard(
 
             Column(
                 modifier = Modifier
-                    .weight(1f),
+                    .weight(1f)
+                    .height(140.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.weight(1f, fill = false)
                 ) {
                     Text(
                         text = assignment.content.title,
                         style = SourceSansSemiBold.copy(fontSize = 16.sp),
                         color = Color.White,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 20.sp
                     )
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -80,28 +82,34 @@ fun AssignmentCard(
                                 ContentType.Video -> "Video"
                                 ContentType.Weather -> "Clima"
                             },
-                            style = SourceSansRegular.copy(fontSize = 13.sp),
-                            color = Gray828
+                            style = SourceSansRegular.copy(fontSize = 12.sp),
+                            color = Gray828,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
 
                         assignment.content.duration?.let { duration ->
                             Text(
                                 text = "•",
-                                style = SourceSansRegular.copy(fontSize = 13.sp),
+                                style = SourceSansRegular.copy(fontSize = 12.sp),
                                 color = Gray828
                             )
                             Text(
                                 text = "${duration} min",
-                                style = SourceSansRegular.copy(fontSize = 13.sp),
-                                color = Gray828
+                                style = SourceSansRegular.copy(fontSize = 12.sp),
+                                color = Gray828,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
 
                     Text(
-                        text = "Asignado el ${assignment.createdAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}",
-                        style = SourceSansRegular.copy(fontSize = 12.sp),
-                        color = Gray828
+                        text = "Asignado: ${assignment.createdAt.format(DateTimeFormatter.ofPattern("dd/MM/yy"))}",
+                        style = SourceSansRegular.copy(fontSize = 11.sp),
+                        color = Gray828,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     if (assignment.isCompleted) {
@@ -113,12 +121,14 @@ fun AssignmentCard(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 tint = GreenEB2,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = "Completado el ${assignment.completedAt?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}",
-                                style = SourceSansRegular.copy(fontSize = 12.sp),
-                                color = GreenEB2
+                                text = "Completado: ${assignment.completedAt?.format(DateTimeFormatter.ofPattern("dd/MM/yy"))}",
+                                style = SourceSansRegular.copy(fontSize = 11.sp),
+                                color = GreenEB2,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -135,12 +145,14 @@ fun AssignmentCard(
                             contentColor = Color.Black
                         ),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f)
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        modifier = Modifier.weight(1f).height(36.dp)
                     ) {
                         Text(
                             text = "Ver",
-                            style = SourceSansSemiBold.copy(fontSize = 14.sp),
-                            color= GreenF2
+                            style = SourceSansSemiBold.copy(fontSize = 13.sp),
+                            color = GreenF2,
+                            maxLines = 1
                         )
                     }
 
@@ -152,12 +164,14 @@ fun AssignmentCard(
                                 contentColor = Green65
                             ),
                             shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.weight(1f)
+                            contentPadding = PaddingValues(vertical = 8.dp),
+                            modifier = Modifier.weight(1f).height(36.dp)
                         ) {
                             Text(
                                 text = "Completar",
-                                style = SourceSansSemiBold.copy(fontSize = 14.sp),
-                                color= GreenF2
+                                style = SourceSansSemiBold.copy(fontSize = 13.sp),
+                                color = GreenF2,
+                                maxLines = 1
                             )
                         }
                     }

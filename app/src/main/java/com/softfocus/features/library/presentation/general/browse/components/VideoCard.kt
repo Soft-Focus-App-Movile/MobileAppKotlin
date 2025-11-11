@@ -132,16 +132,16 @@ fun VideoCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Información del video
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
+                    .height(90.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Título y metadatos
-                Column {
-                    // Título
+                Column(
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     Text(
                         text = content.title,
                         style = SourceSansSemiBold.copy(fontSize = 14.sp),
@@ -151,9 +151,6 @@ fun VideoCard(
                         lineHeight = 18.sp
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Canal/Autor
                     content.channelName?.let { channel ->
                         Text(
                             text = channel,
@@ -164,17 +161,17 @@ fun VideoCard(
                         )
                     }
 
-                    // Duración
                     content.getFormattedDuration()?.let { duration ->
                         Text(
                             text = duration,
                             style = SourceSansLight.copy(fontSize = 11.sp),
-                            color = Color.White.copy(alpha = 0.6f)
+                            color = Color.White.copy(alpha = 0.6f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
 
-                // Botón "Ver" (solo si NO está en modo selección)
                 if (!isSelectionMode) {
                     Button(
                         onClick = onViewClick,
@@ -183,12 +180,13 @@ fun VideoCard(
                         ),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
-                        modifier = Modifier.align(Alignment.End)
+                        modifier = Modifier.align(Alignment.End).height(32.dp)
                     ) {
                         Text(
                             text = "Ver",
                             style = SourceSansSemiBold.copy(fontSize = 13.sp),
-                            color = Color.White
+                            color = Color.White,
+                            maxLines = 1
                         )
                     }
                 }
