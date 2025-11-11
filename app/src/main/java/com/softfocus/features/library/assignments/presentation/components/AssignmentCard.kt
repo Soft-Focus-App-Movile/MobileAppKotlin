@@ -112,13 +112,13 @@ fun AssignmentCard(
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                tint = Green49,
+                                tint = GreenEB2,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = "Completado el ${assignment.completedAt?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}",
                                 style = SourceSansRegular.copy(fontSize = 12.sp),
-                                color = Green49
+                                color = GreenEB2
                             )
                         }
                     }
@@ -131,7 +131,7 @@ fun AssignmentCard(
                     Button(
                         onClick = onViewClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Green49,
+                            containerColor = Green65,
                             contentColor = Color.Black
                         ),
                         shape = RoundedCornerShape(8.dp),
@@ -139,7 +139,8 @@ fun AssignmentCard(
                     ) {
                         Text(
                             text = "Ver",
-                            style = SourceSansSemiBold.copy(fontSize = 14.sp)
+                            style = SourceSansSemiBold.copy(fontSize = 14.sp),
+                            color= GreenF2
                         )
                     }
 
@@ -148,14 +149,15 @@ fun AssignmentCard(
                             onClick = onCompleteClick,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF2D2D2D),
-                                contentColor = Green49
+                                contentColor = Green65
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
                                 text = "Completar",
-                                style = SourceSansSemiBold.copy(fontSize = 14.sp)
+                                style = SourceSansSemiBold.copy(fontSize = 14.sp),
+                                color= GreenF2
                             )
                         }
                     }

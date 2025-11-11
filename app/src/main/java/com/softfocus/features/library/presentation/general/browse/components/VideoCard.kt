@@ -179,7 +179,7 @@ fun VideoCard(
                     Button(
                         onClick = onViewClick,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Green49
+                            containerColor = Green65
                         ),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
@@ -188,7 +188,7 @@ fun VideoCard(
                         Text(
                             text = "Ver",
                             style = SourceSansSemiBold.copy(fontSize = 13.sp),
-                            color = Color.Black
+                            color = Color.White
                         )
                     }
                 }
