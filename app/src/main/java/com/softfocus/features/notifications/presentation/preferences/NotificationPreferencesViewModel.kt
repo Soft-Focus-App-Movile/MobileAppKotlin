@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 data class NotificationPreferencesState(
@@ -72,6 +73,135 @@ class NotificationPreferencesViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isLoading = false,
                     error = "Error inesperado al cargar: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Toggle de la preferencia maestra (activar/desactivar todas las notificaciones)
+     */
+    fun toggleMasterPreference() {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isSaving = true, successMessage = null, error = null)
+
+                val masterPreference = _state.value.preferences.firstOrNull()
+                if (masterPreference == null) {
+                    _state.value = _state.value.copy(
+                        isSaving = false,
+                        error = "No hay preferencias configuradas"
+                    )
+                    return@launch
+                }
+
+                // Invertir el estado
+                val newEnabled = !masterPreference.isEnabled
+                val updated = masterPreference.copy(isEnabled = newEnabled)
+
+                // Actualizar la lista
+                val updatedList = listOf(updated)
+
+                android.util.Log.d("NotifPrefVM", "Toggle master: ${masterPreference.isEnabled} -> $newEnabled")
+
+                // Guardar en el servidor
+                updatePreferencesUseCase(updatedList).fold(
+                    onSuccess = { serverPreferences ->
+                        val finalPreferences = if (!serverPreferences.isNullOrEmpty()) {
+                            serverPreferences
+                        } else {
+                            updatedList
+                        }
+
+                        _state.value = _state.value.copy(
+                            preferences = finalPreferences,
+                            isSaving = false,
+                            successMessage = if (newEnabled) "Notificaciones activadas" else "Notificaciones desactivadas"
+                        )
+
+                        // Limpiar mensaje después de 3 segundos
+                        kotlinx.coroutines.delay(3000)
+                        _state.value = _state.value.copy(successMessage = null)
+                    },
+                    onFailure = { error ->
+                        android.util.Log.e("NotifPrefVM", "Error al toggle master: ${error.message}", error)
+                        _state.value = _state.value.copy(
+                            isSaving = false,
+                            error = error.message ?: "Error al actualizar"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                android.util.Log.e("NotifPrefVM", "Excepción en toggleMasterPreference", e)
+                _state.value = _state.value.copy(
+                    isSaving = false,
+                    error = "Error inesperado: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Actualiza el horario de recepción de notificaciones (solo para psicólogos)
+     */
+    fun updateSchedule(startTime: LocalTime, endTime: LocalTime) {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isSaving = true, successMessage = null, error = null)
+
+                val masterPreference = _state.value.preferences.firstOrNull()
+                if (masterPreference == null) {
+                    _state.value = _state.value.copy(
+                        isSaving = false,
+                        error = "No hay preferencias configuradas"
+                    )
+                    return@launch
+                }
+
+                // Crear o actualizar el schedule
+                val newSchedule = NotificationSchedule(
+                    startTime = startTime,
+                    endTime = endTime,
+                    daysOfWeek = listOf(1, 2, 3, 4, 5, 6, 7) // Todos los días
+                )
+
+                val updated = masterPreference.copy(schedule = newSchedule)
+                val updatedList = listOf(updated)
+
+                android.util.Log.d("NotifPrefVM", "Actualizando horario: ${startTime.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${endTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
+
+                // Guardar en el servidor
+                updatePreferencesUseCase(updatedList).fold(
+                    onSuccess = { serverPreferences ->
+                        val finalPreferences = if (!serverPreferences.isNullOrEmpty()) {
+                            serverPreferences
+                        } else {
+                            updatedList
+                        }
+
+                        _state.value = _state.value.copy(
+                            preferences = finalPreferences,
+                            isSaving = false,
+                            successMessage = "Horario actualizado correctamente"
+                        )
+
+                        // Limpiar mensaje después de 3 segundos
+                        kotlinx.coroutines.delay(3000)
+                        _state.value = _state.value.copy(successMessage = null)
+                    },
+                    onFailure = { error ->
+                        android.util.Log.e("NotifPrefVM", "Error al actualizar horario: ${error.message}", error)
+                        _state.value = _state.value.copy(
+                            isSaving = false,
+                            error = error.message ?: "Error al actualizar horario"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                android.util.Log.e("NotifPrefVM", "Excepción en updateSchedule", e)
+                _state.value = _state.value.copy(
+                    isSaving = false,
+                    error = "Error inesperado: ${e.message}"
                 )
             }
         }

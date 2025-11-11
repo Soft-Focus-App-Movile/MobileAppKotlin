@@ -240,6 +240,7 @@ fun NavGraphBuilder.sharedNavigation(
             ) { paddingValues ->
                 Box(modifier = Modifier.padding(paddingValues)) {
                     NotificationPreferencesScreen(
+                        userType = currentUser?.userType ?: UserType.GENERAL,
                         onNavigateBack = {
                             navController.popBackStack()
                         }

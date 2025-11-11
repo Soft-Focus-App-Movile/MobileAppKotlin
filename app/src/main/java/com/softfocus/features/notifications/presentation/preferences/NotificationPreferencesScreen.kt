@@ -1,23 +1,20 @@
 package com.softfocus.features.notifications.presentation.preferences
 
-import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.softfocus.features.notifications.domain.models.NotificationType
+import com.softfocus.features.auth.domain.models.UserType
 import com.softfocus.ui.theme.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -25,23 +22,16 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationPreferencesScreen(
+    userType: UserType,
     onNavigateBack: () -> Unit,
     viewModel: NotificationPreferencesViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var showTimePickerDialog by remember { mutableStateOf(false) }
 
-    // Extraer las preferencias específicas del estado
-    val dailyCheckIn = remember(state.preferences) {
-        state.preferences.find { it.notificationType == NotificationType.CHECKIN_REMINDER }
-    }
-
-    val dailySuggestions = remember(state.preferences) {
-        state.preferences.find { it.notificationType == NotificationType.INFO }
-    }
-
-    val promotions = remember(state.preferences) {
-        state.preferences.find { it.notificationType == NotificationType.SYSTEM_UPDATE }
+    // Una sola preferencia maestra
+    val masterPreference = remember(state.preferences) {
+        state.preferences.firstOrNull()
     }
 
     Scaffold(
@@ -51,7 +41,8 @@ fun NotificationPreferencesScreen(
                     Text(
                         text = "Notificaciones",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Normal,
+                        color = Gray222
                     )
                 },
                 navigationIcon = {
@@ -72,7 +63,7 @@ fun NotificationPreferencesScreen(
         containerColor = White
     ) { padding ->
         when {
-            state.isLoading && state.preferences.isEmpty() -> {
+            state.isLoading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -125,7 +116,6 @@ fun NotificationPreferencesScreen(
                             .padding(horizontal = 24.dp, vertical = 24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Card contenedor con título y preferencias
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -139,66 +129,214 @@ fun NotificationPreferencesScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(20.dp)
+                                    .padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                // Título "Configuración"
                                 Text(
                                     text = "Configuración",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Gray222,
-                                    modifier = Modifier.padding(bottom = 16.dp)
+                                    color = Gray222
                                 )
 
-                                // Preferencias
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    // Recordatorios de registro diario
-                                    dailyCheckIn?.let { pref ->
-                                        NotificationPreferenceItem(
-                                            title = "Recordatorios de registro diario",
-                                            subtitle = if (pref.isEnabled && pref.schedule != null) {
-                                                pref.schedule.startTime.format(
-                                                    DateTimeFormatter.ofPattern("HH:mm")
-                                                )
-                                            } else null,
+                                masterPreference?.let { pref ->
+                                    // Switch principal
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Recibir notificaciones",
+                                                fontSize = 14.sp,
+                                                color = Gray222,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = if (pref.isEnabled) "Activado" else "Desactivado",
+                                                fontSize = 12.sp,
+                                                color = Gray808,
+                                                modifier = Modifier.padding(top = 2.dp)
+                                            )
+                                        }
+
+                                        Switch(
                                             checked = pref.isEnabled,
-                                            onCheckedChange = {
-                                                viewModel.togglePreference(pref)
-                                            },
-                                            onItemClick = {
-                                                if (pref.isEnabled) {
-                                                    showTimePickerDialog = true
+                                            onCheckedChange = { viewModel.toggleMasterPreference() },
+                                            colors = SwitchDefaults.colors(
+                                                checkedThumbColor = White,
+                                                checkedTrackColor = Green49,
+                                                uncheckedThumbColor = White,
+                                                uncheckedTrackColor = GrayB2
+                                            )
+                                        )
+                                    }
+
+                                    // Configuración de horario SOLO para psicólogos
+                                    if (userType == UserType.PSYCHOLOGIST && pref.isEnabled) {
+                                        HorizontalDivider(
+                                            color = GrayD9,
+                                            thickness = 0.5.dp,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
+
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            Text(
+                                                text = "Horario de recepción",
+                                                fontSize = 14.sp,
+                                                color = Gray222,
+                                                fontWeight = FontWeight.Medium
+                                            )
+
+                                            Card(
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = White
+                                                ),
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.padding(12.dp),
+                                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Column {
+                                                            Text(
+                                                                text = "Desde",
+                                                                fontSize = 12.sp,
+                                                                color = Gray808
+                                                            )
+                                                            Text(
+                                                                text = pref.schedule?.startTime?.format(
+                                                                    DateTimeFormatter.ofPattern("HH:mm")
+                                                                ) ?: "07:00",
+                                                                fontSize = 16.sp,
+                                                                color = Gray222,
+                                                                fontWeight = FontWeight.Medium
+                                                            )
+                                                        }
+
+                                                        Text(
+                                                            text = "—",
+                                                            fontSize = 16.sp,
+                                                            color = Gray808
+                                                        )
+
+                                                        Column(horizontalAlignment = Alignment.End) {
+                                                            Text(
+                                                                text = "Hasta",
+                                                                fontSize = 12.sp,
+                                                                color = Gray808
+                                                            )
+                                                            Text(
+                                                                text = pref.schedule?.endTime?.format(
+                                                                    DateTimeFormatter.ofPattern("HH:mm")
+                                                                ) ?: "00:00",
+                                                                fontSize = 16.sp,
+                                                                color = Gray222,
+                                                                fontWeight = FontWeight.Medium
+                                                            )
+                                                        }
+
+                                                        IconButton(
+                                                            onClick = { showTimePickerDialog = true }
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Info,
+                                                                contentDescription = "Cambiar",
+                                                                tint = Green49,
+                                                                modifier = Modifier.size(20.dp)
+                                                            )
+                                                        }
+                                                    }
                                                 }
                                             }
-                                        )
 
-                                        HorizontalDivider(color = GrayD9, thickness = 0.5.dp)
+                                            Card(
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = GreenEC.copy(alpha = 0.5f)
+                                                ),
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(12.dp),
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Info,
+                                                        contentDescription = null,
+                                                        tint = Green37,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                    Column {
+                                                        Text(
+                                                            text = "Dentro del horario:",
+                                                            fontSize = 12.sp,
+                                                            color = Green37,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
+                                                        Text(
+                                                            text = "Recibirás todas las notificaciones incluyendo alertas de crisis",
+                                                            fontSize = 11.sp,
+                                                            color = Green37
+                                                        )
+                                                        Spacer(modifier = Modifier.height(4.dp))
+                                                        Text(
+                                                            text = "Fuera del horario:",
+                                                            fontSize = 12.sp,
+                                                            color = Green37,
+                                                            fontWeight = FontWeight.Medium
+                                                        )
+                                                        Text(
+                                                            text = "Solo notificaciones no urgentes",
+                                                            fontSize = 11.sp,
+                                                            color = Green37
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
 
-                                    // Sugerencias diarias
-                                    dailySuggestions?.let { pref ->
-                                        NotificationPreferenceItem(
-                                            title = "Sugerencias diarias",
-                                            checked = pref.isEnabled,
-                                            onCheckedChange = {
-                                                viewModel.togglePreference(pref)
-                                            }
+                                    // Info adicional para pacientes/general
+                                    if (userType != UserType.PSYCHOLOGIST && pref.isEnabled) {
+                                        HorizontalDivider(
+                                            color = GrayD9,
+                                            thickness = 0.5.dp,
+                                            modifier = Modifier.padding(vertical = 8.dp)
                                         )
 
-                                        HorizontalDivider(color = GrayD9, thickness = 0.5.dp)
-                                    }
-
-                                    // Promociones y novedades
-                                    promotions?.let { pref ->
-                                        NotificationPreferenceItem(
-                                            title = "Promociones y novedades",
-                                            checked = pref.isEnabled,
-                                            onCheckedChange = {
-                                                viewModel.togglePreference(pref)
+                                        Card(
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = GreenEC.copy(alpha = 0.5f)
+                                            ),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(12.dp),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Info,
+                                                    contentDescription = null,
+                                                    tint = Green37,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Text(
+                                                    text = "Recibirás todas las notificaciones del sistema",
+                                                    fontSize = 12.sp,
+                                                    color = Green37
+                                                )
                                             }
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -213,7 +351,7 @@ fun NotificationPreferencesScreen(
                             )
                         }
 
-                        // Mensaje de guardado exitoso
+                        // Mensaje de éxito
                         if (state.successMessage != null) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Card(
@@ -236,125 +374,56 @@ fun NotificationPreferencesScreen(
         }
     }
 
-    // Diálogo de selector de hora
-    if (showTimePickerDialog && dailyCheckIn != null) {
-        val currentTime = dailyCheckIn.schedule?.startTime ?: LocalTime.of(9, 0)
-
-        TimePickerDialog(
+    // Diálogo de selector de horario
+    if (showTimePickerDialog && masterPreference != null) {
+        TimeRangePickerDialog(
+            startTime = masterPreference.schedule?.startTime ?: LocalTime.of(7, 0),
+            endTime = masterPreference.schedule?.endTime ?: LocalTime.of(0, 0),
             onDismiss = { showTimePickerDialog = false },
-            onConfirm = { hour, minute ->
-                val newTime = LocalTime.of(hour, minute)
-                viewModel.updateCheckInTime(dailyCheckIn, newTime)
+            onConfirm = { start, end ->
+                viewModel.updateSchedule(start, end)
                 showTimePickerDialog = false
-            },
-            initialHour = currentTime.hour,
-            initialMinute = currentTime.minute
-        )
-    }
-}
-
-@Composable
-private fun NotificationPreferenceItem(
-    title: String,
-    subtitle: String? = null,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    onItemClick: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onItemClick != null && checked) {
-                    Modifier.clickable(onClick = onItemClick)
-                } else {
-                    Modifier
-                }
-            )
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .then(
-                    if (onItemClick != null && checked) {
-                        Modifier.clickable(onClick = onItemClick)
-                    } else {
-                        Modifier
-                    }
-                )
-        ) {
-            Text(
-                text = title,
-                fontSize = 14.sp,
-                color = Gray222,
-                fontWeight = FontWeight.Normal
-            )
-            subtitle?.let {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 4.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_recent_history),
-                        contentDescription = "Hora",
-                        tint = Gray808,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = it,
-                        fontSize = 12.sp,
-                        color = Gray808
-                    )
-                    if (onItemClick != null && checked) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "• Toca para cambiar",
-                            fontSize = 11.sp,
-                            color = Green49,
-                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                        )
-                    }
-                }
             }
-        }
-
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = CheckboxDefaults.colors(
-                checkedColor = Green49,
-                uncheckedColor = GrayB2,
-                checkmarkColor = White
-            )
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TimePickerDialog(
+private fun TimeRangePickerDialog(
+    startTime: LocalTime,
+    endTime: LocalTime,
     onDismiss: () -> Unit,
-    onConfirm: (hour: Int, minute: Int) -> Unit,
-    initialHour: Int = 9,
-    initialMinute: Int = 0
+    onConfirm: (LocalTime, LocalTime) -> Unit
 ) {
+    var isSelectingStart by remember { mutableStateOf(true) }
+    var tempStartTime by remember { mutableStateOf(startTime) }
+    var tempEndTime by remember { mutableStateOf(endTime) }
+
     val timePickerState = rememberTimePickerState(
-        initialHour = initialHour,
-        initialMinute = initialMinute,
+        initialHour = if (isSelectingStart) tempStartTime.hour else tempEndTime.hour,
+        initialMinute = if (isSelectingStart) tempStartTime.minute else tempEndTime.minute,
         is24Hour = true
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
-                onConfirm(timePickerState.hour, timePickerState.minute)
-            }) {
-                Text("Aceptar", color = Green49)
+            TextButton(
+                onClick = {
+                    if (isSelectingStart) {
+                        tempStartTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                        isSelectingStart = false
+                    } else {
+                        tempEndTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                        onConfirm(tempStartTime, tempEndTime)
+                    }
+                }
+            ) {
+                Text(
+                    if (isSelectingStart) "Siguiente" else "Guardar",
+                    color = Green49
+                )
             }
         },
         dismissButton = {
@@ -362,18 +431,34 @@ private fun TimePickerDialog(
                 Text("Cancelar", color = Gray808)
             }
         },
+        title = {
+            Text(
+                text = if (isSelectingStart) "Hora de inicio" else "Hora de fin",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Gray222
+            )
+        },
         text = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Seleccionar hora",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Gray222,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                if (isSelectingStart) {
+                    Text(
+                        text = "Desde qué hora deseas recibir notificaciones",
+                        fontSize = 14.sp,
+                        color = Gray808,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Hasta qué hora deseas recibir todas las notificaciones",
+                        fontSize = 14.sp,
+                        color = Gray808,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
                 TimePicker(
                     state = timePickerState,
                     colors = TimePickerDefaults.colors(
@@ -382,11 +467,6 @@ private fun TimePickerDialog(
                         clockDialUnselectedContentColor = Gray222,
                         selectorColor = Green49,
                         containerColor = White,
-                        periodSelectorBorderColor = GrayE0,
-                        periodSelectorSelectedContainerColor = Green49,
-                        periodSelectorUnselectedContainerColor = GrayF5,
-                        periodSelectorSelectedContentColor = White,
-                        periodSelectorUnselectedContentColor = Gray222,
                         timeSelectorSelectedContainerColor = Green49,
                         timeSelectorUnselectedContainerColor = GrayF5,
                         timeSelectorSelectedContentColor = White,
