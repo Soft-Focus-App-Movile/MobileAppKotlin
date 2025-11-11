@@ -4,8 +4,11 @@ import android.content.Context
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.ai.data.remote.AIChatService
+import com.softfocus.features.ai.data.remote.AIEmotionService
 import com.softfocus.features.ai.data.repositories.AIChatRepositoryImpl
+import com.softfocus.features.ai.data.repositories.AIEmotionRepositoryImpl
 import com.softfocus.features.ai.domain.repositories.AIChatRepository
+import com.softfocus.features.ai.domain.repositories.AIEmotionRepository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,8 +22,16 @@ object AIDataModule {
         return AIChatRepositoryImpl(getAIChatService(context))
     }
 
+    fun getAIEmotionRepository(context: Context): AIEmotionRepository {
+        return AIEmotionRepositoryImpl(getAIEmotionService(context))
+    }
+
     private fun getAIChatService(context: Context): AIChatService {
         return getRetrofit(context).create(AIChatService::class.java)
+    }
+
+    private fun getAIEmotionService(context: Context): AIEmotionService {
+        return getRetrofit(context).create(AIEmotionService::class.java)
     }
 
     private fun getRetrofit(context: Context): Retrofit {

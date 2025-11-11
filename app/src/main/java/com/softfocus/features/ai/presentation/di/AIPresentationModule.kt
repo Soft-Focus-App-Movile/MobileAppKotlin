@@ -3,6 +3,7 @@ package com.softfocus.features.ai.presentation.di
 import android.content.Context
 import com.softfocus.features.ai.data.di.AIDataModule
 import com.softfocus.features.ai.presentation.chat.AIChatViewModel
+import com.softfocus.features.ai.presentation.emotion.EmotionDetectionViewModel
 import com.softfocus.features.ai.presentation.welcome.AIWelcomeViewModel
 
 object AIPresentationModule {
@@ -16,6 +17,12 @@ object AIPresentationModule {
     fun getAIWelcomeViewModel(context: Context): AIWelcomeViewModel {
         return AIWelcomeViewModel(
             repository = AIDataModule.getAIChatRepository(context)
+        )
+    }
+
+    fun getEmotionDetectionViewModel(context: Context): EmotionDetectionViewModel {
+        return EmotionDetectionViewModel(
+            emotionRepository = AIDataModule.getAIEmotionRepository(context)
         )
     }
 }

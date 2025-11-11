@@ -12,6 +12,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Camera permissions for emotion detection -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+
     <!-- Package visibility queries para Android 11+ (API 30+) -->
     <!-- Permite verificar e iniciar YouTube y Spotify -->
     <queries>
@@ -21,7 +26,7 @@
             <data android:scheme="https" />
         </intent>
 
-        <!-- Para abrir Spotify con deep links -->
+        <!-- Para abrir Spotify with deep links -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="spotify" />
@@ -44,6 +49,18 @@
         android:theme="@style/Theme.SoftFocusMobile"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        
+        <!-- FileProvider para capturar fotos -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
