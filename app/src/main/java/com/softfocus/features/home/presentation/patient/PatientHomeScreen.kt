@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.softfocus.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -25,6 +26,8 @@ import com.softfocus.features.home.presentation.components.WelcomeCard
 import com.softfocus.features.crisis.presentation.components.CrisisButton
 import com.softfocus.features.home.presentation.patient.components.TasksSection
 import com.softfocus.features.home.presentation.patient.components.TherapistChatCard
+import com.softfocus.features.tracking.presentation.state.TrackingUiState
+import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +49,8 @@ import com.softfocus.ui.theme.SourceSansRegular
 fun PatientHomeScreen(
     navController: NavController,
     onNavigateToNotifications: () -> Unit = {},
-    viewModel: PatientHomeViewModel = patientHomeViewModel()
+    viewModel: PatientHomeViewModel = patientHomeViewModel(),
+    trackingViewModel: TrackingViewModel = hiltViewModel() // AGREGAR
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -61,7 +65,14 @@ fun PatientHomeScreen(
     val recommendationsState by viewModel.recommendationsState.collectAsState()
     val therapistState by viewModel.therapistState.collectAsState()
 
+    // AGREGAR: Estados del tracking
+    val trackingUiState by trackingViewModel.uiState.collectAsState()
+    val dashboard = (trackingUiState as? TrackingUiState.Success)?.data?.dashboard
+
     LaunchedEffect(Unit) {
+        // AGREGAR: Cargar dashboard
+        trackingViewModel.loadDashboard(days = 7)
+
         scope.launch {
             if (LocationHelper.hasLocationPermission(context)) {
                 val location = LocationHelper.getCurrentLocation(context)
@@ -116,87 +127,98 @@ fun PatientHomeScreen(
                 )
             }
         ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .background(Color.White)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .background(Color.White)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            WelcomeCard(
-                userName = userName,
-                onRegisterMoodClick = {
-                    navController.navigate(Route.CheckInForm.path)
-                }
-            )
+                WelcomeCard(
+                    userName = userName,
+                    onRegisterMoodClick = {
+                        navController.navigate(Route.CheckInForm.path)
+                    },
+                    // AGREGAR: Pasar datos del dashboard
+                    hasTodayCheckIn = dashboard?.summary?.hasTodayCheckIn ?: false,
+                    todayEmotionalLevel = dashboard?.summary?.todayCheckIn?.emotionalLevel,
+                    totalCheckIns = dashboard?.summary?.totalCheckIns ?: 0
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Chat con terapeuta",
-                style = CrimsonSemiBold,
-                fontSize = 20.sp,
-                color = Black,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                Text(
+                    text = "Chat con terapeuta",
+                    style = CrimsonSemiBold,
+                    fontSize = 20.sp,
+                    color = Black,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            TherapistChatCard(
-                therapistState = therapistState,
-                onRetry = { viewModel.retryTherapist() },
-                onChatClick = {
-                    // TODO: Navegar al chat con el terapeuta
-                }
-            )
+                TherapistChatCard(
+                    therapistState = therapistState,
+                    onRetry = { viewModel.retryTherapist() },
+                    onChatClick = {
+                        // TODO: Navegar al chat con el terapeuta
+                    }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "Tareas pendientes",
-                style = CrimsonSemiBold,
-                fontSize = 20.sp,
-                color = Black,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                Text(
+                    text = "Tareas pendientes",
+                    style = CrimsonSemiBold,
+                    fontSize = 20.sp,
+                    color = Black,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            TasksSection()
+                TasksSection()
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            RecommendationsSection(
-                recommendationsState = recommendationsState,
-                onNavigateToLibrary = {
-                    navController.navigate(Route.LibraryGeneralBrowse.path)
-                },
-                onContentClick = { contentId ->
-                    navController.navigate(Route.LibraryGeneralDetail.createRoute(contentId))
-                },
-                onRetry = { viewModel.retry() }
-            )
+                RecommendationsSection(
+                    recommendationsState = recommendationsState,
+                    onNavigateToLibrary = {
+                        navController.navigate(Route.LibraryGeneralBrowse.path)
+                    },
+                    onContentClick = { contentId ->
+                        navController.navigate(Route.LibraryGeneralDetail.createRoute(contentId))
+                    },
+                    onRetry = { viewModel.retry() }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            TrackingHome(
-                daysRegistered = 4,
-                totalDays = 7,
-                daysFeelingSad = 3,
-                secondButtonText = "Hablar con mi terapeuta",
-                onAIChatClick = {
-                    navController.navigate(Route.AIWelcome.path)
-                },
-                onSecondButtonClick = {
-                    // TODO: Navegar al chat con el terapeuta asignado
-                }
-            )
+                // MODIFICAR: Pasar datos reales del dashboard
+                TrackingHome(
+                    daysRegistered = dashboard?.summary?.totalCheckIns ?: 0,
+                    totalDays = 7,
+                    daysFeelingSad = if (dashboard?.summary?.averageEmotionalLevel != null &&
+                        dashboard.summary.averageEmotionalLevel < 5) 3 else 0,
+                    averageEmotionalLevel = dashboard?.summary?.averageEmotionalLevel,
+                    insightMessage = dashboard?.insights?.messages?.firstOrNull(),
+                    secondButtonText = "Buscar Psicólogo",
+                    onAIChatClick = {
+                        navController.navigate(Route.AIWelcome.path)
+                    },
+                    onSecondButtonClick = {
+                        navController.navigate(Route.ConnectPsychologist.path)
+                    },
+                    onCardClick = {
+                        navController.navigate(Route.Diary.path)
+                    }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
-    }
 
         // Botón flotante de IA arrastrable
         DraggableAIButton(

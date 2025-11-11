@@ -48,8 +48,15 @@ interface TrackingApi {
     ): Response<CreateEmotionalCalendarApiResponse>
 
     // ============= DASHBOARD ENDPOINT =============
-    // TODO: Pendiente - necesitas pasarme la respuesta del dashboard
 
     @GET("tracking/dashboard")
-    suspend fun getDashboard(): Response<Any>
+    suspend fun getDashboard(
+        @Query("days") days: Int? = null
+    ): Response<DashboardApiResponse>
+
+    @GET("tracking/dashboard/{userId}")
+    suspend fun getPatientDashboard(
+        @Path("userId") userId: String,
+        @Query("days") days: Int? = null
+    ): Response<DashboardApiResponse>
 }

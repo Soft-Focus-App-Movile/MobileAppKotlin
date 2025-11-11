@@ -75,3 +75,32 @@ fun EmotionalCalendarApiResponse.toDomain(): EmotionalCalendar {
         dateRange = data.dateRange.toDomain()
     )
 }
+
+// ============= DASHBOARD MAPPERS =============
+
+fun com.softfocus.features.tracking.data.model.DashboardSummary.toDomain(): com.softfocus.features.tracking.domain.model.DashboardSummary {
+    return com.softfocus.features.tracking.domain.model.DashboardSummary(
+        hasTodayCheckIn = hasTodayCheckIn,
+        todayCheckIn = todayCheckIn?.toDomain(),
+        totalCheckIns = totalCheckIns,
+        totalEmotionalCalendarEntries = totalEmotionalCalendarEntries,
+        averageEmotionalLevel = averageEmotionalLevel,
+        averageEnergyLevel = averageEnergyLevel,
+        averageMoodLevel = averageMoodLevel,
+        mostCommonSymptoms = mostCommonSymptoms,
+        mostUsedEmotionalTags = mostUsedEmotionalTags
+    )
+}
+
+fun com.softfocus.features.tracking.data.model.DashboardInsights.toDomain(): com.softfocus.features.tracking.domain.model.DashboardInsights {
+    return com.softfocus.features.tracking.domain.model.DashboardInsights(
+        messages = messages
+    )
+}
+
+fun DashboardApiResponse.toDomain(): TrackingDashboard {
+    return TrackingDashboard(
+        summary = data.summary.toDomain(),
+        insights = data.insights.toDomain()
+    )
+}

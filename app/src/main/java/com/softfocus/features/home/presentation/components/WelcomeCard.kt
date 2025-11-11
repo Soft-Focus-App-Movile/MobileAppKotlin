@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,7 +28,10 @@ import com.softfocus.ui.theme.YellowCB9D
 @Composable
 fun WelcomeCard(
     userName: String,
-    onRegisterMoodClick: () -> Unit = {}
+    onRegisterMoodClick: () -> Unit = {},
+    hasTodayCheckIn: Boolean = false, // NUEVO
+    todayEmotionalLevel: Int? = null, // NUEVO
+    totalCheckIns: Int = 0 // NUEVO
 ) {
     Column {
         Text(
@@ -70,21 +74,39 @@ fun WelcomeCard(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Registra tu estado de ánimo",
+                            text = if (hasTodayCheckIn) {
+                                "Ya registraste tu estado hoy"
+                            } else {
+                                "Registra tu estado de ánimo"
+                            },
                             style = CrimsonSemiBold,
                             fontSize = 16.sp,
-                            color = Color.Black
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
                         )
+
+                        // NUEVO: Mostrar total de check-ins
+                        if (totalCheckIns > 0) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "$totalCheckIns registros esta semana",
+                                style = SourceSansRegular,
+                                fontSize = 12.sp,
+                                color = Color.DarkGray
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
                             onClick = onRegisterMoodClick,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = YellowCB9D
                             ),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = !hasTodayCheckIn // NUEVO: Deshabilitar si ya completó
                         ) {
                             Text(
-                                text = "Registrar ahora",
+                                text = if (hasTodayCheckIn) "Completado" else "Registrar ahora",
                                 style = SourceSansRegular,
                                 fontSize = 14.sp,
                                 color = Color.Black
@@ -103,10 +125,8 @@ fun WelcomeCard(
                     .align(Alignment.CenterEnd)
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
-                        // Reduce the layout height by the amount the image is moved up
                         val height = placeable.height - 30.dp.roundToPx()
                         layout(placeable.width, height) {
-                            // Place the image with both offsets
                             placeable.placeRelative(35.dp.roundToPx(), -30.dp.roundToPx())
                         }
                     }
@@ -126,7 +146,10 @@ fun WelcomeCardPreview() {
     ) {
         WelcomeCard(
             userName = "Laura",
-            onRegisterMoodClick = {}
+            onRegisterMoodClick = {},
+            hasTodayCheckIn = false,
+            todayEmotionalLevel = 8,
+            totalCheckIns = 4
         )
     }
 }

@@ -159,3 +159,47 @@ data class DateRangeResponse(
     @SerializedName("endDate")
     val endDate: String?
 )
+
+// ============= DASHBOARD =============
+
+data class DashboardSummary(
+    @SerializedName("hasTodayCheckIn")
+    val hasTodayCheckIn: Boolean,
+    @SerializedName("todayCheckIn")
+    val todayCheckIn: CheckInResponse?,
+    @SerializedName("totalCheckIns")
+    val totalCheckIns: Int,
+    @SerializedName("totalEmotionalCalendarEntries")
+    val totalEmotionalCalendarEntries: Int,
+    @SerializedName("averageEmotionalLevel")
+    val averageEmotionalLevel: Double,
+    @SerializedName("averageEnergyLevel")
+    val averageEnergyLevel: Double,
+    @SerializedName("averageMoodLevel")
+    val averageMoodLevel: Double,
+    @SerializedName("mostCommonSymptoms")
+    val mostCommonSymptoms: List<String>,
+    @SerializedName("mostUsedEmotionalTags")
+    val mostUsedEmotionalTags: List<String>
+)
+
+data class DashboardInsights(
+    @SerializedName("messages")
+    val messages: List<String>
+)
+
+data class DashboardDataResponse(
+    @SerializedName("summary")
+    val summary: DashboardSummary,
+    @SerializedName("insights")
+    val insights: DashboardInsights
+)
+
+data class DashboardApiResponse(
+    @SerializedName("success")
+    val success: Boolean,
+    @SerializedName("data")
+    val data: DashboardDataResponse,
+    @SerializedName("timestamp")
+    val timestamp: String
+)

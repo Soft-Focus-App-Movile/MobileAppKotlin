@@ -147,8 +147,31 @@ class TrackingRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDashboard(): Result<Any> {
-        // TODO: Implementar cuando tengas la respuesta del dashboard
-        return Result.Error("Dashboard not implemented yet")
+    override suspend fun getDashboard(days: Int?): Result<TrackingDashboard> {
+        return try {
+            val response = api.getDashboard(days)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!.toDomain())
+            } else {
+                Result.Error(response.message() ?: "Error fetching dashboard")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
+    override suspend fun getPatientDashboard(userId: String, days: Int?): Result<TrackingDashboard> {
+        return try {
+            val response = api.getPatientDashboard(userId, days)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!.toDomain())
+            } else {
+                Result.Error(response.message() ?: "Error fetching patient dashboard")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error occurred")
+        }
     }
 }

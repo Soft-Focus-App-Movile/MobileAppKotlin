@@ -20,7 +20,8 @@ class TrackingViewModel @Inject constructor(
     private val getTodayCheckInUseCase: GetTodayCheckInUseCase,
     private val createEmotionalCalendarEntryUseCase: CreateEmotionalCalendarEntryUseCase,
     private val getEmotionalCalendarUseCase: GetEmotionalCalendarUseCase,
-    private val getEmotionalCalendarByDateUseCase: GetEmotionalCalendarByDateUseCase
+    private val getEmotionalCalendarByDateUseCase: GetEmotionalCalendarByDateUseCase,
+    private val getTrackingDashboardUseCase: GetTrackingDashboardUseCase // AGREGAR
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TrackingUiState>(TrackingUiState.Initial)
@@ -222,5 +223,27 @@ class TrackingViewModel @Inject constructor(
 
     fun resetEmotionalCalendarFormState() {
         _emotionalCalendarFormState.value = EmotionalCalendarFormState.Idle
+    }
+
+    // AGREGAR esta función
+    fun loadDashboard(days: Int? = null) {
+        viewModelScope.launch {
+            when (val result = getTrackingDashboardUseCase(days)) {
+                is Result.Success -> {
+                    _uiState.update { state ->
+                        if (state is TrackingUiState.Success) {
+                            state.copy(
+                                data = state.data.copy(dashboard = result.data)
+                            )
+                        } else {
+                            TrackingUiState.Success(TrackingData(dashboard = result.data))
+                        }
+                    }
+                }
+                is Result.Error -> {
+                    // Handle error
+                }
+            }
+        }
     }
 }

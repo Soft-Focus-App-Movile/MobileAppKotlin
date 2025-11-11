@@ -13,7 +13,7 @@ data class TrackingData(
     val todayCheckIn: TodayCheckIn? = null,
     val checkInHistory: CheckInHistory? = null,
     val emotionalCalendar: EmotionalCalendar? = null,
-    val dashboard: Any? = null,
+    val dashboard: TrackingDashboard? = null,
     val isLoadingHistory: Boolean = false // Para mostrar loading específico del historial
 )
 

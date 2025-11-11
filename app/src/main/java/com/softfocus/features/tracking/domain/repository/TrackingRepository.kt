@@ -44,7 +44,8 @@ interface TrackingRepository {
     suspend fun getEmotionalCalendarByDate(date: String): Result<EmotionalCalendarEntry>
 
     // ============= DASHBOARD =============
-    // TODO: Pendiente
 
-    suspend fun getDashboard(): Result<Any>
+    suspend fun getDashboard(days: Int? = null): Result<TrackingDashboard>
+
+    suspend fun getPatientDashboard(userId: String, days: Int? = null): Result<TrackingDashboard>
 }
