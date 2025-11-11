@@ -4,6 +4,9 @@ package com.softfocus.features.therapy.presentation.psychologist.patiendetail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
+import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
+import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.features.therapy.domain.usecases.GetPatientProfileUseCase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,17 +33,27 @@ data class PatientSummaryState(
     val error: String? = null
 )
 
+data class TasksTabState(
+    val isLoading: Boolean = true,
+    val assignments: List<Assignment> = emptyList(),
+    val error: String? = null
+)
+
 class PatientDetailViewModel(
     savedStateHandle: SavedStateHandle,
-    private val getPatientProfileUseCase: GetPatientProfileUseCase
+    private val getPatientProfileUseCase: GetPatientProfileUseCase,
+    private val repository: AssignmentsRepository
     // Aquí deberías inyectar tus UseCases o Repositorios
 ) : ViewModel() {
 
     // Ejemplo de cómo manejarías el estado
-    // private val _uiState = MutableStateFlow(PatientDetailState())
-    // val uiState = _uiState.asStateFlow()
+    // --- Summary State ---
     private val _summaryState = MutableStateFlow(PatientSummaryState())
     val summaryState: StateFlow<PatientSummaryState> = _summaryState.asStateFlow()
+
+    // --- Tasks State ---
+    private val _tasksState = MutableStateFlow<AssignmentsUiState>(AssignmentsUiState.Loading)
+    val tasksState: StateFlow<AssignmentsUiState> = _tasksState.asStateFlow()
 
     private val patientId: String = savedStateHandle.get<String>("patientId") ?: ""
     private val relationshipId: String = savedStateHandle.get<String>("relationshipId") ?: ""
@@ -52,7 +65,13 @@ class PatientDetailViewModel(
             it.copy(formattedStartDate = formatStartDate(startDate))
         }
 
-        loadPatientDetails()
+        if (patientId.isNotBlank()) {
+            loadPatientDetails()
+            loadPsychologistAssignments()
+        } else {
+            val errorMsg = "Patient ID inválido"
+            _summaryState.update { it.copy(isLoading = false, error = errorMsg) }
+        }
     }
 
     private fun loadPatientDetails() {
@@ -90,6 +109,30 @@ class PatientDetailViewModel(
                     )
                 }
             }
+        }
+    }
+
+    fun loadPsychologistAssignments() {
+        viewModelScope.launch {
+            _tasksState.value = AssignmentsUiState.Loading
+
+            repository.getPsychologistAssignments(patientId).fold(
+                onSuccess = { assignments ->
+                    val pending = assignments.count { !it.isCompleted }
+                    val completedCount = assignments.count { it.isCompleted }
+
+                    _tasksState.value = AssignmentsUiState.Success(
+                        assignments = assignments,
+                        pendingCount = pending,
+                        completedCount = completedCount
+                    )
+                },
+                onFailure = { exception ->
+                    _tasksState.value = AssignmentsUiState.Error(
+                        message = exception.message ?: "Error al cargar asignaciones"
+                    )
+                }
+            )
         }
     }
 

@@ -12,6 +12,11 @@ import com.softfocus.features.therapy.domain.usecases.ConnectWithPsychologistUse
 import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
 import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistViewModel
 import com.softfocus.features.home.presentation.HomeViewModel
+import com.softfocus.features.library.assignments.data.di.AssignmentsDataModule
+import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
+import com.softfocus.features.library.data.remote.AssignmentsService
+import com.softfocus.features.library.data.repositories.LibraryRepositoryImpl
+import com.softfocus.features.library.domain.repositories.LibraryRepository
 import com.softfocus.features.therapy.domain.usecases.GetMyPatientsUseCase
 import com.softfocus.features.therapy.domain.usecases.GetPatientProfileUseCase
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientDetailViewModel
@@ -67,6 +72,13 @@ object TherapyPresentationModule {
         )
     }
 
+    fun getAssignmentsRepository(): AssignmentsRepository {
+        return AssignmentsDataModule.provideAssignmentsRepository(
+            applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized"),
+            getRetrofit()
+        )
+    }
+
     fun getGetMyRelationshipUseCase(): GetMyRelationshipUseCase {
         return GetMyRelationshipUseCase(getTherapyRepository())
     }
@@ -108,7 +120,8 @@ object TherapyPresentationModule {
     fun getPatientDetailViewModel(savedStateHandle: SavedStateHandle): PatientDetailViewModel {
         return PatientDetailViewModel(
             savedStateHandle = savedStateHandle,
-            getPatientProfileUseCase = getGetPatientProfileUseCase()
+            getPatientProfileUseCase = getGetPatientProfileUseCase(),
+            repository = getAssignmentsRepository()
         )
     }
 

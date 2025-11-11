@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.patrykandpatryk.vico.compose.axis.axisLabelComponent
 import com.patrykandpatryk.vico.compose.axis.horizontal.bottomAxis
@@ -50,6 +53,14 @@ import com.softfocus.R
 import com.softfocus.core.navigation.Route
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
 import coil3.compose.rememberAsyncImagePainter
+import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
+import com.softfocus.features.library.domain.models.Assignment
+import com.softfocus.features.library.domain.models.ContentType
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.TaskCard
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.TasksTab
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 // --- Colores (puedes moverlos a un archivo Theme.kt) ---
 val primaryGreen = Color(0xFF4B634B)
@@ -58,40 +69,11 @@ val cardBackground = Color(0xFFF7F7F3)
 val lightGrayText = Color.Gray
 
 enum class TaskType {
-    MOVIE,
-    SERIES,
-    MUSIC,
-    VIDEO,
-    PLACE
+    Movie,
+    Music,
+    Video,
+    Weather
 }
-
-data class Tarea(
-    val title: String,
-    val status: String,
-    val date: String,
-    val type: TaskType
-)
-
-val dummyTareas = listOf(
-    Tarea(
-        title = "Ver Inside Out",
-        status = "Completado",
-        date = "Asignado el 15 Enero",
-        type = TaskType.MOVIE
-    ),
-    Tarea(
-        title = "Escuchar Música de relajación",
-        status = "Pendiente",
-        date = "Asignado el 15 Enero",
-        type = TaskType.MUSIC
-    ),
-    Tarea(
-        title = "Ir al consultorio",
-        status = "Pendiente",
-        date = "Asignado el 17 Enero",
-        type = TaskType.PLACE
-    )
-)
 
 // --- Pantalla Principal de Detalles ---
 
@@ -109,6 +91,7 @@ fun PatientDetailScreen(
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Resumen", "Tareas", "Chat")
     val summaryState by viewModel.summaryState.collectAsState()
+    val tasksState by viewModel.tasksState.collectAsState()
 
     Scaffold(
         topBar = { PatientDetailTopBar(onBack = onBack) }
@@ -174,7 +157,9 @@ fun PatientDetailScreen(
                 // Muestra el contenido basado en la pestaña seleccionada
                 when (selectedTabIndex) {
                     0 -> ResumenTabContent()
-                    1 -> TareasTabContent()
+                    1 -> TasksTab(
+                        tasksState = tasksState
+                    )
                 }
             }
         }
@@ -359,177 +344,7 @@ fun TagItem(text: String) {
     )
 }
 
-// --- Contenido de la Pestaña "Tareas" ---
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TareasTabContent() {
 
-    // --- Estados para el Dropdown ---
-    // 1. Define las opciones del menú (como en tu imagen)
-    val filterOptions = listOf("Pendientes", "Completadas", "Todo")
-
-    // 2. Estados para manejar qué está seleccionado y si el menú está abierto
-    var selectedFilterOption by remember { mutableStateOf("Todo") }
-    var isFilterMenuExpanded by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Dropdown
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box {
-                Row(
-                    modifier = Modifier
-                        .clickable { isFilterMenuExpanded = true } // Al hacer clic, expande el menú
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // El texto de la opción seleccionada
-                    Text(selectedFilterOption, color = Color.Black, fontSize = 16.sp)
-
-                    // El icono de flecha que cambia
-                    Icon(
-                        imageVector = if (isFilterMenuExpanded) {
-                            Icons.Filled.ArrowDropUp // Flecha arriba si está expandido
-                        } else {
-                            Icons.Filled.ArrowDropDown // Flecha abajo si está contraído
-                        },
-                        contentDescription = "Abrir filtro",
-                        tint = Color.Gray
-                    )
-                }
-
-                // 5. Este es el menú desplegable que aparece y desaparece
-                DropdownMenu(
-                    expanded = isFilterMenuExpanded,
-                    onDismissRequest = { isFilterMenuExpanded = false } // Para cerrar si se toca fuera
-                ) {
-                    filterOptions.forEach { option ->
-                        DropdownMenuItem(
-                            onClick = {
-                                selectedFilterOption = option // Actualiza la opción seleccionada
-                                isFilterMenuExpanded = false // Cierra el menú
-                            },
-                            text = {Text(option, style = SourceSansRegular.copy(fontSize = 11.sp), )},
-                            modifier = if (selectedFilterOption == option) {
-                                Modifier.background(Color.LightGray.copy(alpha = 0.3f))
-                            } else {
-                                Modifier
-                            }
-                        )
-                    }
-                }
-            } // Fin del Box del Dropdown
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // --- Icono de Filtro ---
-            IconButton(
-                onClick = { /* TODO: Acción del ícono de filtro */ },
-                modifier = Modifier
-                    .size(50.dp)
-                    .background(
-                        color = Green49,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_filter),
-                    contentDescription = "Filtrar",
-                    tint = Color.White,
-                    modifier=Modifier.size(15.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Lista de Tareas
-        dummyTareas.forEach { tarea ->
-            TareaItemCard(tarea = tarea)
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { /* Sin acción */ },
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCBCD9C))
-        ) {
-            Text(
-                text = "Asignar nueva Tarea",
-                color = Color.Black,
-                style = SourceSansRegular.copy(fontSize = 13.sp),
-                modifier = Modifier.padding(8.dp)
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TareaItemCard(tarea: Tarea) { // <-- Acepta el objeto Tarea
-
-    // Llama a la función ayudante para obtener el icono
-    val icon = getIconForTaskType(tarea.type)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBackground)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon, // <-- Icono dinámico
-                contentDescription = null,
-                tint = primaryGreen,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = tarea.title, // <-- Dato dinámico
-                    style = CrimsonSemiBold.copy(fontSize = 18.sp),
-                )
-                Text(
-                    text = tarea.status, // <-- Dato dinámico
-                    style = SourceSansRegular.copy(fontSize = 11.sp),
-                    color =
-                        if (tarea.status == "Completado") primaryGreen
-                        else lightGrayText
-                )
-                Text(
-                    text = tarea.date, // <-- Dato dinámico
-                    style = SourceSansRegular.copy(fontSize = 13.sp),
-                    color = lightGrayText
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun getIconForTaskType(type: TaskType): androidx.compose.ui.graphics.vector.ImageVector {
-    return when (type) {
-        TaskType.MOVIE, TaskType.SERIES -> Icons.Filled.Movie
-        TaskType.MUSIC -> Icons.Filled.MusicNote
-        TaskType.VIDEO -> Icons.Filled.SmartDisplay
-        TaskType.PLACE -> Icons.Filled.Place
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
