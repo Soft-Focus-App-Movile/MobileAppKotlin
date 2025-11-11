@@ -42,7 +42,7 @@ fun NotificationPreferencesScreen(
                         text = "Notificaciones",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Normal,
-                        color = Gray222
+                        color = Green49
                     )
                 },
                 navigationIcon = {
@@ -136,7 +136,7 @@ fun NotificationPreferencesScreen(
                                     text = "Configuración",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Gray222
+                                    color = Green49
                                 )
 
                                 masterPreference?.let { pref ->
@@ -283,7 +283,7 @@ fun NotificationPreferencesScreen(
                                                             fontWeight = FontWeight.Medium
                                                         )
                                                         Text(
-                                                            text = "Recibirás todas las notificaciones incluyendo alertas de crisis",
+                                                            text = "Recibirás todas las notificaciones",
                                                             fontSize = 11.sp,
                                                             color = Green37
                                                         )
@@ -295,7 +295,7 @@ fun NotificationPreferencesScreen(
                                                             fontWeight = FontWeight.Medium
                                                         )
                                                         Text(
-                                                            text = "Solo notificaciones no urgentes",
+                                                            text = "Solo alertas de crisis urgentes",
                                                             fontSize = 11.sp,
                                                             color = Green37
                                                         )
