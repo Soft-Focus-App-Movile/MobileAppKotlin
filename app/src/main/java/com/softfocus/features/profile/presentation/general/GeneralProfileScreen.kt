@@ -40,7 +40,9 @@ import java.net.URL
 import android.graphics.BitmapFactory
 import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.Black
+import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.GreenA3
+import com.softfocus.ui.theme.White
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -77,12 +79,12 @@ fun GeneralProfileScreen(
                     Text(
                         text = "Editar información Personal",
                         style = CrimsonSemiBold,
-                        fontSize = 20.sp,
-                        color = Gray828
+                        fontSize = 25.sp,
+                        color = GreenA3
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = White
                 )
             )
         }

@@ -84,18 +84,9 @@ fun PatientProfileScreen(
                     Text(
                         text = "Editar información Personal",
                         style = CrimsonSemiBold,
-                        fontSize = 20.sp,
-                        color = Black
+                        fontSize = 25.sp,
+                        color = GreenA3
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.Black
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White

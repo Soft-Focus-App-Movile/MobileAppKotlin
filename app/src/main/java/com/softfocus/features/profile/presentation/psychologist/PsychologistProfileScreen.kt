@@ -52,8 +52,22 @@ fun PsychologistProfileScreen(
 ) {
     val profile by viewModel.profile.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
-
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Editar información Personal",
+                        style = CrimsonSemiBold,
+                        fontSize = 25.sp,
+                        color = GreenA3
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = White
+                )
+            )
+        },
         containerColor = Color.White
     ) { paddingValues ->
         when (uiState) {

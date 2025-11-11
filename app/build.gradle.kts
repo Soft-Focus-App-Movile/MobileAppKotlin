@@ -95,6 +95,7 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+    implementation("io.coil-kt.coil3:coil-gif:3.3.0")
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.ui.text)

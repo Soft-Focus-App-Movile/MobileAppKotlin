@@ -187,6 +187,9 @@ fun GeneralHomeScreen(
                         .clickable(onClick = onNavigateToSearchPsychologist),
                     shape = RoundedCornerShape(8.dp),
                     colors = TextFieldDefaults.colors(
+                        disabledContainerColor = Color.White,
+                        disabledPlaceholderColor = Color.Gray,
+                        disabledLeadingIconColor = Color.Unspecified,
                         focusedContainerColor = Color.White,
                         unfocusedContainerColor = Color.White,
                         focusedIndicatorColor = Color.Transparent,
