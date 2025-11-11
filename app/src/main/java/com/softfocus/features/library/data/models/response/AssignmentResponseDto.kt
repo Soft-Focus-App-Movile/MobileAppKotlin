@@ -13,7 +13,7 @@ data class AssignmentResponseDto(
     val assignmentId: String,
 
     @SerializedName("psychologistId")
-    val psychologistId: String,
+    val psychologistId: String?, // Nullable porque el endpoint /by-psychologist no lo envía
 
     @SerializedName("content")
     val content: ContentItemResponseDto,
@@ -32,11 +32,13 @@ data class AssignmentResponseDto(
 ) {
     /**
      * Mapea el DTO a la entidad de dominio
+     *
+     * @param currentPsychologistId ID del psicólogo actual (se usa cuando el backend no lo envía)
      */
-    fun toDomain(): Assignment {
+    fun toDomain(currentPsychologistId: String? = null): Assignment {
         return Assignment(
             id = assignmentId,
-            psychologistId = psychologistId,
+            psychologistId = psychologistId ?: currentPsychologistId ?: "", // Usa el del DTO, o el del contexto, o vacío
             psychologistName = null, // No viene en la respuesta del backend
             patientId = null, // No viene en la respuesta del backend
             content = content.toDomain(),

@@ -234,7 +234,10 @@ class LibraryRepositoryImpl(
                 patientId = patientId
             )
 
-            val assignments = response.assignments.map { it.toDomain() }
+            // Obtener el ID del psicólogo logueado para inyectarlo en los DTOs
+            val currentPsychologistId = userSession.getUser()?.id
+
+            val assignments = response.assignments.map { it.toDomain(currentPsychologistId) }
             Result.success(assignments)
         } catch (e: Exception) {
             Result.failure(Exception("Error al obtener asignaciones del psicólogo: ${e.message}", e))
