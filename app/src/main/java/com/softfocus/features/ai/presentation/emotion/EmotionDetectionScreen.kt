@@ -23,9 +23,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
 import com.softfocus.features.ai.presentation.di.AIPresentationModule
+import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Gray828
+import com.softfocus.ui.theme.Green49
+import com.softfocus.ui.theme.Green37
+import com.softfocus.ui.theme.GreenEC
+import com.softfocus.ui.theme.White
+import com.softfocus.ui.theme.SourceSansBold
+import com.softfocus.ui.theme.SourceSansRegular
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,7 +63,6 @@ fun EmotionDetectionScreen(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && photoFile != null && photoFile!!.exists()) {
-            // Actualizar imageUri para forzar re-renderización de la imagen
             imageUri = tempCameraUri
         }
     }
@@ -64,14 +72,12 @@ fun EmotionDetectionScreen(
     ) { uri: Uri? ->
         uri?.let {
             imageUri = it
-            // Convertir URI a File temporal
             val inputStream = context.contentResolver.openInputStream(it)
             val tempFile = File.createTempFile("gallery_", ".jpg", context.cacheDir)
             tempFile.outputStream().use { outputStream ->
                 inputStream?.copyTo(outputStream)
             }
             photoFile = tempFile
-            // No analizar automáticamente, esperar a que el usuario elija
         }
     }
 
@@ -82,16 +88,25 @@ fun EmotionDetectionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detección de Emoción") },
+                title = {
+                    Text(
+                        text ="Detección de Emoción",
+                        style = CrimsonSemiBold.copy(fontSize = 25.sp),
+                        color = Green49
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Green49
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = White,
+                    titleContentColor = White,
+                    navigationIconContentColor = White
                 )
             )
         }
@@ -121,12 +136,14 @@ fun EmotionDetectionScreen(
                 }
             }
 
-            if (imageUri != null && state.emotionAnalysis == null) {
+            if (imageUri != null && state.emotionAnalysis == null && !state.isCheckingTodayCheckIn) {
+                // Preview de la imagen capturada
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp),
-                    shape = RoundedCornerShape(12.dp)
+                        .fillMaxHeight(0.45f),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Image(
                         painter = rememberAsyncImagePainter(model = imageUri),
@@ -136,39 +153,113 @@ fun EmotionDetectionScreen(
                     )
                 }
 
-                Text(
-                    text = "¿Deseas crear un registro automático en tu calendario emocional?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                Spacer(modifier = Modifier.height(24.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                if (state.hasCheckInToday) {
+
+                    Text(
+                        text = "Ya creaste tu registro diario",
+                        style = CrimsonSemiBold,
+                        fontSize = 23.sp,
+                        color = Green49,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Solo analizaremos tu emoción en esta foto",
+                        style = SourceSansRegular,
+                        fontSize = 16.sp,
+                        color = Gray828,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = {
+                            photoFile?.let { viewModel.analyzeEmotion(it, autoCheckIn = false) }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        enabled = !state.isLoading && photoFile != null,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = com.softfocus.ui.theme.Green49
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Analizar Emoción",
+                            style = com.softfocus.ui.theme.SourceSansBold,
+                            fontSize = 16.sp
+                        )
+                    }
+                } else {
+                    // Primera vez del día - puede elegir
+                    Text(
+                        text = "¿Crear registro diario?",
+                        style = CrimsonSemiBold,
+                        fontSize = 22.sp,
+                        color = Gray828,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "¿Deseas guardar este análisis en tu calendario emocional?",
+                        style = SourceSansRegular,
+                        fontSize = 16.sp,
+                        color = Gray828,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Button(
                         onClick = {
                             photoFile?.let { viewModel.analyzeEmotion(it, autoCheckIn = true) }
                         },
                         modifier = Modifier
-                            .weight(1f)
+                            .fillMaxWidth()
                             .height(56.dp),
-                        enabled = !state.isLoading && photoFile != null
+                        enabled = !state.isLoading && photoFile != null,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = com.softfocus.ui.theme.Green49
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Sí, crear registro")
+                        Text(
+                            text = "Sí, crear registro",
+                            style = com.softfocus.ui.theme.SourceSansBold,
+                            fontSize = 16.sp
+                        )
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedButton(
                         onClick = {
                             photoFile?.let { viewModel.analyzeEmotion(it, autoCheckIn = false) }
                         },
                         modifier = Modifier
-                            .weight(1f)
+                            .fillMaxWidth()
                             .height(56.dp),
-                        enabled = !state.isLoading && photoFile != null
+                        enabled = !state.isLoading && photoFile != null,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = com.softfocus.ui.theme.Green49
+                        )
                     ) {
-                        Text("Solo analizar")
+                        Text(
+                            text = "Solo analizar",
+                            style = com.softfocus.ui.theme.SourceSansBold,
+                            fontSize = 16.sp
+                        )
                     }
                 }
             }
@@ -198,7 +289,11 @@ fun EmotionDetectionScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(56.dp),
-                        enabled = !state.isLoading
+                        enabled = !state.isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Green49
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
@@ -206,7 +301,11 @@ fun EmotionDetectionScreen(
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cámara")
+                        Text(
+                            text = "Cámara",
+                            style = SourceSansBold,
+                            fontSize = 16.sp
+                        )
                     }
 
                     OutlinedButton(
@@ -216,7 +315,11 @@ fun EmotionDetectionScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(56.dp),
-                        enabled = !state.isLoading
+                        enabled = !state.isLoading,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Green49
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Image,
@@ -224,7 +327,11 @@ fun EmotionDetectionScreen(
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Galería")
+                        Text(
+                            text = "Galería",
+                            style = SourceSansBold,
+                            fontSize = 16.sp
+                        )
                     }
                 }
             }
@@ -238,8 +345,9 @@ fun EmotionDetectionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
+                        containerColor = com.softfocus.ui.theme.RedE8.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -247,21 +355,28 @@ fun EmotionDetectionScreen(
                     ) {
                         Text(
                             text = "Error",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onErrorContainer
+                            style = CrimsonSemiBold,
+                            fontSize = 18.sp,
+                            color = com.softfocus.ui.theme.RedE8
                         )
                         Text(
                             text = error,
-                            color = MaterialTheme.colorScheme.onErrorContainer
+                            style = SourceSansRegular,
+                            fontSize = 14.sp,
+                            color = Gray828
                         )
                         Button(
                             onClick = { viewModel.clearError() },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
+                                containerColor = com.softfocus.ui.theme.RedE8
+                            ),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Cerrar")
+                            Text(
+                                text = "Cerrar",
+                                style = SourceSansBold,
+                                fontSize = 14.sp
+                            )
                         }
                     }
                 }
@@ -271,8 +386,9 @@ fun EmotionDetectionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                        containerColor = GreenEC
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -280,12 +396,12 @@ fun EmotionDetectionScreen(
                     ) {
                         Text(
                             text = "Resultado del Análisis",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            style = CrimsonSemiBold,
+                            fontSize = 20.sp,
+                            color = Green37
                         )
 
-                        Divider()
+                        HorizontalDivider(color = Green49.copy(alpha = 0.3f))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -294,14 +410,15 @@ fun EmotionDetectionScreen(
                         ) {
                             Text(
                                 text = "Emoción Detectada:",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
+                                style = SourceSansRegular,
+                                fontSize = 16.sp,
+                                color = Gray828
                             )
                             Text(
-                                text = analysis.emotion,
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                text = translateEmotion(analysis.emotion),
+                                style = CrimsonSemiBold,
+                                fontSize = 22.sp,
+                                color = Green49
                             )
                         }
 
@@ -312,40 +429,53 @@ fun EmotionDetectionScreen(
                         ) {
                             Text(
                                 text = "Confianza:",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
+                                style = SourceSansRegular,
+                                fontSize = 16.sp,
+                                color = Gray828
                             )
                             Text(
                                 text = "${(analysis.confidence * 100).toInt()}%",
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
+                                style = CrimsonSemiBold,
+                                fontSize = 22.sp,
+                                color = Green37
                             )
                         }
 
                         if (analysis.checkInCreated) {
-                            HorizontalDivider()
+                            HorizontalDivider(color = Green49.copy(alpha = 0.3f))
                             Text(
                                 text = "✓ Se creó un registro automático en tu calendario emocional",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.tertiary
+                                style = SourceSansRegular,
+                                fontSize = 14.sp,
+                                color = Green37
                             )
                         }
 
                         if (analysis.allEmotions.isNotEmpty()) {
-                            HorizontalDivider()
+                            HorizontalDivider(color = Green49.copy(alpha = 0.3f))
                             Text(
                                 text = "Todas las Emociones:",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                style = SourceSansBold,
+                                fontSize = 16.sp,
+                                color = Green37
                             )
                             analysis.allEmotions.forEach { (emotion, confidence) ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(emotion)
-                                    Text("${(confidence * 100).toInt()}%")
+                                    Text(
+                                        text = translateEmotion(emotion),
+                                        style = SourceSansRegular,
+                                        fontSize = 14.sp,
+                                        color = Gray828
+                                    )
+                                    Text(
+                                        text = "${(confidence * 100).toInt()}%",
+                                        style = SourceSansBold,
+                                        fontSize = 14.sp,
+                                        color = Green49
+                                    )
                                 }
                             }
                         }
@@ -355,9 +485,17 @@ fun EmotionDetectionScreen(
                                 viewModel.reset()
                                 imageUri = null
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Green49
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Analizar Otra Foto")
+                            Text(
+                                text = "Analizar Otra Foto",
+                                style = SourceSansBold,
+                                fontSize = 16.sp
+                            )
                         }
                     }
                 }
@@ -374,4 +512,279 @@ private fun createImageFile(context: Context): File {
         ".jpg",
         storageDir
     )
+}
+
+private fun translateEmotion(emotion: String): String {
+    return when (emotion.lowercase()) {
+        "angry" -> "Enojado/a"
+        "disgust" -> "Disgustado/a"
+        "fear" -> "Asustado/a"
+        "happy" -> "Feliz"
+        "sad" -> "Triste"
+        "surprise" -> "Sorprendido/a"
+        "neutral" -> "Neutral"
+        "joy" -> "Alegría"
+        "anxious" -> "Ansioso/a"
+        "calm" -> "Calmado/a"
+        "excited" -> "Emocionado/a"
+        "worried" -> "Preocupado/a"
+        "stressed" -> "Estresado/a"
+        "depressed" -> "Deprimido/a"
+        "frustrated" -> "Frustrado/a"
+        else -> emotion.replaceFirstChar { it.uppercase() }
+    }
+}
+
+// Previews
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Estado Inicial")
+private fun EmotionDetectionScreenPreview() {
+    androidx.compose.material3.Surface {
+        EmotionDetectionScreenContent(
+            state = EmotionDetectionState(),
+            onNavigateBack = {},
+            onTakePhoto = {},
+            onSelectFromGallery = {},
+            onAnalyze = {},
+            onClearError = {},
+            onReset = {}
+        )
+    }
+}
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Con Resultado - Primera vez")
+private fun EmotionDetectionWithResultPreview() {
+    androidx.compose.material3.Surface {
+        EmotionDetectionScreenContent(
+            state = EmotionDetectionState(
+                emotionAnalysis = com.softfocus.features.ai.domain.models.EmotionAnalysis(
+                    analysisId = "123",
+                    emotion = "happy",
+                    confidence = 0.85,
+                    allEmotions = mapOf(
+                        "happy" to 0.85,
+                        "neutral" to 0.10,
+                        "surprise" to 0.05
+                    ),
+                    analyzedAt = java.time.LocalDateTime.now(),
+                    checkInCreated = true,
+                    checkInId = "check123"
+                ),
+                hasCheckInToday = false
+            ),
+            onNavigateBack = {},
+            onTakePhoto = {},
+            onSelectFromGallery = {},
+            onAnalyze = {},
+            onClearError = {},
+            onReset = {}
+        )
+    }
+}
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Ya tiene check-in hoy")
+private fun EmotionDetectionAlreadyCheckedInPreview() {
+    androidx.compose.material3.Surface {
+        EmotionDetectionScreenContent(
+            state = EmotionDetectionState(
+                hasCheckInToday = true,
+                isCheckingTodayCheckIn = false
+            ),
+            onNavigateBack = {},
+            onTakePhoto = {},
+            onSelectFromGallery = {},
+            onAnalyze = {},
+            onClearError = {},
+            onReset = {}
+        )
+    }
+}
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Con Error")
+private fun EmotionDetectionWithErrorPreview() {
+    androidx.compose.material3.Surface {
+        EmotionDetectionScreenContent(
+            state = EmotionDetectionState(
+                error = "Facial analysis usage limit exceeded. Please upgrade to Premium or wait for weekly reset."
+            ),
+            onNavigateBack = {},
+            onTakePhoto = {},
+            onSelectFromGallery = {},
+            onAnalyze = {},
+            onClearError = {},
+            onReset = {}
+        )
+    }
+}
+
+@Composable
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Cargando")
+private fun EmotionDetectionLoadingPreview() {
+    androidx.compose.material3.Surface {
+        EmotionDetectionScreenContent(
+            state = EmotionDetectionState(
+                isLoading = true
+            ),
+            onNavigateBack = {},
+            onTakePhoto = {},
+            onSelectFromGallery = {},
+            onAnalyze = {},
+            onClearError = {},
+            onReset = {}
+        )
+    }
+}
+
+@Composable
+private fun EmotionDetectionScreenContent(
+    state: EmotionDetectionState,
+    onNavigateBack: () -> Unit,
+    onTakePhoto: () -> Unit,
+    onSelectFromGallery: () -> Unit,
+    onAnalyze: (Boolean) -> Unit,
+    onClearError: () -> Unit,
+    onReset: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Botones de Cámara y Galería
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = onTakePhoto,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                enabled = !state.isLoading,
+                colors = ButtonDefaults.buttonColors(containerColor = Green49),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.CameraAlt, null, modifier = Modifier.size(24.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cámara", style = SourceSansBold, fontSize = 16.sp)
+            }
+
+            OutlinedButton(
+                onClick = onSelectFromGallery,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                enabled = !state.isLoading,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Green49)
+            ) {
+                Icon(Icons.Default.Image, null, modifier = Modifier.size(24.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Galería", style = SourceSansBold, fontSize = 16.sp)
+            }
+        }
+
+        if (state.isLoading) {
+            CircularProgressIndicator(color = Green49)
+            Text("Analizando emoción...", style = SourceSansRegular, color = Gray828)
+        }
+
+        state.error?.let { error ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = com.softfocus.ui.theme.RedE8.copy(alpha = 0.1f)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("Error", style = CrimsonSemiBold, fontSize = 18.sp, color = com.softfocus.ui.theme.RedE8)
+                    Text(error, style = SourceSansRegular, fontSize = 14.sp, color = Gray828)
+                    Button(
+                        onClick = onClearError,
+                        colors = ButtonDefaults.buttonColors(containerColor = com.softfocus.ui.theme.RedE8),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Cerrar", style = SourceSansBold, fontSize = 14.sp)
+                    }
+                }
+            }
+        }
+
+        state.emotionAnalysis?.let { analysis ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = GreenEC),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Resultado del Análisis", style = CrimsonSemiBold, fontSize = 20.sp, color = Green37)
+                    HorizontalDivider(color = Green49.copy(alpha = 0.3f))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Emoción Detectada:", style = SourceSansRegular, fontSize = 16.sp, color = Gray828)
+                        Text(translateEmotion(analysis.emotion), style = CrimsonSemiBold, fontSize = 22.sp, color = Green49)
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Confianza:", style = SourceSansRegular, fontSize = 16.sp, color = Gray828)
+                        Text("${(analysis.confidence * 100).toInt()}%", style = CrimsonSemiBold, fontSize = 22.sp, color = Green37)
+                    }
+
+                    if (analysis.checkInCreated) {
+                        HorizontalDivider(color = Green49.copy(alpha = 0.3f))
+                        Text(
+                            "✓ Se creó un registro automático en tu calendario emocional",
+                            style = SourceSansRegular,
+                            fontSize = 14.sp,
+                            color = Green37
+                        )
+                    }
+
+                    if (analysis.allEmotions.isNotEmpty()) {
+                        HorizontalDivider(color = Green49.copy(alpha = 0.3f))
+                        Text("Todas las Emociones:", style = SourceSansBold, fontSize = 16.sp, color = Green37)
+                        analysis.allEmotions.forEach { (emotion, confidence) ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(translateEmotion(emotion), style = SourceSansRegular, fontSize = 14.sp, color = Gray828)
+                                Text("${(confidence * 100).toInt()}%", style = SourceSansBold, fontSize = 14.sp, color = Green49)
+                            }
+                        }
+                    }
+
+                    Button(
+                        onClick = onReset,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Green49),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Analizar Otra Foto", style = SourceSansBold, fontSize = 16.sp)
+                    }
+                }
+            }
+        }
+    }
 }

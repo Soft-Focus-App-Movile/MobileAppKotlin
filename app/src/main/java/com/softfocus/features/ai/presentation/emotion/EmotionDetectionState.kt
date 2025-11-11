@@ -6,5 +6,7 @@ data class EmotionDetectionState(
     val isLoading: Boolean = false,
     val emotionAnalysis: EmotionAnalysis? = null,
     val error: String? = null,
-    val capturedImagePath: String? = null
+    val capturedImagePath: String? = null,
+    val hasCheckInToday: Boolean = false,
+    val isCheckingTodayCheckIn: Boolean = true
 )

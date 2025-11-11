@@ -91,8 +91,8 @@ class OvalBottomShape : Shape {
 
             // Draw oval bottom curve from right to left
             quadraticBezierTo(
-                size.width / 2f, size.height + 100f,  // Control point (center, below)
-                0f, size.height - 100f                 // End point (left)
+                size.width / 2f, size.height + 100f,
+                0f, size.height - 100f
             )
 
             // Close path back to start
@@ -164,7 +164,7 @@ fun AIWelcomeScreen(
                 painter = painterResource(id = R.drawable.focus_ia),
                 contentDescription = "Focus Panda",
                 tint = Color.Unspecified,
-                modifier = Modifier.size(180.dp)
+                modifier = Modifier.size(190.dp)
             )
 
             Spacer(modifier = Modifier.height(48.dp))
