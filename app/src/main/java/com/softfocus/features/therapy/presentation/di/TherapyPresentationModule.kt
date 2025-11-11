@@ -13,6 +13,7 @@ import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
 import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistViewModel
 import com.softfocus.features.home.presentation.HomeViewModel
 import com.softfocus.features.therapy.domain.usecases.GetMyPatientsUseCase
+import com.softfocus.features.therapy.domain.usecases.GetPatientProfileUseCase
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientDetailViewModel
 import com.softfocus.features.therapy.presentation.psychologist.patientlist.PatientListViewModel
 import okhttp3.OkHttpClient
@@ -74,6 +75,10 @@ object TherapyPresentationModule {
         return GetMyPatientsUseCase(getTherapyRepository())
     }
 
+    fun getGetPatientProfileUseCase(): GetPatientProfileUseCase {
+        return GetPatientProfileUseCase(getTherapyRepository())
+    }
+
     fun getConnectWithPsychologistUseCase(): ConnectWithPsychologistUseCase {
         return ConnectWithPsychologistUseCase(getTherapyRepository())
     }
@@ -101,9 +106,9 @@ object TherapyPresentationModule {
     }
 
     fun getPatientDetailViewModel(savedStateHandle: SavedStateHandle): PatientDetailViewModel {
-        // Crea el ViewModel pasándole el savedStateHandle
         return PatientDetailViewModel(
-            savedStateHandle = savedStateHandle
+            savedStateHandle = savedStateHandle,
+            getPatientProfileUseCase = getGetPatientProfileUseCase()
         )
     }
 

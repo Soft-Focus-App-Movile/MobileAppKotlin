@@ -1,6 +1,7 @@
 package com.softfocus.features.therapy.data.models.response
 
 import com.google.gson.annotations.SerializedName
+import com.softfocus.features.therapy.domain.models.PatientProfile
 
 /**
  * DTO para la respuesta del endpoint: users/psychologist/patient/{id}
@@ -30,3 +31,15 @@ data class PatientProfileResponseDto(
     @SerializedName("createdAt") val createdAt: String, // Se recibe como String
     @SerializedName("updatedAt") val updatedAt: String  // Se recibe como String
 )
+
+/**
+ * Convierte el DTO de la red a un modelo de dominio limpio.
+ */
+fun PatientProfileResponseDto.toDomain(): PatientProfile {
+    return PatientProfile(
+        id = this.id,
+        fullName = this.fullName,
+        profilePhotoUrl = this.profileImageUrl ?: "",
+        dateOfBirth = this.dateOfBirth
+    )
+}

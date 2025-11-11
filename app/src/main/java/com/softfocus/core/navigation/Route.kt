@@ -1,6 +1,7 @@
 package com.softfocus.core.navigation
 
 import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 /**
  * Sealed class representing all navigation routes in the app.
@@ -63,18 +64,17 @@ Route(val path: String) {
     // --- RUTAS DE THERAPY (PSICÓLOGO) ---
     object PsychologistPatientList : Route("psychologist_patient_list")
 
-    data object PsychologistPatientDetail : Route("psychologist_patient_detail/{patientId}/{relationshipId}/{patientName}/{age}/{startDate}?photoUrl={photoUrl}") {
+    data object PsychologistPatientDetail : Route("psychologist_patient_detail/{patientId}/{relationshipId}/{startDate}") {
         fun createRoute(
             patientId: String,
             relationshipId: String,
-            patientName: String,
-            age: Int,
-            startDate: String,
-            profilePhotoUrl: String
+            startDate: String // La obtenemos de PatientDirectory
         ): String {
-            val encodedDate = URLEncoder.encode(startDate, "UTF-8")
-            val encodedPhotoUrl = URLEncoder.encode(profilePhotoUrl, "UTF-8")
-            return "psychologist_patient_detail/$patientId/$relationshipId/$patientName/$age/$encodedDate?photoUrl=$profilePhotoUrl"
+            val charset = StandardCharsets.UTF_8.name()
+            // Codificamos solo la fecha por si acaso
+            val encodedDate = URLEncoder.encode(startDate, charset)
+
+            return "psychologist_patient_detail/$patientId/$relationshipId/$encodedDate"
         }
     }
 

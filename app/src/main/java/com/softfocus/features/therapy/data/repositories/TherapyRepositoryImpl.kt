@@ -4,9 +4,11 @@ import android.content.Context
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.therapy.data.models.request.ConnectWithPsychologistRequestDto
 import com.softfocus.features.therapy.data.models.request.SendChatMessageRequestDto
+import com.softfocus.features.therapy.data.models.response.toDomain
 import com.softfocus.features.therapy.data.remote.TherapyService
 import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.domain.models.PatientDirectory
+import com.softfocus.features.therapy.domain.models.PatientProfile
 import com.softfocus.features.therapy.domain.models.TherapeuticRelationship
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 import java.time.ZonedDateTime
@@ -115,6 +117,19 @@ class TherapyRepositoryImpl(
             )
             Result.success(sentMessage)
 
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPatientProfile(patientId: String): Result<PatientProfile> {
+        return try {
+            val response = therapyService.getPatientDetails(
+                token = getAuthToken(),
+                id = patientId
+            )
+            // Usamos la función .toDomain() que creamos en el DTO
+            Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }

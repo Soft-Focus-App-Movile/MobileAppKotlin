@@ -2,6 +2,7 @@ package com.softfocus.features.therapy.domain.repositories
 
 import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.domain.models.PatientDirectory
+import com.softfocus.features.therapy.domain.models.PatientProfile
 import com.softfocus.features.therapy.domain.models.TherapeuticRelationship
 
 interface TherapyRepository {
@@ -23,5 +24,7 @@ interface TherapyRepository {
         receiverId: String,
         content: String
     ): Result<ChatMessage>
+
+    suspend fun getPatientProfile(patientId: String): Result<PatientProfile>
 
 }

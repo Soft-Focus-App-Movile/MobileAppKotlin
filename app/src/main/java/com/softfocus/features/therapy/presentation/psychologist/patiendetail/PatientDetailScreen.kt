@@ -98,11 +98,11 @@ val dummyTareas = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientDetailScreen(
-    navController: NavHostController, // <-- AÑADIR
-    viewModel: PatientDetailViewModel, // <-- AÑADIR
+    navController: NavHostController,
+    viewModel: PatientDetailViewModel,
     onBack: () -> Unit,
-    patientId: String, // <-- AÑADIR
-    relationshipId: String, // <-- AÑADIR
+    patientId: String,
+    relationshipId: String,
     patientName: String
 ) {
     // Estado para saber qué pestaña está seleccionada

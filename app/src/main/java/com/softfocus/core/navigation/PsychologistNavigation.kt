@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavGraphBuilder
@@ -180,10 +182,7 @@ fun NavGraphBuilder.psychologistNavigation(
                             Route.PsychologistPatientDetail.createRoute(
                                 patientId = patient.patientId,
                                 relationshipId = patient.id,
-                                patientName = patient.patientName,
-                                age = patient.age,
-                                startDate = patient.startDate,
-                                profilePhotoUrl = patient.profilePhotoUrl
+                                startDate = patient.startDate
                             )
                         )
                     },
@@ -198,13 +197,7 @@ fun NavGraphBuilder.psychologistNavigation(
         arguments = listOf(
             navArgument("patientId") { type = NavType.StringType },
             navArgument("relationshipId") { type = NavType.StringType },
-            navArgument("patientName") { type = NavType.StringType },
-            navArgument("age") { type = NavType.StringType },
-            navArgument("startDate") { type = NavType.StringType },
-            navArgument("photoUrl") {
-                type = NavType.StringType
-                defaultValue = "" // "" como valor por defecto si no viene
-            }
+            navArgument("startDate") { type = NavType.StringType }
         ),
     ) { backStackEntry ->
         // Extraemos los argumentos
@@ -225,6 +218,8 @@ fun NavGraphBuilder.psychologistNavigation(
                 }
             }
         )
+
+        val summaryState by viewModel.summaryState.collectAsState()
 
         // Llamamos a la pantalla
         Scaffold(
