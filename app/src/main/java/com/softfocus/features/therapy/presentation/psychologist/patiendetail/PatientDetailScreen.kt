@@ -3,7 +3,9 @@ package com.softfocus.features.therapy.presentation.psychologist.patiendetail
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,14 +46,52 @@ import com.patrykandpatryk.vico.core.chart.composed.plus
 import com.patrykandpatryk.vico.core.component.shape.LineComponent
 import com.patrykandpatryk.vico.core.entry.composed.plus
 import com.patrykandpatryk.vico.core.entry.entryModelOf
+import com.softfocus.R
 import com.softfocus.core.navigation.Route
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
+import coil3.compose.rememberAsyncImagePainter
 
 // --- Colores (puedes moverlos a un archivo Theme.kt) ---
 val primaryGreen = Color(0xFF4B634B)
 val lightGreen = Color(0xFFB5C9B5)
 val cardBackground = Color(0xFFF7F7F3)
 val lightGrayText = Color.Gray
+
+enum class TaskType {
+    MOVIE,
+    SERIES,
+    MUSIC,
+    VIDEO,
+    PLACE
+}
+
+data class Tarea(
+    val title: String,
+    val status: String,
+    val date: String,
+    val type: TaskType
+)
+
+val dummyTareas = listOf(
+    Tarea(
+        title = "Ver Inside Out",
+        status = "Completado",
+        date = "Asignado el 15 Enero",
+        type = TaskType.MOVIE
+    ),
+    Tarea(
+        title = "Escuchar Música de relajación",
+        status = "Pendiente",
+        date = "Asignado el 15 Enero",
+        type = TaskType.MUSIC
+    ),
+    Tarea(
+        title = "Ir al consultorio",
+        status = "Pendiente",
+        date = "Asignado el 17 Enero",
+        type = TaskType.PLACE
+    )
+)
 
 // --- Pantalla Principal de Detalles ---
 
@@ -183,11 +224,15 @@ fun PatientDetailHeader(summaryState: PatientSummaryState) {
     ) {
         // Placeholder para la imagen
         Image(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Foto de paciente",
+            painter = rememberAsyncImagePainter(
+                model = summaryState.profilePhotoUrl,
+                placeholder = painterResource(id = R.drawable.ic_profile_user),
+                error = painterResource(id = R.drawable.ic_profile_user)
+            ),
+            contentDescription = "Foto de ${summaryState.patientName}",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(100.dp)
+                .size(100.dp) // Puedes ajustar este tamaño
                 .clip(CircleShape)
                 .background(Color.LightGray)
         )
@@ -318,37 +363,103 @@ fun TagItem(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TareasTabContent() {
+
+    // --- Estados para el Dropdown ---
+    // 1. Define las opciones del menú (como en tu imagen)
+    val filterOptions = listOf("Pendientes", "Completadas", "Todo")
+
+    // 2. Estados para manejar qué está seleccionado y si el menú está abierto
+    var selectedFilterOption by remember { mutableStateOf("Todo") }
+    var isFilterMenuExpanded by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Dropdown (simulado)
+        // Dropdown
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Todo", fontSize = 16.sp)
-            Icon(Icons.Default.ArrowDropDown, contentDescription = "Filtrar")
+            Box {
+                Row(
+                    modifier = Modifier
+                        .clickable { isFilterMenuExpanded = true } // Al hacer clic, expande el menú
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // El texto de la opción seleccionada
+                    Text(selectedFilterOption, color = Color.Black, fontSize = 16.sp)
+
+                    // El icono de flecha que cambia
+                    Icon(
+                        imageVector = if (isFilterMenuExpanded) {
+                            Icons.Filled.ArrowDropUp // Flecha arriba si está expandido
+                        } else {
+                            Icons.Filled.ArrowDropDown // Flecha abajo si está contraído
+                        },
+                        contentDescription = "Abrir filtro",
+                        tint = Color.Gray
+                    )
+                }
+
+                // 5. Este es el menú desplegable que aparece y desaparece
+                DropdownMenu(
+                    expanded = isFilterMenuExpanded,
+                    onDismissRequest = { isFilterMenuExpanded = false } // Para cerrar si se toca fuera
+                ) {
+                    filterOptions.forEach { option ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedFilterOption = option // Actualiza la opción seleccionada
+                                isFilterMenuExpanded = false // Cierra el menú
+                            },
+                            text = {Text(option, style = SourceSansRegular.copy(fontSize = 11.sp), )},
+                            modifier = if (selectedFilterOption == option) {
+                                Modifier.background(Color.LightGray.copy(alpha = 0.3f))
+                            } else {
+                                Modifier
+                            }
+                        )
+                    }
+                }
+            } // Fin del Box del Dropdown
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // --- Icono de Filtro ---
+            IconButton(
+                onClick = { /* TODO: Acción del ícono de filtro */ },
+                modifier = Modifier
+                    .size(50.dp)
+                    .background(
+                        color = Green49,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_filter),
+                    contentDescription = "Filtrar",
+                    tint = Color.White,
+                    modifier=Modifier.size(15.dp)
+                )
+            }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
+
         // Lista de Tareas
-        TareaItemCard(
-            icon = Icons.Default.Movie,
-            title = "Ver Inside Out",
-            status = "Completado",
-            date = "Asignado el 15 Enero"
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        TareaItemCard(
-            icon = Icons.Default.MusicNote,
-            title = "Escuchar Música de relajación",
-            status = "Pendiente",
-            date = "Asignado el 15 Enero"
-        )
+        dummyTareas.forEach { tarea ->
+            TareaItemCard(tarea = tarea)
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
+
         Button(
             onClick = { /* Sin acción */ },
             shape = RoundedCornerShape(12.dp),
@@ -366,7 +477,11 @@ fun TareasTabContent() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TareaItemCard(icon: ImageVector, title: String, status: String, date: String) {
+fun TareaItemCard(tarea: Tarea) { // <-- Acepta el objeto Tarea
+
+    // Llama a la función ayudante para obtener el icono
+    val icon = getIconForTaskType(tarea.type)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -377,7 +492,7 @@ fun TareaItemCard(icon: ImageVector, title: String, status: String, date: String
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = icon, // <-- Icono dinámico
                 contentDescription = null,
                 tint = primaryGreen,
                 modifier = Modifier.size(32.dp)
@@ -385,23 +500,34 @@ fun TareaItemCard(icon: ImageVector, title: String, status: String, date: String
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    text = title,
+                    text = tarea.title, // <-- Dato dinámico
                     style = CrimsonSemiBold.copy(fontSize = 18.sp),
                 )
                 Text(
-                    text = status,
+                    text = tarea.status, // <-- Dato dinámico
                     style = SourceSansRegular.copy(fontSize = 11.sp),
                     color =
-                        if (status == "Completado") primaryGreen
+                        if (tarea.status == "Completado") primaryGreen
                         else lightGrayText
                 )
                 Text(
-                    text = date,
+                    text = tarea.date, // <-- Dato dinámico
                     style = SourceSansRegular.copy(fontSize = 13.sp),
                     color = lightGrayText
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun getIconForTaskType(type: TaskType): androidx.compose.ui.graphics.vector.ImageVector {
+    return when (type) {
+        TaskType.MOVIE, TaskType.SERIES -> Icons.Filled.Movie
+        TaskType.MUSIC -> Icons.Filled.MusicNote
+        TaskType.VIDEO -> Icons.Filled.SmartDisplay
+        TaskType.PLACE -> Icons.Filled.Place
     }
 }
 

@@ -40,6 +40,7 @@ object ApiConstants {
         const val PSYCHOLOGIST_PROFESSIONAL_DATA = "users/psychologist/professional"
         const val PSYCHOLOGIST_VERIFICATION = "users/psychologist/verification"
         const val PSYCHOLOGIST_STATS = "users/psychologist/stats"
+        const val PSYCHOLOGIST_PATIENT = "users/psychologist/patient/{id}"
 
         // Public psychologist directory endpoints
         const val PSYCHOLOGISTS_DIRECTORY = "users/psychologists/directory"

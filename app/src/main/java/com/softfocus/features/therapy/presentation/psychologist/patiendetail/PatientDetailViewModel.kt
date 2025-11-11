@@ -21,7 +21,8 @@ import java.util.Locale
 data class PatientSummaryState(
     val patientName: String = "",
     val age: Int = 0,
-    val formattedStartDate: String = ""
+    val formattedStartDate: String = "",
+    val profilePhotoUrl: String = ""
 )
 
 class PatientDetailViewModel(
@@ -46,10 +47,13 @@ class PatientDetailViewModel(
         // Decodificar y formatear la fecha
         val startDate = try { URLDecoder.decode(encodedStartDate, "UTF-8") } catch (e: Exception) { "" }
 
+        val profilePhotoUrl: String = savedStateHandle["photoUrl"] ?: ""
+
         _summaryState.value = PatientSummaryState(
             patientName = patientName,
             age = age,
-            formattedStartDate = formatStartDate(startDate)
+            formattedStartDate = formatStartDate(startDate),
+            profilePhotoUrl = profilePhotoUrl
         )
         loadPatientDetails()
     }

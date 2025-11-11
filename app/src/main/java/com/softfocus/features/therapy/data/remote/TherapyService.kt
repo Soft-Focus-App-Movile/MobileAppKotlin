@@ -7,11 +7,13 @@ import com.softfocus.features.therapy.data.models.response.ChatHistoryResponseDt
 import com.softfocus.features.therapy.data.models.response.ConnectResponseDto
 import com.softfocus.features.therapy.data.models.response.MyRelationshipResponseDto
 import com.softfocus.features.therapy.data.models.response.PatientDirectoryResponseDto
+import com.softfocus.features.therapy.data.models.response.PatientProfileResponseDto
 import com.softfocus.features.therapy.data.models.response.SendChatMessageResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TherapyService {
@@ -44,5 +46,11 @@ interface TherapyService {
         @Header("Authorization") token: String,
         @Body request: SendChatMessageRequestDto
     ): SendChatMessageResponseDto
+
+    @GET(ApiConstants.Users.PSYCHOLOGIST_PATIENT)
+    suspend fun getPatientDetails(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): PatientProfileResponseDto
 
 }

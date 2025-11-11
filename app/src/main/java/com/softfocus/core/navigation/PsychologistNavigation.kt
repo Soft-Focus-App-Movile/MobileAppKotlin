@@ -182,7 +182,8 @@ fun NavGraphBuilder.psychologistNavigation(
                                 relationshipId = patient.id,
                                 patientName = patient.patientName,
                                 age = patient.age,
-                                startDate = patient.startDate
+                                startDate = patient.startDate,
+                                profilePhotoUrl = patient.profilePhotoUrl
                             )
                         )
                     },
@@ -199,7 +200,11 @@ fun NavGraphBuilder.psychologistNavigation(
             navArgument("relationshipId") { type = NavType.StringType },
             navArgument("patientName") { type = NavType.StringType },
             navArgument("age") { type = NavType.StringType },
-            navArgument("startDate") { type = NavType.StringType }
+            navArgument("startDate") { type = NavType.StringType },
+            navArgument("photoUrl") {
+                type = NavType.StringType
+                defaultValue = "" // "" como valor por defecto si no viene
+            }
         ),
     ) { backStackEntry ->
         // Extraemos los argumentos
