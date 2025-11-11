@@ -67,6 +67,7 @@ fun PatientDetailScreen(
     // Estado para saber qué pestaña está seleccionada
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Resumen", "Tareas", "Chat")
+    val summaryState by viewModel.summaryState.collectAsState()
 
     Scaffold(
         topBar = { PatientDetailTopBar(onBack = onBack) }
@@ -79,7 +80,7 @@ fun PatientDetailScreen(
         ) {
             // --- Cabecera del Paciente ---
             item {
-                PatientDetailHeader(patientName = patientName) // <-- MODIFICAR
+                PatientDetailHeader(summaryState = summaryState) // <-- MODIFICAR
             }
 
             // --- Pestañas (Tabs) ---
@@ -173,7 +174,7 @@ fun PatientDetailTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientDetailHeader(patientName: String) {
+fun PatientDetailHeader(summaryState: PatientSummaryState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -183,7 +184,7 @@ fun PatientDetailHeader(patientName: String) {
         // Placeholder para la imagen
         Image(
             imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Foto de Ana García",
+            contentDescription = "Foto de paciente",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(100.dp)
@@ -192,19 +193,19 @@ fun PatientDetailHeader(patientName: String) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Ana García",
+            text = summaryState.patientName,
             style = CrimsonSemiBold.copy(fontSize = 30.sp),
             color = Color.Black
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "32 años",
+            text = "${summaryState.age} años",
             style = SourceSansSemiBold.copy(fontSize = 13.sp),
             color = lightGrayText
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Paciente desde Enero 2025",
+            text = summaryState.formattedStartDate,
             style = SourceSansSemiBold.copy(fontSize = 13.sp),
             color = primaryGreen
         )

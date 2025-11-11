@@ -15,6 +15,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.softfocus.features.profile.presentation.psychologist.PsychologistProfileScreen
@@ -178,7 +180,9 @@ fun NavGraphBuilder.psychologistNavigation(
                             Route.PsychologistPatientDetail.createRoute(
                                 patientId = patient.patientId,
                                 relationshipId = patient.id,
-                                patientName = encodedPatientName // Usar el nombre codificado
+                                patientName = patient.patientName,
+                                age = patient.age,
+                                startDate = patient.startDate
                             )
                         )
                     },
@@ -193,7 +197,9 @@ fun NavGraphBuilder.psychologistNavigation(
         arguments = listOf(
             navArgument("patientId") { type = NavType.StringType },
             navArgument("relationshipId") { type = NavType.StringType },
-            navArgument("patientName") { type = NavType.StringType }
+            navArgument("patientName") { type = NavType.StringType },
+            navArgument("age") { type = NavType.StringType },
+            navArgument("startDate") { type = NavType.StringType }
         ),
     ) { backStackEntry ->
         // Extraemos los argumentos
@@ -204,10 +210,13 @@ fun NavGraphBuilder.psychologistNavigation(
 
         // Creamos el ViewModel pasándole los IDs
         val viewModel: PatientDetailViewModel = viewModel(
-            factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-                override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                    @Suppress("UNCHECKED_CAST")
-                    return PatientDetailViewModel(patientId, relationshipId) as T
+            factory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    // Usamos la función que creamos en TherapyPresentationModule
+                    return TherapyPresentationModule.getPatientDetailViewModel(
+                        backStackEntry.savedStateHandle
+                    ) as T
                 }
             }
         )

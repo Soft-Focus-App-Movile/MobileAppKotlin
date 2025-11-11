@@ -61,9 +61,17 @@ Route(val path: String) {
     // --- RUTAS DE THERAPY (PSICÓLOGO) ---
     object PsychologistPatientList : Route("psychologist_patient_list")
 
-    data object PsychologistPatientDetail : Route("psychologist_patient_detail/{patientId}/{relationshipId}/{patientName}") {
-        fun createRoute(patientId: String, relationshipId: String, patientName: String) =
-            "psychologist_patient_detail/$patientId/$relationshipId/$patientName"
+    data object PsychologistPatientDetail : Route("psychologist_patient_detail/{patientId}/{relationshipId}/{patientName}/{age}/{startDate}") {
+        fun createRoute(
+            patientId: String,
+            relationshipId: String,
+            patientName: String,
+            age: Int,
+            startDate: String
+        ): String {
+            val encodedDate = java.net.URLEncoder.encode(startDate, "UTF-8")
+            return "psychologist_patient_detail/$patientId/$relationshipId/$patientName/$age/$encodedDate"
+        }
     }
 
     data object PsychologistPatientChat : Route("patient_chat/{patientId}/{relationshipId}/{patientName}") {
