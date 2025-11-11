@@ -5,6 +5,7 @@ import com.softfocus.features.library.data.models.request.AssignmentRequestDto
 import com.softfocus.features.library.data.models.response.AssignmentCompletedResponseDto
 import com.softfocus.features.library.data.models.response.AssignmentCreatedResponseDto
 import com.softfocus.features.library.data.models.response.AssignmentResponseDto
+import com.softfocus.features.library.data.models.response.AssignmentsResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -26,12 +27,14 @@ interface AssignmentsService {
      *
      * @param token Token de autenticación Bearer
      * @param completed Filtro opcional por estado de completitud (true/false)
-     * @return Lista de asignaciones del paciente
+     * @return Objeto con lista de asignaciones y estadísticas (total, pending, completed)
      *
      * Ejemplo de uso:
      * ```
      * // Obtener todas las asignaciones
-     * val allAssignments = getAssignedContent("Bearer $token")
+     * val response = getAssignedContent("Bearer $token")
+     * val allAssignments = response.assignments
+     * val total = response.total
      *
      * // Solo asignaciones pendientes
      * val pending = getAssignedContent("Bearer $token", completed = false)
@@ -44,7 +47,7 @@ interface AssignmentsService {
     suspend fun getAssignedContent(
         @Header("Authorization") token: String,
         @Query("completed") completed: Boolean? = null
-    ): List<AssignmentResponseDto>
+    ): AssignmentsResponseDto
 
     /**
      * Marca una asignación como completada
@@ -104,17 +107,18 @@ interface AssignmentsService {
      *
      * @param token Token de autenticación Bearer
      * @param patientId Filtro opcional por ID de paciente específico
-     * @return Lista de asignaciones creadas por el psicólogo
+     * @return Objeto con lista de asignaciones y estadísticas (total, pending, completed)
      *
      * Nota: Solo psicólogos pueden usar este endpoint
      *
      * Ejemplo de uso:
      * ```
      * // Obtener todas las asignaciones del psicólogo
-     * val allAssignments = getPsychologistAssignments("Bearer $token")
+     * val response = getPsychologistAssignments("Bearer $token")
+     * val allAssignments = response.assignments
      *
      * // Filtrar por paciente específico
-     * val patientAssignments = getPsychologistAssignments(
+     * val patientResponse = getPsychologistAssignments(
      *     "Bearer $token",
      *     patientId = "patient123"
      * )
@@ -124,5 +128,5 @@ interface AssignmentsService {
     suspend fun getPsychologistAssignments(
         @Header("Authorization") token: String,
         @Query("patientId") patientId: String? = null
-    ): List<AssignmentResponseDto>
+    ): AssignmentsResponseDto
 }

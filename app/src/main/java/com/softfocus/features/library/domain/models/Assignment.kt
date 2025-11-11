@@ -7,8 +7,8 @@ import java.time.LocalDateTime
  *
  * @property id ID único de la asignación en MongoDB
  * @property psychologistId ID del psicólogo que asignó el contenido
- * @property psychologistName Nombre completo del psicólogo
- * @property patientId ID del paciente al que se asignó
+ * @property psychologistName Nombre completo del psicólogo (opcional, no siempre viene del backend)
+ * @property patientId ID del paciente al que se asignó (opcional, no siempre viene del backend)
  * @property content Contenido completo embebido
  * @property notes Notas/instrucciones del psicólogo para el paciente
  * @property isCompleted Indica si el paciente completó la asignación
@@ -18,8 +18,8 @@ import java.time.LocalDateTime
 data class Assignment(
     val id: String,
     val psychologistId: String,
-    val psychologistName: String,
-    val patientId: String,
+    val psychologistName: String? = null,
+    val patientId: String? = null,
     val content: ContentItem,
     val notes: String? = null,
     val isCompleted: Boolean = false,

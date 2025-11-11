@@ -174,7 +174,7 @@ class LibraryRepositoryImpl(
                 completed = completed
             )
 
-            val assignments = response.map { it.toDomain() }
+            val assignments = response.assignments.map { it.toDomain() }
             Result.success(assignments)
         } catch (e: Exception) {
             Result.failure(Exception("Error al obtener asignaciones: ${e.message}", e))
@@ -234,7 +234,7 @@ class LibraryRepositoryImpl(
                 patientId = patientId
             )
 
-            val assignments = response.map { it.toDomain() }
+            val assignments = response.assignments.map { it.toDomain() }
             Result.success(assignments)
         } catch (e: Exception) {
             Result.failure(Exception("Error al obtener asignaciones del psicólogo: ${e.message}", e))

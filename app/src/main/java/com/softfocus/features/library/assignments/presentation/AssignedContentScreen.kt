@@ -4,9 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,8 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.features.library.domain.models.ContentType
-import com.softfocus.features.library.presentation.general.browse.components.ContentCard
-import com.softfocus.features.library.presentation.general.browse.components.VideoCard
+import com.softfocus.features.library.assignments.presentation.components.AssignmentCard
 import com.softfocus.ui.theme.SourceSansBold
 import com.softfocus.ui.theme.SourceSansRegular
 
@@ -102,77 +98,94 @@ private fun AssignedContentList(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val movieAssignments = assignments.filter { it.content.type == ContentType.Movie }
+    val musicAssignments = assignments.filter { it.content.type == ContentType.Music }
     val videoAssignments = assignments.filter { it.content.type == ContentType.Video }
-    val otherAssignments = assignments.filter { it.content.type != ContentType.Video }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 16.dp)
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        if (otherAssignments.isNotEmpty()) {
+        if (movieAssignments.isNotEmpty()) {
             item {
                 Text(
-                    text = "Películas y Música",
+                    text = "Películas asignadas",
                     style = SourceSansBold.copy(fontSize = 18.sp),
                     color = Color.White,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            items(movieAssignments) { assignment ->
+                AssignmentCard(
+                    assignment = assignment,
+                    onViewClick = {
+                        onContentClick(assignment.content.id, assignment.content.type)
+                    },
+                    onCompleteClick = {
+                        onCompleteClick(assignment.id)
+                    }
                 )
             }
 
             item {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                ) {
-                    items(otherAssignments) { assignment ->
-                        ContentCard(
-                            content = assignment.content,
-                            isFavorite = false,
-                            isSelected = false,
-                            isSelectionMode = false,
-                            onFavoriteClick = {},
-                            onClick = {
-                                onContentClick(
-                                    assignment.content.id,
-                                    assignment.content.type
-                                )
-                            }
-                        )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+
+        if (musicAssignments.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Música asignada",
+                    style = SourceSansBold.copy(fontSize = 18.sp),
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            items(musicAssignments) { assignment ->
+                AssignmentCard(
+                    assignment = assignment,
+                    onViewClick = {
+                        assignment.content.spotifyUrl?.let { url ->
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        }
+                    },
+                    onCompleteClick = {
+                        onCompleteClick(assignment.id)
                     }
-                }
+                )
             }
 
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
         if (videoAssignments.isNotEmpty()) {
             item {
                 Text(
-                    text = "Videos",
+                    text = "Videos asignados",
                     style = SourceSansBold.copy(fontSize = 18.sp),
                     color = Color.White,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
 
             items(videoAssignments) { assignment ->
-                VideoCard(
-                    content = assignment.content,
-                    isFavorite = false,
-                    isSelected = false,
-                    isSelectionMode = false,
-                    onFavoriteClick = {},
+                AssignmentCard(
+                    assignment = assignment,
                     onViewClick = {
                         assignment.content.youtubeUrl?.let { url ->
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                             context.startActivity(intent)
                         }
                     },
-                    onClick = {}
+                    onCompleteClick = {
+                        onCompleteClick(assignment.id)
+                    }
                 )
             }
         }

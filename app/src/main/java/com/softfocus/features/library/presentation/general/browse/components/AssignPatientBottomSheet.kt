@@ -222,7 +222,7 @@ fun AssignPatientBottomSheet(
                             PatientItem(
                                 patient = patient,
                                 onClick = {
-                                    onPatientSelected(patient.id, patient.patientName)
+                                    onPatientSelected(patient.patientId, patient.patientName)
                                     onDismiss()
                                 }
                             )

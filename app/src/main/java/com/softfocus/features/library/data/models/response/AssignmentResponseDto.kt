@@ -9,17 +9,11 @@ import java.time.format.DateTimeFormatter
  * DTO para respuesta de asignación del backend
  */
 data class AssignmentResponseDto(
-    @SerializedName("id")
-    val id: String,
+    @SerializedName("assignmentId")
+    val assignmentId: String,
 
     @SerializedName("psychologistId")
     val psychologistId: String,
-
-    @SerializedName("psychologistName")
-    val psychologistName: String,
-
-    @SerializedName("patientId")
-    val patientId: String,
 
     @SerializedName("content")
     val content: ContentItemResponseDto,
@@ -33,23 +27,23 @@ data class AssignmentResponseDto(
     @SerializedName("completedAt")
     val completedAt: String? = null, // ISO 8601 format
 
-    @SerializedName("createdAt")
-    val createdAt: String // ISO 8601 format
+    @SerializedName("assignedAt")
+    val assignedAt: String // ISO 8601 format
 ) {
     /**
      * Mapea el DTO a la entidad de dominio
      */
     fun toDomain(): Assignment {
         return Assignment(
-            id = id,
+            id = assignmentId,
             psychologistId = psychologistId,
-            psychologistName = psychologistName,
-            patientId = patientId,
+            psychologistName = null, // No viene en la respuesta del backend
+            patientId = null, // No viene en la respuesta del backend
             content = content.toDomain(),
             notes = notes,
             isCompleted = isCompleted,
             completedAt = completedAt?.let { parseDateTime(it) },
-            createdAt = parseDateTime(createdAt)
+            createdAt = parseDateTime(assignedAt)
         )
     }
 
