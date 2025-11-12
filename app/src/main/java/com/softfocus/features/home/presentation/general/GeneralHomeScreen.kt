@@ -47,6 +47,8 @@ import com.softfocus.features.notifications.presentation.list.NotificationsViewM
 import com.softfocus.features.library.presentation.di.libraryViewModel
 import com.softfocus.features.home.presentation.components.WelcomeCard
 import com.softfocus.features.home.presentation.components.TrackingHome
+import com.softfocus.features.tracking.presentation.state.TrackingUiState
+import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +58,9 @@ fun GeneralHomeScreen(
     onNavigateToContentDetail: (String) -> Unit = {},
     onNavigateToSearchPsychologist: () -> Unit = {},
     onNavigateToAIChat: () -> Unit = {},
-    viewModel: GeneralHomeViewModel = libraryViewModel { GeneralHomeViewModel(it) }
+    onNavigateToCheckInForm: () -> Unit = {},
+    viewModel: GeneralHomeViewModel = libraryViewModel { GeneralHomeViewModel(it) },
+    trackingViewModel: TrackingViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -74,7 +78,14 @@ fun GeneralHomeScreen(
     // Estado de las recomendaciones
     val recommendationsState by viewModel.recommendationsState.collectAsState()
 
+    // Estados del tracking
+    val trackingUiState by trackingViewModel.uiState.collectAsState()
+    val dashboard = (trackingUiState as? TrackingUiState.Success)?.data?.dashboard
+
     LaunchedEffect(Unit) {
+        // Cargar dashboard
+        trackingViewModel.loadDashboard(days = 7)
+
         scope.launch {
             if (LocationHelper.hasLocationPermission(context)) {
                 val location = LocationHelper.getCurrentLocation(context)
@@ -221,7 +232,10 @@ fun GeneralHomeScreen(
             // Componente 1: Bienvenida y card de registro de ánimo
             WelcomeCard(
                 userName = userName,
-                onRegisterMoodClick = { /* TODO: Navegar a registro de ánimo */ }
+                onRegisterMoodClick = onNavigateToCheckInForm,
+                hasTodayCheckIn = dashboard?.summary?.hasTodayCheckIn ?: false,
+                todayEmotionalLevel = dashboard?.summary?.todayCheckIn?.emotionalLevel,
+                totalCheckIns = dashboard?.summary?.totalCheckIns ?: 0
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -238,12 +252,16 @@ fun GeneralHomeScreen(
 
             // Componente 3: Tracking y ayuda
             TrackingHome(
-                daysRegistered = 4,
+                daysRegistered = dashboard?.summary?.totalCheckIns ?: 0,
                 totalDays = 7,
-                daysFeelingSad = 3,
+                daysFeelingSad = if (dashboard?.summary?.averageEmotionalLevel != null &&
+                    dashboard.summary.averageEmotionalLevel < 5) 3 else 0,
+                averageEmotionalLevel = dashboard?.summary?.averageEmotionalLevel,
+                insightMessage = dashboard?.insights?.messages?.firstOrNull(),
                 secondButtonText = "Buscar Psicólogo",
                 onAIChatClick = onNavigateToAIChat,
-                onSecondButtonClick = onNavigateToSearchPsychologist
+                onSecondButtonClick = onNavigateToSearchPsychologist,
+                onCardClick = onNavigateToCheckInForm
             )
 
             Spacer(modifier = Modifier.height(24.dp))

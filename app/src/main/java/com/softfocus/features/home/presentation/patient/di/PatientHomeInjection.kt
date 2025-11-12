@@ -10,6 +10,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.home.presentation.patient.PatientHomeViewModel
+import com.softfocus.features.library.assignments.data.di.AssignmentsDataModule
+import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
 import com.softfocus.features.library.data.di.LibraryDataModule
 import com.softfocus.features.library.domain.repositories.LibraryRepository
 import com.softfocus.features.search.data.remote.PsychologistSearchService
@@ -63,6 +65,13 @@ fun provideSearchRepository(context: Context): SearchRepository {
     return SearchRepositoryImpl(searchService, context)
 }
 
+fun provideAssignmentsRepository(context: Context): AssignmentsRepository {
+    return AssignmentsDataModule.provideAssignmentsRepository(
+        context = context,
+        retrofit = getRetrofitInstance()
+    )
+}
+
 @Composable
 fun patientHomeViewModel(): PatientHomeViewModel {
     val context = LocalContext.current
@@ -73,10 +82,12 @@ fun patientHomeViewModel(): PatientHomeViewModel {
                 val libraryRepository = provideLibraryRepository(context)
                 val therapyRepository = provideTherapyRepository(context)
                 val searchRepository = provideSearchRepository(context)
+                val assignmentsRepository = provideAssignmentsRepository(context)
                 return PatientHomeViewModel(
                     libraryRepository,
                     therapyRepository,
-                    searchRepository
+                    searchRepository,
+                    assignmentsRepository
                 ) as VM
             }
         }

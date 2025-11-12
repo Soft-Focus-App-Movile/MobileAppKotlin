@@ -25,6 +25,7 @@ import com.softfocus.features.profile.presentation.psychologist.PsychologistProf
 import com.softfocus.features.profile.presentation.psychologist.EditPersonalInfoScreen
 import com.softfocus.features.profile.presentation.psychologist.ProfessionalDataScreen
 import com.softfocus.features.profile.presentation.psychologist.MyInvitationCodeScreen
+import com.softfocus.features.profile.presentation.psychologist.PsychologistStatsScreen
 import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
 import com.softfocus.ui.components.navigation.PsychologistBottomNav
 import com.softfocus.core.utils.SessionManager
@@ -128,6 +129,19 @@ fun NavGraphBuilder.psychologistNavigation(
                 navController.popBackStack()
             },
             viewModel = psychologistHomeViewModel
+        )
+    }
+
+    // Psychologist Stats Screen
+    composable(Route.PsychologistStats.path) {
+        val psychologistHomeViewModel = remember {
+            PsychologistPresentationModule.getPsychologistHomeViewModel(context)
+        }
+        PsychologistStatsScreen(
+            viewModel = psychologistHomeViewModel,
+            onNavigateBack = {
+                navController.popBackStack()
+            }
         )
     }
 

@@ -1,5 +1,6 @@
 package com.softfocus.features.home.presentation.psychologist.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -22,11 +23,23 @@ import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.White
 
 data class StatItem(
-    val icon: Int,
+    val icon: Int? = null,
+    val imageRes: Int? = null,  // Para emojis
     val title: String,
     val value: String,
     val subtitle: String
 )
+
+
+fun getEmotionalEmoji(level: Double): Int {
+    return when {
+        level <= 2.0 -> R.drawable.calendar_emoji_angry
+        level <= 4.0 -> R.drawable.calendar_emoji_sad
+        level <= 6.0 -> R.drawable.calendar_emoji_serius
+        level <= 8.0 -> R.drawable.calendar_emoji_happy
+        else -> R.drawable.calendar_emoji_joy
+    }
+}
 
 @Composable
 fun StatsSection(
@@ -51,17 +64,22 @@ fun StatsSection(
         )
     )
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(horizontal = 24.dp)
     ) {
-        stats.forEach { stat ->
-            StatCard(
-                stat = stat,
-                modifier = Modifier.weight(1f)
-            )
+        // Stats cards
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            stats.forEach { stat ->
+                StatCard(
+                    stat = stat,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -73,7 +91,7 @@ fun StatCard(
 ) {
     Card(
         modifier = modifier
-            .height(160.dp),
+            .height(220.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -86,13 +104,24 @@ fun StatCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Icono
-            Icon(
-                painter = painterResource(id = stat.icon),
-                contentDescription = stat.title,
-                tint = Green65,
-                modifier = Modifier.size(24.dp)
-            )
+            // Icono o Imagen (emoji)
+            when {
+                stat.imageRes != null -> {
+                    Image(
+                        painter = painterResource(id = stat.imageRes),
+                        contentDescription = stat.title,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+                stat.icon != null -> {
+                    Icon(
+                        painter = painterResource(id = stat.icon),
+                        contentDescription = stat.title,
+                        tint = Green65,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
 
             // Título
             Text(

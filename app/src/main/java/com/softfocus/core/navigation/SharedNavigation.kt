@@ -36,6 +36,7 @@ import com.softfocus.features.psychologist.presentation.di.PsychologistPresentat
 import com.softfocus.features.search.presentation.detail.PsychologistDetailScreen
 import com.softfocus.features.search.presentation.search.SearchPsychologistScreen
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
+import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.tracking.presentation.screens.CheckInFormScreen
 import com.softfocus.features.tracking.presentation.screens.DiaryScreen
 import com.softfocus.features.tracking.presentation.screens.ProgressScreen
@@ -93,8 +94,14 @@ fun NavGraphBuilder.sharedNavigation(
                             onNavigateToPatientList = {
                                 navController.navigate(Route.PsychologistPatientList.path)
                             },
-                            onNavigateToPatientDetail = { patientId ->
-                                // TODO: Implementar navegación a detalle del paciente
+                            onNavigateToPatientDetail = { patient ->
+                                navController.navigate(
+                                    Route.PsychologistPatientDetail.createRoute(
+                                        patientId = patient.patientId,
+                                        relationshipId = patient.id,
+                                        startDate = patient.startDate
+                                    )
+                                )
                             }
                         )
                     }

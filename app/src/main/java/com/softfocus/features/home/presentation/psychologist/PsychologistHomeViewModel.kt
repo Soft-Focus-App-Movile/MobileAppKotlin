@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.features.psychologist.domain.models.InvitationCode
+import com.softfocus.features.psychologist.domain.models.PsychologistStats
 import com.softfocus.features.psychologist.domain.repositories.PsychologistRepository
 import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.therapy.domain.usecases.GetMyPatientsUseCase
@@ -27,8 +28,14 @@ class PsychologistHomeViewModel(
     private val _patients = MutableStateFlow<List<PatientDirectory>>(emptyList())
     val patients: StateFlow<List<PatientDirectory>> = _patients.asStateFlow()
 
+    private val _stats = MutableStateFlow<PsychologistStats?>(null)
+    val stats: StateFlow<PsychologistStats?> = _stats.asStateFlow()
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
@@ -36,6 +43,7 @@ class PsychologistHomeViewModel(
     init {
         loadInvitationCode()
         loadPatients()
+        loadStats()
     }
 
     private fun loadInvitationCode() {
@@ -84,7 +92,35 @@ class PsychologistHomeViewModel(
         }
     }
 
+    private fun loadStats(fromDate: String? = null, toDate: String? = null) {
+        viewModelScope.launch {
+            val result = psychologistRepository.getStats(fromDate, toDate)
+            result.onSuccess { statsData ->
+                _stats.value = statsData
+            }.onFailure { exception ->
+                _errorMessage.value = exception.message ?: "Error al cargar estadísticas"
+            }
+        }
+    }
+
     fun refreshPatients() {
         loadPatients()
+    }
+
+    fun refreshStats(fromDate: String? = null, toDate: String? = null) {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            loadStats(fromDate, toDate)
+            _isRefreshing.value = false
+        }
+    }
+
+    fun refreshAll() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            loadStats()
+            loadPatients()
+            _isRefreshing.value = false
+        }
     }
 }

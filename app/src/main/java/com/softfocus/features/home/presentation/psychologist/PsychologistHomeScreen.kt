@@ -19,7 +19,10 @@ import androidx.compose.ui.Alignment
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.utils.LocationHelper
 import com.softfocus.features.home.presentation.psychologist.components.PatientsTracking
+import com.softfocus.features.home.presentation.psychologist.components.StatItem
 import com.softfocus.features.home.presentation.psychologist.components.StatsSection
+import com.softfocus.features.home.presentation.psychologist.components.getEmotionalEmoji
+import com.softfocus.features.therapy.domain.models.PatientDirectory
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,10 +43,12 @@ fun PsychologistHomeScreen(
     viewModel: PsychologistHomeViewModel,
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToPatientList: () -> Unit = {},
-    onNavigateToPatientDetail: (String) -> Unit = {}
-) {
+    onNavigateToPatientDetail: (PatientDirectory) -> Unit = {}
+){
     val invitationCode = viewModel.invitationCode.collectAsState()
     val patients by viewModel.patients.collectAsState()
+    val stats by viewModel.stats.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -68,6 +73,63 @@ fun PsychologistHomeScreen(
             }
         }
     }
+
+    // Crear lista de estadísticas basada en los datos del API
+    val statsList = stats?.let { statsData ->
+        listOf(
+            StatItem(
+                icon = R.drawable.ic_profile_user,
+                title = "Pacientes Activos",
+                value = if (statsData.activePatientsCount > 0)
+                    statsData.activePatientsCount.toString()
+                else "-",
+                subtitle = if (statsData.activePatientsCount > 0)
+                    "${statsData.activePatientsCount} pacientes activos"
+                else "Sin pacientes aún"
+            ),
+            StatItem(
+                icon = R.drawable.ic_alert,
+                title = "Alertas Pendientes",
+                value = if (statsData.pendingCrisisAlerts > 0)
+                    statsData.pendingCrisisAlerts.toString()
+                else "-",
+                subtitle = if (statsData.pendingCrisisAlerts > 0)
+                    "${statsData.pendingCrisisAlerts} alertas"
+                else "Sin alertas"
+            ),
+            StatItem(
+                imageRes = if (statsData.averageEmotionalLevel > 0)
+                    getEmotionalEmoji(statsData.averageEmotionalLevel)
+                else R.drawable.calendar_emoji_serius,
+                title = "Estado Emocional",
+                value = if (statsData.averageEmotionalLevel > 0)
+                    String.format("%.1f", statsData.averageEmotionalLevel)
+                else "-",
+                subtitle = if (statsData.averageEmotionalLevel > 0)
+                    "Promedio de tus pacientes"
+                else "Sin datos disponibles"
+            )
+        )
+    } ?: listOf(
+        StatItem(
+            icon = R.drawable.ic_profile_user,
+            title = "Pacientes Activos",
+            value = "-",
+            subtitle = "Cargando..."
+        ),
+        StatItem(
+            icon = R.drawable.ic_alert,
+            title = "Alertas Pendientes",
+            value = "-",
+            subtitle = "Cargando..."
+        ),
+        StatItem(
+            imageRes = R.drawable.calendar_emoji_serius,
+            title = "Estado Emocional",
+            value = "-",
+            subtitle = "Cargando..."
+        )
+    )
 
     Scaffold(
         topBar = {
@@ -129,7 +191,7 @@ fun PsychologistHomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Stats Cards
-            StatsSection()
+            StatsSection(stats = statsList)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -157,8 +219,8 @@ fun PsychologistHomeScreen(
             // Patients Tracking
             PatientsTracking(
                 patients = patients,
-                onPatientClick = { patientId ->
-                    onNavigateToPatientDetail(patientId)
+                onPatientClick = { patient ->
+                    onNavigateToPatientDetail(patient)
                 },
                 onViewAllClick = {
                     onNavigateToPatientList()

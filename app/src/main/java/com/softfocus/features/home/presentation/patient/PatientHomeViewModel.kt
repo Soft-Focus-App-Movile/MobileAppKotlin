@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.features.home.presentation.general.RecommendationsState
+import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
+import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
 import com.softfocus.features.library.domain.models.ContentItem
 import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.features.library.domain.repositories.LibraryRepository
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
 class PatientHomeViewModel(
     private val libraryRepository: LibraryRepository,
     private val therapyRepository: TherapyRepository,
-    private val searchRepository: SearchRepository
+    private val searchRepository: SearchRepository,
+    private val assignmentsRepository: AssignmentsRepository
 ) : ViewModel() {
 
     companion object {
@@ -34,12 +37,16 @@ class PatientHomeViewModel(
     private val _therapistState = MutableStateFlow<TherapistState>(TherapistState.Loading)
     val therapistState: StateFlow<TherapistState> = _therapistState.asStateFlow()
 
+    private val _assignmentsState = MutableStateFlow<AssignmentsUiState>(AssignmentsUiState.Loading)
+    val assignmentsState: StateFlow<AssignmentsUiState> = _assignmentsState.asStateFlow()
+
     private var currentKeywordIndex = 0
     private val allContent = mutableListOf<ContentItem>()
 
     init {
         loadRecommendations()
         loadTherapistInfo()
+        loadAssignments()
     }
 
     private fun loadTherapistInfo() {
@@ -154,6 +161,34 @@ class PatientHomeViewModel(
 
     fun retryTherapist() {
         loadTherapistInfo()
+    }
+
+    private fun loadAssignments() {
+        viewModelScope.launch {
+            _assignmentsState.value = AssignmentsUiState.Loading
+
+            assignmentsRepository.getAssignedContent(completed = false).fold(
+                onSuccess = { assignments ->
+                    val pending = assignments.count { !it.isCompleted }
+                    val completedCount = assignments.count { it.isCompleted }
+
+                    _assignmentsState.value = AssignmentsUiState.Success(
+                        assignments = assignments,
+                        pendingCount = pending,
+                        completedCount = completedCount
+                    )
+                },
+                onFailure = { exception ->
+                    _assignmentsState.value = AssignmentsUiState.Error(
+                        message = exception.message ?: "Error al cargar asignaciones"
+                    )
+                }
+            )
+        }
+    }
+
+    fun retryAssignments() {
+        loadAssignments()
     }
 }
 
