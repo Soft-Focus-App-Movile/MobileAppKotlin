@@ -179,7 +179,11 @@ fun PatientHomeScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                TasksSection()
+                TasksSection(
+                    onTaskClick = { assignment ->
+                        navController.navigate(Route.LibraryGeneralDetail.createRoute(assignment.content.id))
+                    }
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 

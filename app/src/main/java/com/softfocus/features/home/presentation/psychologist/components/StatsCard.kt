@@ -1,22 +1,15 @@
 package com.softfocus.features.home.presentation.psychologist.components
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -69,52 +62,13 @@ fun StatsSection(
             value = "5",
             subtitle = "5 pacientes te esperan su sesión"
         )
-    ),
-    isRefreshing: Boolean = false,
-    onRefresh: () -> Unit = {}
+    )
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
     ) {
-        // Header con botón de refresh
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Botón de refresh con animación
-            val rotation by animateFloatAsState(
-                targetValue = if (isRefreshing) 360f else 0f,
-                label = "refresh_rotation"
-            )
-
-            Card(
-                shape = CircleShape,
-                colors = CardDefaults.cardColors(containerColor = Green65),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                modifier = Modifier.size(32.dp)
-            ) {
-                IconButton(
-                    onClick = onRefresh,
-                    enabled = !isRefreshing,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .rotate(rotation)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Actualizar estadísticas",
-                        tint = White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         // Stats cards
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -137,7 +91,7 @@ fun StatCard(
 ) {
     Card(
         modifier = modifier
-            .height(160.dp),
+            .height(220.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -156,7 +110,7 @@ fun StatCard(
                     Image(
                         painter = painterResource(id = stat.imageRes),
                         contentDescription = stat.title,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(30.dp)
                     )
                 }
                 stat.icon != null -> {
@@ -164,7 +118,7 @@ fun StatCard(
                         painter = painterResource(id = stat.icon),
                         contentDescription = stat.title,
                         tint = Green65,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             }

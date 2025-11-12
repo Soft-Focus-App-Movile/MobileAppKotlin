@@ -134,7 +134,7 @@ fun PatientActivityCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick()},
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = GreenF2),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

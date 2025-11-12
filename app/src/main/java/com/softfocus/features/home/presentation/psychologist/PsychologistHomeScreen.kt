@@ -191,11 +191,7 @@ fun PsychologistHomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Stats Cards
-            StatsSection(
-                stats = statsList,
-                isRefreshing = isRefreshing,
-                onRefresh = { viewModel.refreshStats() }
-            )
+            StatsSection(stats = statsList)
 
             Spacer(modifier = Modifier.height(24.dp))
 

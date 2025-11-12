@@ -48,8 +48,8 @@ fun PsychologistStatsScreen(
                     Text(
                         text = "Mis Estadísticas",
                         style = CrimsonSemiBold,
-                        fontSize = 25.sp,
-                        color = GreenA3
+                        color = Green37,
+                        fontSize = 20.sp
                     )
                 },
                 navigationIcon = {
@@ -57,7 +57,7 @@ fun PsychologistStatsScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color(0xFF497654)
+                            tint = Green37
                         )
                     }
                 },

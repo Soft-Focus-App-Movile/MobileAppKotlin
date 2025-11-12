@@ -61,7 +61,7 @@ fun TrackingHome(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = if (daysRegistered > 0) {
-                            "Has registrado $daysRegistered días\nesta semana"
+                            "Has registrado $daysRegistered ${if (daysRegistered == 1) "días" else "días"}"
                         } else {
                             "Empieza a registrar\ntus días"
                         },
@@ -86,19 +86,33 @@ fun TrackingHome(
 
                 // Círculo de progreso
                 Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(Color.White),
+                    modifier = Modifier.size(60.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    // MODIFICADO: Solo mostrar número, más simple
-                    Text(
-                        text = daysRegistered.toString(),
-                        style = SourceSansRegular,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Green49
+                    // Círculo de fondo (gris claro)
+                    CircularProgressIndicator(
+                        progress = { 1f },
+                        modifier = Modifier.size(60.dp),
+                        color = Color(0xFFE0E0E0),
+                        strokeWidth = 6.dp,
+                        trackColor = Color.Transparent
+                    )
+
+                    // Círculo de progreso (verde)
+                    // El progreso se calcula: (días % 7) / 7, pero si es múltiplo de 7 mostramos círculo completo
+                    val progress = if (daysRegistered == 0) {
+                        0f
+                    } else {
+                        val daysInWeek = daysRegistered % 7
+                        if (daysInWeek == 0) 1f else daysInWeek / 7f
+                    }
+
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.size(60.dp),
+                        color = Green49,
+                        strokeWidth = 6.dp,
+                        trackColor = Color.Transparent
                     )
                 }
             }
