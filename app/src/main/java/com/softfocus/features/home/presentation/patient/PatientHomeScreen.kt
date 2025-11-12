@@ -64,6 +64,7 @@ fun PatientHomeScreen(
 
     val recommendationsState by viewModel.recommendationsState.collectAsState()
     val therapistState by viewModel.therapistState.collectAsState()
+    val assignmentsState by viewModel.assignmentsState.collectAsState()
 
     // AGREGAR: Estados del tracking
     val trackingUiState by trackingViewModel.uiState.collectAsState()
@@ -180,9 +181,11 @@ fun PatientHomeScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TasksSection(
+                    assignmentsState = assignmentsState,
                     onTaskClick = { assignment ->
                         navController.navigate(Route.LibraryGeneralDetail.createRoute(assignment.content.id))
-                    }
+                    },
+                    onRetry = { viewModel.retryAssignments() }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

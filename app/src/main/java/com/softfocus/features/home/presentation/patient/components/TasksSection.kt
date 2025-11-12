@@ -7,18 +7,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.softfocus.R
 import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
-import com.softfocus.features.library.assignments.presentation.AssignmentsViewModel
 import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonMixed
@@ -29,12 +25,12 @@ import com.softfocus.ui.theme.YellowCB9D
 
 @Composable
 fun TasksSection(
-    viewModel: AssignmentsViewModel = hiltViewModel(),
-    onTaskClick: (Assignment) -> Unit = {}
+    assignmentsState: AssignmentsUiState,
+    onTaskClick: (Assignment) -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
 
-    when (val state = uiState) {
+    when (val state = assignmentsState) {
         is AssignmentsUiState.Loading -> {
             Card(
                 modifier = Modifier
@@ -175,7 +171,7 @@ fun TasksSection(
                         color = Black
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = { viewModel.retry() }) {
+                    TextButton(onClick = onRetry) {
                         Text("Reintentar", color = Green65)
                     }
                 }
