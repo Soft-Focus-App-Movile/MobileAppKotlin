@@ -127,6 +127,8 @@ class GeneralLibraryViewModel(
 
                 for (type in ContentType.values()) {
                     if (type == ContentType.Weather) {
+                        // Weather se carga por separado cuando el usuario selecciona el tab
+                        contentMap[type] = emptyList()
                         continue
                     }
                     Log.d(TAG, "loadAllContent: Cargando contenido para $type")
@@ -187,6 +189,8 @@ class GeneralLibraryViewModel(
 
                 for (type in ContentType.values()) {
                     if (type == ContentType.Weather) {
+                        // Weather se carga por separado cuando el usuario selecciona el tab
+                        contentMap[type] = emptyList()
                         continue
                     }
                     Log.d(TAG, "loadContentByEmotion: Cargando $type con emoción $emotion")

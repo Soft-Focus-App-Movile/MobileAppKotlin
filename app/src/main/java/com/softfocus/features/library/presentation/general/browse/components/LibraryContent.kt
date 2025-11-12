@@ -69,8 +69,24 @@ fun LibraryContent(
         is GeneralLibraryUiState.Success -> {
             val content = uiState.getSelectedContent()
 
-            if (content.isEmpty()) {
-                // Mensaje cuando no hay contenido
+            // Weather se maneja de forma especial (no usa lista de contenido)
+            if (selectedType == ContentType.Weather) {
+                if (uiState.weatherCondition != null) {
+                    PlacesWeatherView(
+                        weather = uiState.weatherCondition,
+                        modifier = modifier
+                    )
+                } else {
+                    // Cargando clima
+                    Box(
+                        modifier = modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Green29)
+                    }
+                }
+            } else if (content.isEmpty()) {
+                // Mensaje cuando no hay contenido (para Movie, Music, Video)
                 Box(
                     modifier = modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -103,7 +119,7 @@ fun LibraryContent(
                     }
                 }
             } else {
-                // Renderizar contenido según tipo
+                // Renderizar contenido según tipo (Movie, Music, Video)
                 when (selectedType) {
                     ContentType.Video -> {
                         LazyColumn(
@@ -129,32 +145,7 @@ fun LibraryContent(
                             }
                         }
                     }
-                    ContentType.Weather -> {
-                        // Vista simple de clima y ubicación
-                        Box(
-                            modifier = modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = "☀️ Clima",
-                                    style = SourceSansSemiBold.copy(fontSize = 32.sp),
-                                    color = Green29
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Información del clima en tu ubicación actual",
-                                    style = SourceSansRegular.copy(fontSize = 16.sp),
-                                    color = Gray828,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                    }
-                    else -> {
+                    ContentType.Movie, ContentType.Music -> {
                         // Grid para Movies y Music
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
@@ -179,6 +170,10 @@ fun LibraryContent(
                                 )
                             }
                         }
+                    }
+                    ContentType.Weather -> {
+                        // Weather ya se maneja arriba, esto no debería ejecutarse nunca
+                        // pero Kotlin requiere que el when sea exhaustivo
                     }
                 }
             }

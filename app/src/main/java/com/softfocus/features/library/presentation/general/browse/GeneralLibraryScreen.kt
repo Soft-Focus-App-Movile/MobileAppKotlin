@@ -72,6 +72,8 @@ import com.softfocus.features.library.presentation.general.browse.components.Sea
 import com.softfocus.features.library.presentation.general.browse.components.VideoCategory
 import com.softfocus.features.library.presentation.shared.getDisplayName
 import com.softfocus.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Pantalla principal de biblioteca para usuarios General
@@ -131,10 +133,19 @@ fun GeneralLibraryScreen(
 
     LaunchedEffect(selectedType) {
         if (selectedType == ContentType.Weather) {
-            val location = com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
-            val latitude = location?.latitude ?: -12.0464
-            val longitude = location?.longitude ?: -77.0428
-            viewModel.loadWeather(latitude, longitude)
+            android.util.Log.d("GeneralLibraryScreen", "Tab Weather seleccionado, obteniendo ubicación...")
+            withContext(Dispatchers.IO) { // Mover la operación a un hilo de fondo
+                val location = try {
+                    com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
+                } catch (e: Exception) {
+                    android.util.Log.e("GeneralLibraryScreen", "Error al obtener ubicación", e)
+                    null
+                }
+                val latitude = location?.latitude ?: -12.0464
+                val longitude = location?.longitude ?: -77.0428
+                android.util.Log.d("GeneralLibraryScreen", "Ubicación: lat=$latitude, lon=$longitude (${if (location != null) "GPS" else "default"})")
+                viewModel.loadWeather(latitude, longitude)
+            }
         }
     }
 
