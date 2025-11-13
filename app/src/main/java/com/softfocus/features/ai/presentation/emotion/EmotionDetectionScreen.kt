@@ -255,7 +255,7 @@ fun EmotionDetectionScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
-                                    text = "Nuevo registro automático en tu calendario emocional",
+                                    text = "Registro automático en tu calendario emocional",
                                     style = SourceSansRegular,
                                     fontSize = 14.sp,
                                     color = Green37,
@@ -359,13 +359,13 @@ fun EmotionDetectionScreen(
                             .height(56.dp),
                         enabled = !state.isLoading && photoFile != null,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = com.softfocus.ui.theme.Green49
+                            containerColor = Green49
                         ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
                             text = "Analizar Emoción",
-                            style = com.softfocus.ui.theme.SourceSansBold,
+                            style = SourceSansBold,
                             fontSize = 16.sp
                         )
                     }
@@ -382,7 +382,7 @@ fun EmotionDetectionScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "¿Deseas guardar este análisis en tu calendario emocional?",
+                        text = "¿Guardar estado en tu calendario ?",
                         style = SourceSansRegular,
                         fontSize = 16.sp,
                         color = Gray828,

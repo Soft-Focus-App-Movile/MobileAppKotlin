@@ -94,36 +94,66 @@ fun TherapistChatCard(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         // Burbuja de chat para el último mensaje
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(
-                                topStart = 2.dp,
-                                topEnd = 12.dp,
-                                bottomEnd = 12.dp,
-                                bottomStart = 12.dp
-                            ),
-                            color = Color.White
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
+                        if (therapistState.lastMessage != null) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(
+                                    topStart = 2.dp,
+                                    topEnd = 12.dp,
+                                    bottomEnd = 12.dp,
+                                    bottomStart = 12.dp
+                                ),
+                                color = Color.White
                             ) {
-                                Text(
-                                    text = "Buenas tardes Laura, no te olvides de realizar...",
-                                    style = SourceSansRegular,
-                                    fontSize = 15.sp,
-                                    color = Color.DarkGray,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    lineHeight = 16.sp
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "5:00pm",
-                                    style = SourceSansRegular,
-                                    fontSize = 12.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.align(Alignment.End)
-                                )
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Text(
+                                        text = therapistState.lastMessage,
+                                        style = SourceSansRegular,
+                                        fontSize = 15.sp,
+                                        color = Color.DarkGray,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        lineHeight = 16.sp
+                                    )
+                                    if (therapistState.lastMessageTime != null) {
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = therapistState.lastMessageTime,
+                                            style = SourceSansRegular,
+                                            fontSize = 12.sp,
+                                            color = Color.Gray,
+                                            modifier = Modifier.align(Alignment.End)
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            // Mostrar un mensaje de placeholder si no hay mensajes
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(
+                                    topStart = 2.dp,
+                                    topEnd = 12.dp,
+                                    bottomEnd = 12.dp,
+                                    bottomStart = 12.dp
+                                ),
+                                color = Color.White
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Text(
+                                        text = "Aún no hay mensajes. ¡Empieza una conversación!",
+                                        style = SourceSansRegular,
+                                        fontSize = 15.sp,
+                                        color = Color.Gray,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        lineHeight = 16.sp
+                                    )
+                                }
                             }
                         }
                     }
