@@ -78,6 +78,10 @@ dependencies {
     implementation("com.patrykandpatryk.vico:compose-m3:$vicoVersion")
     implementation("com.patrykandpatryk.vico:core:$vicoVersion")
 
+    // SignalR
+    implementation("com.microsoft.signalr:signalr:7.0.5")
+    implementation("io.reactivex.rxjava3:rxjava:3.1.8")
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
