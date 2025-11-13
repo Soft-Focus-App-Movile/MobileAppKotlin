@@ -1,3 +1,5 @@
+package com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.EvolucionChart
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientCheckInState
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.EvolutionChart
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.LastCheckInCard
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.primaryGreen
 import com.softfocus.ui.theme.CrimsonSemiBold
@@ -69,7 +71,11 @@ fun SummaryTab(state: PatientCheckInState) {
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    EvolucionChart() // El gráfico se dibujará dentro de este Column
+                    EvolutionChart(
+                        lineData = state.weeklyChartLineData,
+                        columnData = state.weeklyChartColumnData,
+                        isLoading = state.isChartLoading
+                    )
                 }
             }
         }

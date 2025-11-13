@@ -16,11 +16,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 // (Aquí irían tus clases de estado, por ejemplo)
@@ -39,7 +41,10 @@ data class PatientCheckInState(
     val isLoading: Boolean = true,
     val lastCheckIn: CheckIn? = null,
     val formattedDate: String = "Cargando...",
-    val error: String? = null
+    val error: String? = null,
+    val weeklyChartLineData: List<Float> = List(7) { 0f }, // 7 días, Lunes a Domingo
+    val weeklyChartColumnData: List<Float> = List(7) { 0f },
+    val isChartLoading: Boolean = true // Cargando para el "EvolucionChart"
 )
 
 class PatientDetailViewModel(
@@ -75,6 +80,7 @@ class PatientDetailViewModel(
         if (patientId.isNotBlank()) {
             loadPatientDetails()
             loadLastPatientCheckIn(patientId)
+            loadWeeklyCheckIns(patientId)
             loadPsychologistAssignments()
         } else {
             val errorMsg = "Patient ID inválido"
@@ -169,6 +175,91 @@ class PatientDetailViewModel(
                         isLoading = false,
                         lastCheckIn = null,
                         error = exception.message ?: "Error al cargar check-in"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun loadWeeklyCheckIns(patientId: String) {
+        // 1. Activa el estado de carga del gráfico
+        _checkInState.update { it.copy(isChartLoading = true) }
+
+        viewModelScope.launch {
+            try {
+                // 2. Calcular rango de la semana actual (Lunes a Domingo)
+                val today = LocalDate.now(ZoneId.systemDefault())
+                val firstDayOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                val lastDayOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+
+                // Formato YYYY-MM-DD
+                val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+                val startDateIso = firstDayOfWeek.format(formatter)
+                val endDateIso = lastDayOfWeek.format(formatter)
+
+                // 3. Llamar al caso de uso para la semana
+                val result = getPatientCheckInsUseCase(
+                    patientId = patientId,
+                    startDate = startDateIso,
+                    endDate = endDateIso,
+                    page = 1,
+                    pageSize = 7 // Máximo 7 registros para la semana
+                )
+
+                result.onSuccess { checkIns ->
+                    // 4. Procesar los datos para el gráfico
+                    // 0:Lu, 1:Ma, ..., 6:Do
+                    val emotionalLevels = MutableList(7) { 0f }
+
+                    for (checkIn in checkIns) {
+                        try {
+                            val zdt = ZonedDateTime.parse(checkIn.completedAt).withZoneSameInstant(ZoneId.systemDefault())
+                            // MONDAY (1) -> 0, SUNDAY (7) -> 6
+                            val dayIndex = zdt.dayOfWeek.value - 1
+                            if (dayIndex in 0..6) {
+                                emotionalLevels[dayIndex] = checkIn.emotionalLevel.toFloat()
+                            }
+                        } catch (e: Exception) {
+                            // Ignorar check-in si la fecha está mal formateada
+                        }
+                    }
+
+                    // 5. Preparar datos para la barra (columna)
+                    val maxLevel = emotionalLevels.maxOrNull() ?: 0f
+                    val columnData = MutableList(7) { 0f }
+
+                    if (maxLevel > 0f) {
+                        val maxIndex = emotionalLevels.indexOf(maxLevel)
+                        if (maxIndex != -1) {
+                            columnData[maxIndex] = maxLevel
+                        }
+                    }
+
+                    // 6. Actualizar el estado de CheckIn
+                    _checkInState.update {
+                        it.copy(
+                            weeklyChartLineData = emotionalLevels,
+                            weeklyChartColumnData = columnData,
+                            isChartLoading = false // Termina la carga del gráfico
+                        )
+                    }
+
+                }.onFailure { exception ->
+                    // En caso de error en la llamada
+                    _checkInState.update {
+                        it.copy(
+                            error = exception.message ?: "Error al cargar evolución",
+                            isChartLoading = false
+                        )
+                    }
+                }
+
+            } catch (e: Exception) {
+                // En caso de excepción (ej. parsing de fechas)
+                _checkInState.update {
+                    it.copy(
+                        error = e.message ?: "Error inesperado al cargar gráfico",
+                        isChartLoading = false
                     )
                 }
             }
