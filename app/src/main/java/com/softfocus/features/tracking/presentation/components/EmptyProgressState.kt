@@ -31,7 +31,7 @@ fun EmptyProgressState() {
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Haz realizado 0.15 registros\na la semana pasada",
+            text = "No hay registros aun!",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = Color.Gray

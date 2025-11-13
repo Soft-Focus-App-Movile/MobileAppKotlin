@@ -3,6 +3,7 @@ package com.softfocus.features.tracking.presentation.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +28,7 @@ fun LevelsStep(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Últimas preguntas",
+            text = "Últimas preguntas (0 es peor, 10 es mejor) ",
             color = Color.White,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
@@ -116,7 +117,7 @@ private fun LevelControl(
                 enabled = value > minValue
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Icons.Default.Remove,
                     contentDescription = "Decrease",
                     tint = Color.White,
                     modifier = Modifier.size(32.dp)

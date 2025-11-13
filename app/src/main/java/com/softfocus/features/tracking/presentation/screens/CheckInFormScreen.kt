@@ -132,7 +132,7 @@ fun CheckInFormScreen(
                         onSkip = { currentStep++ }
                     )
                     3 -> SymptomsSelectionStep(
-                        symptoms = emptyList(), // Ya no se usa
+                        symptoms = emptyList(), // Ya no se usa, la lista está dentro del componente
                         selectedSymptoms = selectedSymptoms,
                         onSymptomsSelected = { selectedSymptoms = it },
                         onNext = { currentStep++ }
