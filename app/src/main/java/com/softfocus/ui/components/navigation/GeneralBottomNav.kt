@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Bookmarks
@@ -106,9 +107,9 @@ fun GeneralBottomNav(navController: NavController) {
 
         NavigationBarItem(
             icon = {
-                BottomNavIcon(isSelected = false) {
+                BottomNavIcon(isSelected = currentRoute == Route.Diary.path) {
                     Icon(
-                        imageVector = Icons.Outlined.Book,
+                        imageVector = if (currentRoute == Route.Diary.path) Icons.Filled.Book else Icons.Outlined.Book,
                         contentDescription = "Diario",
                         modifier = Modifier.size(24.dp)
                     )
@@ -116,8 +117,11 @@ fun GeneralBottomNav(navController: NavController) {
             },
             label = { Text("Diario", fontSize = 12.sp, style = SourceSansRegular) },
             selected = false,
-            onClick = { /* No implementado aún */ },
-            enabled = false,
+            onClick = {
+                if (currentRoute != Route.Diary.path) {
+                    navController.navigate(Route.Diary.path)
+                }
+             },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,

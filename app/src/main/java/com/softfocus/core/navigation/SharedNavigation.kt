@@ -156,6 +156,12 @@ fun NavGraphBuilder.sharedNavigation(
                                     },
                                     onNavigateToAIChat = {
                                         navController.navigate(Route.AIWelcome.path)
+                                    },
+                                    onNavigateToCheckInForm = {  // ← AGREGAR
+                                        navController.navigate(Route.CheckInForm.path)
+                                    },
+                                    onNavigateToDiary = {  // ← AGREGAR
+                                        navController.navigate(Route.Diary.path)
                                     }
                                 )
                             }

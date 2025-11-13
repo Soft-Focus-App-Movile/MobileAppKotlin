@@ -25,7 +25,7 @@ fun SymptomsSelectionStep(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "¿Tienes alguno de estos\nsíntomas?",
+            text = "¿Presenta algun \nsíntoma?, escribalo aqui",
             color = Color.White,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,

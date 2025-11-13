@@ -71,8 +71,7 @@ fun PatientHomeScreen(
     val dashboard = (trackingUiState as? TrackingUiState.Success)?.data?.dashboard
 
     LaunchedEffect(Unit) {
-        // AGREGAR: Cargar dashboard
-        trackingViewModel.loadDashboard(days = 7)
+        trackingViewModel.refreshData() // CAMBIAR AQUÍ
 
         scope.launch {
             if (LocationHelper.hasLocationPermission(context)) {
@@ -85,6 +84,8 @@ fun PatientHomeScreen(
             }
         }
     }
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(

@@ -59,6 +59,7 @@ fun GeneralHomeScreen(
     onNavigateToSearchPsychologist: () -> Unit = {},
     onNavigateToAIChat: () -> Unit = {},
     onNavigateToCheckInForm: () -> Unit = {},
+    onNavigateToDiary: () -> Unit = {}, // NUEVO
     viewModel: GeneralHomeViewModel = libraryViewModel { GeneralHomeViewModel(it) },
     trackingViewModel: TrackingViewModel = hiltViewModel()
 ) {
@@ -83,8 +84,7 @@ fun GeneralHomeScreen(
     val dashboard = (trackingUiState as? TrackingUiState.Success)?.data?.dashboard
 
     LaunchedEffect(Unit) {
-        // Cargar dashboard
-        trackingViewModel.loadDashboard(days = 7)
+        trackingViewModel.refreshData() // CAMBIAR AQUÍ
 
         scope.launch {
             if (LocationHelper.hasLocationPermission(context)) {
@@ -261,7 +261,7 @@ fun GeneralHomeScreen(
                 secondButtonText = "Buscar Psicólogo",
                 onAIChatClick = onNavigateToAIChat,
                 onSecondButtonClick = onNavigateToSearchPsychologist,
-                onCardClick = onNavigateToCheckInForm
+                onCardClick = onNavigateToDiary // CAMBIAR: ahora lleva al calendario
             )
 
             Spacer(modifier = Modifier.height(24.dp))

@@ -21,7 +21,7 @@ class TrackingViewModel @Inject constructor(
     private val createEmotionalCalendarEntryUseCase: CreateEmotionalCalendarEntryUseCase,
     private val getEmotionalCalendarUseCase: GetEmotionalCalendarUseCase,
     private val getEmotionalCalendarByDateUseCase: GetEmotionalCalendarByDateUseCase,
-    private val getTrackingDashboardUseCase: GetTrackingDashboardUseCase // AGREGAR
+    private val getTrackingDashboardUseCase: GetTrackingDashboardUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TrackingUiState>(TrackingUiState.Initial)
@@ -37,35 +37,49 @@ class TrackingViewModel @Inject constructor(
         loadInitialData()
     }
 
+    // MODIFICAR: Hacer loadInitialData más completa
     private fun loadInitialData() {
         viewModelScope.launch {
             _uiState.value = TrackingUiState.Loading
 
-            val todayCheckIn = getTodayCheckInUseCase()
-            val emotionalCalendar = getEmotionalCalendarUseCase()
-            val checkInHistory = getCheckInsUseCase() // Cargar historial completo
+            try {
+                val todayCheckIn = getTodayCheckInUseCase()
+                val emotionalCalendar = getEmotionalCalendarUseCase()
+                val checkInHistory = getCheckInsUseCase()
+                val dashboard = getTrackingDashboardUseCase(days = 7) // AGREGAR
 
-            if (todayCheckIn is Result.Success &&
-                emotionalCalendar is Result.Success &&
-                checkInHistory is Result.Success) {
-                _uiState.value = TrackingUiState.Success(
-                    TrackingData(
-                        todayCheckIn = todayCheckIn.data,
-                        emotionalCalendar = emotionalCalendar.data,
-                        checkInHistory = checkInHistory.data
+                if (todayCheckIn is Result.Success &&
+                    emotionalCalendar is Result.Success &&
+                    checkInHistory is Result.Success &&
+                    dashboard is Result.Success) {
+                    _uiState.value = TrackingUiState.Success(
+                        TrackingData(
+                            todayCheckIn = todayCheckIn.data,
+                            emotionalCalendar = emotionalCalendar.data,
+                            checkInHistory = checkInHistory.data,
+                            dashboard = dashboard.data // AGREGAR
+                        )
                     )
-                )
-            } else {
-                // Intentar cargar datos parciales
-                _uiState.value = TrackingUiState.Success(
-                    TrackingData(
-                        todayCheckIn = (todayCheckIn as? Result.Success)?.data,
-                        emotionalCalendar = (emotionalCalendar as? Result.Success)?.data,
-                        checkInHistory = (checkInHistory as? Result.Success)?.data
+                } else {
+                    // Intentar cargar datos parciales
+                    _uiState.value = TrackingUiState.Success(
+                        TrackingData(
+                            todayCheckIn = (todayCheckIn as? Result.Success)?.data,
+                            emotionalCalendar = (emotionalCalendar as? Result.Success)?.data,
+                            checkInHistory = (checkInHistory as? Result.Success)?.data,
+                            dashboard = (dashboard as? Result.Success)?.data // AGREGAR
+                        )
                     )
-                )
+                }
+            } catch (e: Exception) {
+                _uiState.value = TrackingUiState.Error(e.message ?: "Error loading data")
             }
         }
+    }
+
+    // AGREGAR: Función pública para refrescar todos los datos
+    fun refreshData() {
+        loadInitialData()
     }
 
     fun createCheckIn(
@@ -92,6 +106,7 @@ class TrackingViewModel @Inject constructor(
                     // Recargar datos después de crear check-in
                     loadTodayCheckIn()
                     loadCheckInHistory()
+                    loadDashboard(days = 7) // AGREGAR
                 }
                 is Result.Error -> {
                     _checkInFormState.value = CheckInFormState.Error(result.message)
@@ -217,15 +232,6 @@ class TrackingViewModel @Inject constructor(
         }
     }
 
-    fun resetCheckInFormState() {
-        _checkInFormState.value = CheckInFormState.Idle
-    }
-
-    fun resetEmotionalCalendarFormState() {
-        _emotionalCalendarFormState.value = EmotionalCalendarFormState.Idle
-    }
-
-    // AGREGAR esta función
     fun loadDashboard(days: Int? = null) {
         viewModelScope.launch {
             when (val result = getTrackingDashboardUseCase(days)) {
@@ -245,5 +251,13 @@ class TrackingViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun resetCheckInFormState() {
+        _checkInFormState.value = CheckInFormState.Idle
+    }
+
+    fun resetEmotionalCalendarFormState() {
+        _emotionalCalendarFormState.value = EmotionalCalendarFormState.Idle
     }
 }
