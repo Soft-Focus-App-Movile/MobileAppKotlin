@@ -3,6 +3,7 @@ package com.softfocus.features.therapy.presentation.di
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.softfocus.core.data.local.LocalUserDataSource
+import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.core.networking.Auth401Interceptor
 import com.softfocus.features.therapy.data.remote.TherapyService
@@ -30,10 +31,13 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import com.softfocus.features.therapy.data.remote.SignalRService
 
 object TherapyPresentationModule {
 
     private var applicationContext: Context? = null
+    private var signalRService: SignalRService? = null
+
 
     fun init(context: Context) {
         applicationContext = context.applicationContext
@@ -41,6 +45,16 @@ object TherapyPresentationModule {
 
     private fun getTherapyService(): TherapyService {
         return getRetrofit().create(TherapyService::class.java)
+    }
+
+    fun getSignalRService(): SignalRService {
+        if (signalRService == null) {
+            val context = applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
+            // SignalRService necesita UserSession, que a su vez necesita Context
+            val userSession = UserSession(context)
+            signalRService = SignalRService(userSession)
+        }
+        return signalRService!!
     }
 
     private fun getRetrofit(): Retrofit {
