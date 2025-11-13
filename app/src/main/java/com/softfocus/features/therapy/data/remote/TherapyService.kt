@@ -9,6 +9,7 @@ import com.softfocus.features.therapy.data.models.response.MyRelationshipRespons
 import com.softfocus.features.therapy.data.models.response.PatientDirectoryResponseDto
 import com.softfocus.features.therapy.data.models.response.PatientProfileResponseDto
 import com.softfocus.features.therapy.data.models.response.SendChatMessageResponseDto
+import com.softfocus.features.tracking.data.model.CheckInsHistoryApiResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -52,5 +53,15 @@ interface TherapyService {
         @Header("Authorization") token: String,
         @Path("id") id: String
     ): PatientProfileResponseDto
+
+    @GET(ApiConstants.Tracking.PATIENT_CHECK_INS_HISTORY)
+    suspend fun getPatientCheckIns(
+        @Header("Authorization") token: String,
+        @Path("userId") patientId: String,
+        @Query("startDate") startDate: String? = null,
+        @Query("endDate") endDate: String? = null,
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int
+    ): CheckInsHistoryApiResponse
 
 }

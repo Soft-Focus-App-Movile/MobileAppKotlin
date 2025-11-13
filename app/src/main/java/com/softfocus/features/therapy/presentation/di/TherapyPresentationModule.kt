@@ -18,6 +18,7 @@ import com.softfocus.features.library.data.remote.AssignmentsService
 import com.softfocus.features.library.data.repositories.LibraryRepositoryImpl
 import com.softfocus.features.library.domain.repositories.LibraryRepository
 import com.softfocus.features.therapy.domain.usecases.GetMyPatientsUseCase
+import com.softfocus.features.therapy.domain.usecases.GetPatientCheckInsUseCase
 import com.softfocus.features.therapy.domain.usecases.GetPatientProfileUseCase
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientDetailViewModel
 import com.softfocus.features.therapy.presentation.psychologist.patientlist.PatientListViewModel
@@ -91,6 +92,10 @@ object TherapyPresentationModule {
         return GetPatientProfileUseCase(getTherapyRepository())
     }
 
+    fun getGetPatientCheckInsUseCase(): GetPatientCheckInsUseCase {
+        return GetPatientCheckInsUseCase(getTherapyRepository())
+    }
+
     fun getConnectWithPsychologistUseCase(): ConnectWithPsychologistUseCase {
         return ConnectWithPsychologistUseCase(getTherapyRepository())
     }
@@ -121,6 +126,7 @@ object TherapyPresentationModule {
         return PatientDetailViewModel(
             savedStateHandle = savedStateHandle,
             getPatientProfileUseCase = getGetPatientProfileUseCase(),
+            getPatientCheckInsUseCase = getGetPatientCheckInsUseCase(),
             repository = getAssignmentsRepository()
         )
     }

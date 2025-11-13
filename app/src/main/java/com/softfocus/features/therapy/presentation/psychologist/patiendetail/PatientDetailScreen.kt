@@ -1,15 +1,10 @@
 package com.softfocus.features.therapy.presentation.psychologist.patiendetail
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import SummaryTab
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,16 +12,8 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,7 +23,6 @@ import com.patrykandpatryk.vico.compose.axis.horizontal.bottomAxis
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.SourceSansRegular
-import com.softfocus.ui.theme.SourceSansSemiBold
 import com.patrykandpatryk.vico.compose.axis.vertical.startAxis
 import com.patrykandpatryk.vico.compose.chart.Chart
 import com.patrykandpatryk.vico.compose.chart.column.columnChart
@@ -49,31 +35,15 @@ import com.patrykandpatryk.vico.core.chart.composed.plus
 import com.patrykandpatryk.vico.core.component.shape.LineComponent
 import com.patrykandpatryk.vico.core.entry.composed.plus
 import com.patrykandpatryk.vico.core.entry.entryModelOf
-import com.softfocus.R
 import com.softfocus.core.navigation.Route
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
-import coil3.compose.rememberAsyncImagePainter
-import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
-import com.softfocus.features.library.domain.models.Assignment
-import com.softfocus.features.library.domain.models.ContentType
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.TaskCard
+import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.PatientDetailHeader
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.TasksTab
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 // --- Colores (puedes moverlos a un archivo Theme.kt) ---
 val primaryGreen = Color(0xFF4B634B)
 val lightGreen = Color(0xFFB5C9B5)
 val cardBackground = Color(0xFFF7F7F3)
 val lightGrayText = Color.Gray
-
-enum class TaskType {
-    Movie,
-    Music,
-    Video,
-    Weather
-}
 
 // --- Pantalla Principal de Detalles ---
 
@@ -91,6 +61,7 @@ fun PatientDetailScreen(
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Resumen", "Tareas", "Chat")
     val summaryState by viewModel.summaryState.collectAsState()
+    val checkInState by viewModel.checkInState.collectAsState()
     val tasksState by viewModel.tasksState.collectAsState()
 
     Scaffold(
@@ -104,7 +75,7 @@ fun PatientDetailScreen(
         ) {
             // --- Cabecera del Paciente ---
             item {
-                PatientDetailHeader(summaryState = summaryState) // <-- MODIFICAR
+                PatientDetailHeader(summaryState = summaryState)
             }
 
             // --- Pestañas (Tabs) ---
@@ -125,8 +96,6 @@ fun PatientDetailScreen(
                         Tab(
                             selected = selectedTabIndex == index,
                             onClick = {
-                                // El tab "Chat" (índice 2) no cambia el contenido aquí,
-                                // sino que navegaría a la otra pantalla (PatientChatScreen)
                                 if (index != 2) {
                                     selectedTabIndex = index
                                 } else {
@@ -156,7 +125,7 @@ fun PatientDetailScreen(
             item {
                 // Muestra el contenido basado en la pestaña seleccionada
                 when (selectedTabIndex) {
-                    0 -> ResumenTabContent()
+                    0 -> SummaryTab(checkInState)
                     1 -> TasksTab(
                         tasksState = tasksState
                     )
@@ -195,156 +164,7 @@ fun PatientDetailTopBar(
             Spacer(modifier = Modifier.width(48.dp)) // Espaciador para centrar título
         }
     )
-
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PatientDetailHeader(summaryState: PatientSummaryState) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Placeholder para la imagen
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = summaryState.profilePhotoUrl,
-                placeholder = painterResource(id = R.drawable.ic_profile_user),
-                error = painterResource(id = R.drawable.ic_profile_user)
-            ),
-            contentDescription = "Foto de ${summaryState.patientName}",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(100.dp) // Puedes ajustar este tamaño
-                .clip(CircleShape)
-                .background(Color.LightGray)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = summaryState.patientName,
-            style = CrimsonSemiBold.copy(fontSize = 30.sp),
-            color = Color.Black
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "${summaryState.age} años",
-            style = SourceSansSemiBold.copy(fontSize = 13.sp),
-            color = lightGrayText
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = summaryState.formattedStartDate,
-            style = SourceSansSemiBold.copy(fontSize = 13.sp),
-            color = primaryGreen
-        )
-    }
-}
-
-// --- Contenido de la Pestaña "Resumen" ---
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ResumenTabContent() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.Start
-    ) {
-        Text(
-            text = "Último registro",
-            modifier = Modifier
-            .padding(horizontal = 16.dp),
-            style = CrimsonSemiBold.copy(fontSize = 21.sp),
-            color = primaryGreen
-        )
-        Spacer(modifier = Modifier.height(21.dp))
-        // --- MODIFICACIÓN AQUÍ ---
-        // 1. Define la lista de tags
-        val tagsDelRegistro = listOf("Ansiedad", "Depresión")
-
-        // 2. Pasa la lista a la tarjeta
-        UltimoRegistroCard(tags = tagsDelRegistro)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Evolución",
-            style = CrimsonSemiBold.copy(fontSize = 21.sp),
-            color = primaryGreen,
-            modifier = Modifier
-                .padding(16.dp),
-        )
-        Spacer(modifier = Modifier.height(21.dp))
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            EvolucionChart() // El gráfico se dibujará dentro de este Column
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun UltimoRegistroCard(tags: List<String>) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBackground)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Hoy",
-                    style = CrimsonSemiBold.copy(fontSize = 20.sp),
-                    color = Color.Black
-                )
-                Text(
-                    text = "9/10", // Nivel de como se siente el paciente
-                    modifier = Modifier
-                        .background(
-                            color = Color(0xFFCBCD9C),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = SourceSansRegular.copy(fontSize = 10.sp),
-                    color = Color.White
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row {
-                tags.forEach { tagText ->
-                    TagItem(text = tagText)
-                    Spacer(modifier = Modifier.width(8.dp)) // Espacio entre tags
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Me siento abrumada por el trabajo",
-                style = SourceSansRegular.copy(fontSize = 12.sp),
-                color = Color.Black
-            )
-        }
-    }
-}
-
-@Composable
-fun TagItem(text: String) {
-    Text(
-        text = text,
-        modifier = Modifier
-            .background(
-                color = Color(0xFFCBCD9C),
-                RoundedCornerShape(8.dp)
-            )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        style = SourceSansRegular.copy(fontSize = 10.sp),
-        color = Color.White
-    )
-}
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -418,15 +238,3 @@ fun EvolucionChart() {
         )
     )
 }
-
-// --- Preview ---
-/*
-@Preview(showBackground = true)
-@Composable
-fun PatientDetailScreenPreview() {
-    MaterialTheme {
-        PatientDetailScreen(
-        )
-    }
-}
-*/

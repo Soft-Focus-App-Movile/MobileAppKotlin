@@ -11,6 +11,8 @@ import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.therapy.domain.models.PatientProfile
 import com.softfocus.features.therapy.domain.models.TherapeuticRelationship
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
+import com.softfocus.features.tracking.data.mapper.toDomain
+import com.softfocus.features.tracking.domain.model.CheckIn
 import java.time.ZonedDateTime
 
 class TherapyRepositoryImpl(
@@ -130,6 +132,31 @@ class TherapyRepositoryImpl(
             )
             // Usamos la función .toDomain() que creamos en el DTO
             Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPatientCheckIns(
+        patientId: String,
+        startDate: String?,
+        endDate: String?,
+        page: Int,
+        pageSize: Int
+    ): Result<List<CheckIn>> {
+        return try {
+            val response = therapyService.getPatientCheckIns(
+                token = getAuthToken(),
+                patientId = patientId,
+                startDate = startDate,
+                endDate = endDate,
+                page = page,
+                pageSize = pageSize
+            )
+
+            val checkIns = response.data.map { it.toDomain() }
+
+            Result.success(checkIns)
         } catch (e: Exception) {
             Result.failure(e)
         }

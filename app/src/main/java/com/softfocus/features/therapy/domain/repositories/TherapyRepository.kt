@@ -4,6 +4,7 @@ import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.therapy.domain.models.PatientProfile
 import com.softfocus.features.therapy.domain.models.TherapeuticRelationship
+import com.softfocus.features.tracking.domain.model.CheckIn
 
 interface TherapyRepository {
 
@@ -26,5 +27,13 @@ interface TherapyRepository {
     ): Result<ChatMessage>
 
     suspend fun getPatientProfile(patientId: String): Result<PatientProfile>
+
+    suspend fun getPatientCheckIns(
+        patientId: String,
+        startDate: String? = null,
+        endDate: String? = null,
+        page: Int,
+        pageSize: Int
+    ): Result<List<CheckIn>>
 
 }

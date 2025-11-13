@@ -82,6 +82,7 @@ object ApiConstants {
         const val CHECK_INS = "tracking/check-ins"
         const val CHECK_IN_BY_ID = "tracking/check-ins/{id}"
         const val CHECK_IN_TODAY = "tracking/check-ins/today"
+        const val PATIENT_CHECK_INS_HISTORY = "tracking/check-ins/patient/{userId}"
 
         // Emotional Calendar
         const val EMOTIONAL_CALENDAR = "tracking/emotional-calendar"

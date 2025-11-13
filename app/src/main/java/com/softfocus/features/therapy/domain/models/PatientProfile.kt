@@ -8,5 +8,5 @@ data class PatientProfile(
     val id: String,
     val fullName: String,
     val profilePhotoUrl: String,
-    val dateOfBirth: String? // Mantenemos como String, el ViewModel lo calculará
+    val dateOfBirth: String?
 )
