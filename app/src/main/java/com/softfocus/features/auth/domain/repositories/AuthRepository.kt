@@ -153,6 +153,25 @@ interface AuthRepository {
         specialties: String? = null,
         certificationDocumentUris: List<String>? = null
     ): Result<User>
+
+    /**
+     * Requests a password reset for the given email address.
+     * Sends a reset code to the user's email if registered.
+     *
+     * @param email User's email address
+     * @return Result containing success message
+     */
+    suspend fun forgotPassword(email: String): Result<String>
+
+    /**
+     * Resets the user's password using the reset token.
+     *
+     * @param token Reset token received via email
+     * @param email User's email address
+     * @param newPassword New password to set
+     * @return Result containing success message
+     */
+    suspend fun resetPassword(token: String, email: String, newPassword: String): Result<String>
 }
 
 /**

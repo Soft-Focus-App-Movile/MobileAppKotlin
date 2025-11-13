@@ -74,7 +74,8 @@ fun LoginScreen(
     onAdminLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToRegisterWithOAuth: (email: String, fullName: String, tempToken: String) -> Unit,
-    onNavigateToPendingVerification: () -> Unit
+    onNavigateToPendingVerification: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit = {}
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -241,7 +242,24 @@ fun LoginScreen(
             enabled = !isLoading
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Forgot Password Link
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(onClick = onNavigateToForgotPassword) {
+                Text(
+                    text = "¿Olvidaste tu contraseña?",
+                    color = Green49,
+                    style = SourceSansRegular,
+                    fontSize = 14.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Login button
         Button(
@@ -359,7 +377,8 @@ fun LoginScreenPreview() {
             onAdminLoginSuccess = {},
             onNavigateToRegister = {},
             onNavigateToRegisterWithOAuth = { _, _, _ -> },
-            onNavigateToPendingVerification = {}
+            onNavigateToPendingVerification = {},
+            onNavigateToForgotPassword = {}
         )
     }
 }

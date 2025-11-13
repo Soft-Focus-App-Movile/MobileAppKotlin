@@ -16,6 +16,7 @@ Route(val path: String) {
     data object Splash : Route("splash")
     data object Login : Route("login")
     data object Register : Route("register")
+    data object ForgotPassword : Route("forgot_password")
     data object AccountReview : Route("account_review")
     data object AccountSuccess : Route("account_success")
     data object AccountDenied : Route("account_denied")
@@ -118,6 +119,7 @@ Route(val path: String) {
             Splash,
             Login,
             Register,
+            ForgotPassword,
             AccountReview,
             AccountSuccess,
             AccountDenied

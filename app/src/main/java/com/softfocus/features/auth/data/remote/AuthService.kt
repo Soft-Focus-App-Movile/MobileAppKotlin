@@ -1,15 +1,19 @@
 package com.softfocus.features.auth.data.remote
 
 import com.softfocus.core.networking.ApiConstants
+import com.softfocus.features.auth.data.models.request.ForgotPasswordRequestDto
 import com.softfocus.features.auth.data.models.request.LoginRequestDto
 import com.softfocus.features.auth.data.models.request.OAuthLoginRequestDto
 import com.softfocus.features.auth.data.models.request.OAuthVerifyRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterGeneralUserRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterRequestDto
+import com.softfocus.features.auth.data.models.request.ResetPasswordRequestDto
 import com.softfocus.features.auth.data.models.request.SocialLoginRequestDto
+import com.softfocus.features.auth.data.models.response.ForgotPasswordResponseDto
 import com.softfocus.features.auth.data.models.response.LoginResponseDto
 import com.softfocus.features.auth.data.models.response.OAuthVerificationResponseDto
 import com.softfocus.features.auth.data.models.response.RegisterResponseDto
+import com.softfocus.features.auth.data.models.response.ResetPasswordResponseDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -92,4 +96,10 @@ interface AuthService {
         @Part specialties: MultipartBody.Part? = null,
         @Part certificationDocuments: List<MultipartBody.Part>? = null
     ): LoginResponseDto
+
+    @POST(ApiConstants.Auth.FORGOT_PASSWORD)
+    suspend fun forgotPassword(@Body request: ForgotPasswordRequestDto): ForgotPasswordResponseDto
+
+    @POST(ApiConstants.Auth.RESET_PASSWORD)
+    suspend fun resetPassword(@Body request: ResetPasswordRequestDto): ResetPasswordResponseDto
 }

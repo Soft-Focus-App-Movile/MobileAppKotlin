@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.softfocus.core.permissions.shouldShowPermissions
 import com.softfocus.features.auth.presentation.accountreview.AccountReviewScreen
 import com.softfocus.features.auth.presentation.di.PresentationModule
+import com.softfocus.features.auth.presentation.forgotpassword.ForgotPasswordScreen
 import com.softfocus.features.auth.presentation.login.LoginScreen
 import com.softfocus.features.auth.presentation.register.RegisterScreen
 import com.softfocus.features.auth.presentation.splash.SplashScreen
@@ -85,6 +86,20 @@ fun NavGraphBuilder.authNavigation(
                 navController.navigate(Route.AccountReview.path) {
                     popUpTo(Route.Login.path) { inclusive = true }
                 }
+            },
+            onNavigateToForgotPassword = {
+                navController.navigate(Route.ForgotPassword.path)
+            }
+        )
+    }
+
+    // Forgot Password Screen
+    composable(Route.ForgotPassword.path) {
+        val viewModel = PresentationModule.getForgotPasswordViewModel(context)
+        ForgotPasswordScreen(
+            viewModel = viewModel,
+            onNavigateBack = {
+                navController.popBackStack()
             }
         )
     }

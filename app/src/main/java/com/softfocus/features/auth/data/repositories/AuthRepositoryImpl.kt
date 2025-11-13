@@ -2,11 +2,13 @@ package com.softfocus.features.auth.data.repositories
 
 import android.content.Context
 import android.net.Uri
+import com.softfocus.features.auth.data.models.request.ForgotPasswordRequestDto
 import com.softfocus.features.auth.data.models.request.LoginRequestDto
 import com.softfocus.features.auth.data.models.request.OAuthLoginRequestDto
 import com.softfocus.features.auth.data.models.request.OAuthVerifyRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterGeneralUserRequestDto
 import com.softfocus.features.auth.data.models.request.RegisterRequestDto
+import com.softfocus.features.auth.data.models.request.ResetPasswordRequestDto
 import com.softfocus.features.auth.data.models.request.SocialLoginRequestDto
 import com.softfocus.features.auth.data.remote.AuthService
 import com.softfocus.features.auth.domain.models.User
@@ -387,6 +389,30 @@ class AuthRepositoryImpl(
             MultipartBody.Part.createFormData(partName, file.name, requestBody)
         } catch (e: Exception) {
             null
+        }
+    }
+
+    override suspend fun forgotPassword(email: String): Result<String> {
+        return try {
+            val request = ForgotPasswordRequestDto(email = email)
+            val response = authService.forgotPassword(request)
+            Result.success(response.message)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun resetPassword(token: String, email: String, newPassword: String): Result<String> {
+        return try {
+            val request = ResetPasswordRequestDto(
+                token = token,
+                email = email,
+                newPassword = newPassword
+            )
+            val response = authService.resetPassword(request)
+            Result.success(response.message)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }
