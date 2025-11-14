@@ -2,7 +2,6 @@ package com.softfocus.features.therapy.presentation.patient
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,33 +22,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
-import coil3.compose.rememberAsyncImagePainter
-import com.example.doctorapp.chatBubbleOther
-import com.example.doctorapp.chatBubbleUser
-import com.example.doctorapp.doctorNameColor
-import com.example.doctorapp.lightGreenBg
 import com.softfocus.R
 import com.softfocus.core.navigation.Route
 import com.softfocus.features.therapy.domain.models.ChatMessage
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientSummaryState
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.lightGrayText
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatViewModel
-import com.softfocus.ui.components.ProfileAvatar
-import com.softfocus.ui.components.navigation.PsychologistBottomNav
 import com.softfocus.ui.theme.CrimsonSemiBold
-import com.softfocus.ui.theme.SoftFocusMobileTheme
 
-val primaryGreen = Color(0xFF4B634B)
-val cardBackground = Color(0xFFF7F7F3)
-val chatBubbleGreen = Color(0xFFE4F1E3)
-val chatBubbleWhite = Color(0xFFFFFFFF)
+val chatBubbleUser = Color(0xFFE0F7E0)
+val chatBubbleOther = Color(0xFFFFFFFF)
 
 
 // --- Pantalla Principal de Chat ---
