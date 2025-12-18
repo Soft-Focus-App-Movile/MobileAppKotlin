@@ -40,6 +40,7 @@ import com.softfocus.features.therapy.presentation.psychologist.patiendetail.Pat
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatViewModel
+import com.softfocus.ui.theme.GreenF2
 
 
 /**
@@ -282,7 +283,7 @@ fun NavGraphBuilder.psychologistNavigation(
         }
 
         Scaffold(
-            containerColor = Color(0xFFF8FFEA),
+            containerColor = GreenF2,
             bottomBar = { PsychologistBottomNav(navController) }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)){

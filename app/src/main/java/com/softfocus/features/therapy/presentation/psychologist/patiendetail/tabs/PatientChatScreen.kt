@@ -19,18 +19,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
-import com.softfocus.R
 import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientSummaryState
+import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.CrimsonSemiBold
-val chatBubbleUser = Color(0xFFE0F7E0)
-val chatBubbleOther = Color(0xFFFFFFFF)
-
+import com.softfocus.ui.theme.Gray9B
+import com.softfocus.ui.theme.Green49
+import com.softfocus.ui.theme.Green8B
+import com.softfocus.ui.theme.GreenD8
+import com.softfocus.ui.theme.GreenF2
+import com.softfocus.ui.theme.Transparent
+import com.softfocus.ui.theme.White
 
 // --- Pantalla Principal de Chat ---
 
@@ -55,7 +56,7 @@ fun PatientChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(GreenF2)
     ) {
 
         ChatHeader(
@@ -98,7 +99,7 @@ fun PatientChatScreen(
 fun ChatHeader(summaryState: PatientSummaryState, onNavigateBack: () -> Unit) {
 
     Surface(
-        color = Color(0xFFCBCD9D),
+        color = Green8B,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -118,20 +119,15 @@ fun ChatHeader(summaryState: PatientSummaryState, onNavigateBack: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Box {
-                    // Placeholder para la imagen de perfil
-                    AsyncImage(
-                        model = summaryState.profilePhotoUrl,
-                        contentDescription = "Foto de perfil del paciente",
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .border(1.dp, Color.Gray, CircleShape),
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(id = R.drawable.ic_profile_user),
-                        error = painterResource(id = R.drawable.ic_profile_user)
-                    )
-                }
+                ProfileAvatar(
+                    imageUrl = summaryState.profilePhotoUrl.takeIf { it.isNotEmpty() },
+                    fullName = summaryState.patientName,
+                    size = 44.dp,
+                    fontSize = 21.sp,
+                    backgroundColor = Color(0xFFE8F5E9),
+                    textColor = Green49,
+                    shape = CircleShape
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
@@ -155,7 +151,6 @@ fun ChatInput(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -163,27 +158,24 @@ fun ChatInput(
             value = text,
             onValueChange = onTextChange,
             placeholder = { Text("Escribe un mensaje...") },
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFF5F5F5),
-                unfocusedContainerColor = Color(0xFFF5F5F5),
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
+            modifier = Modifier
+                .border(1.dp, Gray9B, RoundedCornerShape(24.dp))
+                .weight(1f)
+                .background(White, RoundedCornerShape(24.dp)),
+            shape = RoundedCornerShape(24.dp)
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(4.dp))
         IconButton(
             onClick = onSend,
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF9BA9B0))
+                .background(Transparent)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
                 contentDescription = "Enviar",
-                tint = Color.White
+                tint = Gray9B
             )
         }
     }
@@ -227,7 +219,7 @@ fun ChatBubble(
     time: String // <-- Recibe la hora ya formateada
 ) {
     val horizontalAlignment = if (message.isFromMe) Alignment.End else Alignment.Start
-    val color = if (message.isFromMe) chatBubbleUser else chatBubbleOther
+    val color = if (message.isFromMe) GreenD8 else White
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -242,7 +234,7 @@ fun ChatBubble(
             ),
             color = color,
             modifier = Modifier.widthIn(max = 300.dp),
-            border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+            border = BorderStroke(0.5.dp, Gray9B)
         ) {
             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                 Text(

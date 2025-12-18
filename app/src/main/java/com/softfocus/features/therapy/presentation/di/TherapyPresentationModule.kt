@@ -15,12 +15,6 @@ import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistVi
 import com.softfocus.features.home.presentation.HomeViewModel
 import com.softfocus.features.library.assignments.data.di.AssignmentsDataModule
 import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
-import com.softfocus.features.library.data.remote.AssignmentsService
-import com.softfocus.features.library.data.repositories.LibraryRepositoryImpl
-import com.softfocus.features.library.domain.repositories.LibraryRepository
-import com.softfocus.features.profile.data.di.ProfileDataModule
-import com.softfocus.features.profile.data.remote.ProfileService
-import com.softfocus.features.profile.domain.repositories.ProfileRepository
 import com.softfocus.features.search.data.remote.PsychologistSearchService
 import com.softfocus.features.search.data.repositories.SearchRepositoryImpl
 import com.softfocus.features.search.domain.repositories.SearchRepository
@@ -215,8 +209,10 @@ object TherapyPresentationModule {
         val context = applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
         return PsyChatProfileViewModel(
             userSession = UserSession(context),
+            context = context,
             getMyRelationshipUseCase = getGetMyRelationshipUseCase(),
-            searchRepository = getSearchRepository()
+            searchRepository = getSearchRepository(),
+            therapyRepository = getTherapyRepository()
         )
     }
 

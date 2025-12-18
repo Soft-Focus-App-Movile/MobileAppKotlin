@@ -14,7 +14,6 @@ import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 import com.softfocus.features.tracking.data.mapper.toDomain
 import com.softfocus.features.tracking.domain.model.CheckIn
 import java.io.IOException
-import java.time.ZonedDateTime
 
 class TherapyRepositoryImpl(
     private val therapyService: TherapyService,

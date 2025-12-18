@@ -1,31 +1,25 @@
 package com.softfocus.features.therapy.presentation.psychologist.patiendetail.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.rememberAsyncImagePainter
-import com.softfocus.R
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientSummaryState
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.lightGrayText
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.primaryGreen
+import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Gray89
+import com.softfocus.ui.theme.Green49
+import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.SourceSansSemiBold
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,18 +32,14 @@ fun PatientDetailHeader(summaryState: PatientSummaryState) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Placeholder para la imagen
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = summaryState.profilePhotoUrl,
-                placeholder = painterResource(id = R.drawable.ic_profile_user),
-                error = painterResource(id = R.drawable.ic_profile_user)
-            ),
-            contentDescription = "Foto de ${summaryState.patientName}",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(100.dp) // Puedes ajustar este tamaño
-                .clip(CircleShape)
-                .background(Color.LightGray)
+        ProfileAvatar(
+            imageUrl = summaryState.profilePhotoUrl.takeIf { it.isNotEmpty() },
+            fullName = summaryState.patientName,
+            size = 100.dp,
+            fontSize = 30.sp,
+            backgroundColor = Color(0xFFE8F5E9),
+            textColor = Green49,
+            shape = CircleShape
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
@@ -61,13 +51,13 @@ fun PatientDetailHeader(summaryState: PatientSummaryState) {
         Text(
             text = "${summaryState.age} años",
             style = SourceSansSemiBold.copy(fontSize = 13.sp),
-            color = lightGrayText
+            color = Gray89
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = summaryState.formattedStartDate,
             style = SourceSansSemiBold.copy(fontSize = 13.sp),
-            color = primaryGreen
+            color = Green65
         )
     }
 }

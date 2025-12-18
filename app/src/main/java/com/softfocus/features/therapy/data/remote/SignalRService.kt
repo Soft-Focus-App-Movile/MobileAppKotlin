@@ -6,12 +6,10 @@ import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import com.microsoft.signalr.HubConnectionState
 import com.softfocus.core.data.local.UserSession
-import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.therapy.data.models.response.TherapyChatResponseDto
 import com.softfocus.features.therapy.domain.models.ChatMessage
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 class SignalRService(
     private val userSession: UserSession

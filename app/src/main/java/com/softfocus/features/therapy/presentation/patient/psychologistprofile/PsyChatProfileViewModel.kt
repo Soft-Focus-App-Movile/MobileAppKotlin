@@ -1,16 +1,13 @@
 package com.softfocus.features.therapy.presentation.patient.psychologistprofile
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.core.data.local.LocalUserDataSource
 import com.softfocus.core.data.local.UserSession
-import com.softfocus.features.profile.presentation.ProfileUiState
-import com.softfocus.features.profile.presentation.PsychologistLoadState
 import com.softfocus.features.search.domain.repositories.SearchRepository
-import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
-import com.softfocus.features.therapy.presentation.patient.PsychologistChatUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,8 +50,10 @@ data class PsyChatProfileUiState(
 
 class PsyChatProfileViewModel(
     userSession: UserSession,
+    private val context: Context,
     private val getMyRelationshipUseCase: GetMyRelationshipUseCase,
-    private val searchRepository: SearchRepository
+    private val searchRepository: SearchRepository,
+    private val therapyRepository: TherapyRepository,
 ): ViewModel() {
     private val _summaryState = MutableStateFlow(PsychologistSummaryState())
     val summaryState: StateFlow<PsychologistSummaryState> = _summaryState.asStateFlow()
@@ -70,7 +69,12 @@ class PsyChatProfileViewModel(
         patientId = userSession.getUser()?.id
 
         if (patientId == null) {
-            _uiState.update { it.copy(isLoading = false, error = "Error: No se pudo obtener el ID del paciente.") }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = "Error: No se pudo obtener el ID del paciente."
+                )
+            }
         } else {
             loadPsychologistDetails()
         }
@@ -105,6 +109,44 @@ class PsyChatProfileViewModel(
             }.onFailure {
                 // Opcional: manejar el error.
                 // No es crítico porque ya tenemos el nombre básico de la relación.
+            }
+        }
+    }
+
+    fun disconnectPsychologist(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            // Obtener el RelationshipId
+            val relationshipResult = getMyRelationshipUseCase()
+            val relationship = relationshipResult.getOrThrow()
+            relationshipId = relationship?.id
+            psychologistId = relationship?.psychologistId
+
+            if (relationshipId == null) {
+                _uiState.update {
+                    it.copy(isLoading = false, error = "No hay una relación terapéutica activa")
+                    return@launch
+                }
+
+                uiState.value.isLoading
+
+                therapyRepository.disconnectRelationship("$relationshipId")
+                    .onSuccess {
+                        // Limpiar el estado de la relación terapéutica en SharedPreferences
+                        val localUserDataSource = LocalUserDataSource(context)
+                        localUserDataSource.clearTherapeuticRelationship()
+
+                        // Actualizar estado del psicólogo a NoTherapist
+                        psychologistId = null
+                        relationshipId = null
+
+                        // Llamar callback para navegación
+                        onSuccess()
+                    }
+                    .onFailure { error ->
+                        _uiState.update {
+                            it.copy(isLoading = false, error = "Error al desvincular terapeuta")
+                        }
+                    }
             }
         }
     }

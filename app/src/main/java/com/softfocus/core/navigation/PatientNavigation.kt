@@ -96,6 +96,8 @@ fun NavGraphBuilder.patientNavigation(
         )
     }
 
+    // Chat with Psychologist Screen
+
     composable(Route.PatientPsychologistChat.path) {
         Scaffold(
             containerColor = Color(0xFFF8FFEA),
@@ -115,6 +117,8 @@ fun NavGraphBuilder.patientNavigation(
         }
     }
 
+    // Chat Profile of Psychologist Screen
+
     composable(Route.PsychologistChatProfile.path) {
         Scaffold(
             containerColor = Color.Transparent,
@@ -128,7 +132,13 @@ fun NavGraphBuilder.patientNavigation(
 
                 PsyChatProfileScreen(
                     onBackClicked = { navController.popBackStack() },
-                    viewModel = psyChatProfileViewModel
+                    onUnlinkClick = {
+                        navController.navigate(Route.Home.path) {
+                            popUpTo(Route.Home.path) { inclusive = true }
+                        }
+                    },
+                    viewModel = psyChatProfileViewModel,
+                    context = context
                 )
             }
         }

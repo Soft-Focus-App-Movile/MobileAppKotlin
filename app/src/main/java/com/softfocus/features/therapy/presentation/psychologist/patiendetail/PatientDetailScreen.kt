@@ -9,28 +9,20 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavHostController
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.core.navigation.Route
-import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.PatientDetailHeader
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatScreen
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatViewModel
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.SummaryTab
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.TasksTab
-
-// --- Colores (puedes moverlos a un archivo Theme.kt) ---
-val primaryGreen = Color(0xFF4B634B)
-val lightGreen = Color(0xFFB5C9B5)
-val cardBackground = Color(0xFFF7F7F3)
-val lightGrayText = Color.Gray
+import com.softfocus.ui.theme.Black
+import com.softfocus.ui.theme.GrayB2
+import com.softfocus.ui.theme.Green65
 
 // --- Pantalla Principal de Detalles ---
 
@@ -71,12 +63,12 @@ fun PatientDetailScreen(
             item {
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
-                    contentColor = primaryGreen,
+                    contentColor = Green65,
                     modifier = Modifier.padding(horizontal = 42.dp),
                     indicator = { tabPositions ->
                         TabRowDefaults.Indicator(
                             Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            color = primaryGreen,
+                            color = Green65,
                             height = 2.dp
                         )
                     }
@@ -102,7 +94,7 @@ fun PatientDetailScreen(
                                 Text(
                                     text = title,
                                     style = SourceSansRegular.copy(fontSize = 17.sp),
-                                    color = if (selectedTabIndex == index) primaryGreen else Color.Gray
+                                    color = if (selectedTabIndex == index) Green65 else GrayB2
                                 )
                             }
                         )
@@ -146,7 +138,7 @@ fun PatientDetailTopBar(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Volver",
-                    tint = Color.Black
+                    tint = Black
                 )
             }
         },

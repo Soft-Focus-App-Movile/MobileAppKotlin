@@ -43,8 +43,10 @@ import com.softfocus.R
 import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
 import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.TaskCard
+import com.softfocus.ui.theme.GrayD9
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.theme.White
 import kotlin.collections.forEach
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,7 +86,7 @@ fun TasksTab(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // El texto de la opción seleccionada
-                    Text(selectedFilterOption, color = Color.Black, fontSize = 16.sp)
+                    Text(selectedFilterOption, color = Color.Black, fontSize = 14.sp)
 
                     // El icono de flecha que cambia
                     Icon(
@@ -94,7 +96,7 @@ fun TasksTab(
                             Icons.Filled.ArrowDropDown // Flecha abajo si está contraído
                         },
                         contentDescription = "Abrir filtro",
-                        tint = Color.Gray
+                        tint = GrayD9
                     )
                 }
 
@@ -108,13 +110,12 @@ fun TasksTab(
                             onClick = {
                                 selectedFilterOption = option // Actualiza la opción seleccionada
                                 isFilterMenuExpanded = false // Cierra el menú
-                                // TODO: Aquí conectarías al ViewModel para filtrar la lista
                             },
-                            text = {Text(option, style = SourceSansRegular.copy(fontSize = 11.sp), )},
+                            text = {Text(option, style = SourceSansRegular.copy(fontSize = 14.sp), )},
                             modifier = if (selectedFilterOption == option) {
                                 Modifier.background(Color.LightGray.copy(alpha = 0.3f))
                             } else {
-                                Modifier
+                                Modifier.background(White)
                             }
                         )
                     }
@@ -131,12 +132,12 @@ fun TasksTab(
                 modifier = Modifier
                     .size(50.dp)
                     .background(
-                        color = Green49, // Asumo que este color existe en tu Theme
+                        color = Green49,
                         shape = RoundedCornerShape(12.dp)
                     )
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_filter), // Asumo que este drawable existe
+                    painter = painterResource(R.drawable.ic_filter),
                     contentDescription = "Filtrar",
                     tint = Color.White,
                     modifier=Modifier.size(15.dp)

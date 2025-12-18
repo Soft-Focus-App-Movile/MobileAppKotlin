@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,10 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.features.library.domain.models.ContentType
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.cardBackground
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.lightGrayText
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.primaryGreen
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Gray89
+import com.softfocus.ui.theme.Green65
+import com.softfocus.ui.theme.GreenF2
 import com.softfocus.ui.theme.SourceSansRegular
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -40,12 +41,11 @@ import java.util.Locale
 @Composable
 fun TaskCard(
     assignment: Assignment
-) { // <-- Acepta el objeto Tarea
-
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBackground)
+        colors = CardDefaults.cardColors(containerColor = GreenF2)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -53,27 +53,40 @@ fun TaskCard(
         ) {
             Icon(
                 imageVector = getIconForContentType(assignment.content.type),
-                contentDescription = assignment.content.title, // Descripción para accesibilidad
-                tint = primaryGreen,
+                contentDescription = assignment.content.title,
+                tint = Green65,
                 modifier = Modifier.size(32.dp)
             )
+
             Spacer(modifier = Modifier.width(16.dp))
-            Column {
+
+            // 1. weight(1f) es CRÍTICO para que la columna sepa que debe respetar el ancho
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = assignment.content.title,
-                    style = CrimsonSemiBold.copy(fontSize = 18.sp),
+                    // 2. SOLUCIÓN AL SOLAPAMIENTO: Definimos lineHeight un poco mayor que fontSize
+                    style = CrimsonSemiBold.copy(
+                        fontSize = 18.sp,
+                        lineHeight = 24.sp // <-- Esto separa las líneas verticalmente
+                    ),
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = if (assignment.isCompleted) "Completada" else "Pendiente",
                     style = SourceSansRegular.copy(fontSize = 11.sp),
-                    color =
-                        if (assignment.isCompleted) primaryGreen
-                        else lightGrayText
+                    color = if (assignment.isCompleted) Green65 else Gray89
                 )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
                 Text(
                     text = formatAssignmentDate(assignment.createdAt),
                     style = SourceSansRegular.copy(fontSize = 13.sp),
-                    color = lightGrayText
+                    color = Gray89
                 )
             }
         }

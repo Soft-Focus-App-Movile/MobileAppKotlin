@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
 import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
-import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.features.therapy.domain.usecases.GetPatientCheckInsUseCase
 import com.softfocus.features.therapy.domain.usecases.GetPatientProfileUseCase
 import com.softfocus.features.tracking.domain.model.CheckIn
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -68,7 +66,6 @@ class PatientDetailViewModel(
     val checkInState: StateFlow<PatientCheckInState> = _checkInState.asStateFlow()
 
     private val patientId: String = savedStateHandle.get<String>("patientId") ?: ""
-    private val relationshipId: String = savedStateHandle.get<String>("relationshipId") ?: ""
     private val encodedStartDate: String = savedStateHandle.get<String>("startDate") ?: ""
 
     init {
