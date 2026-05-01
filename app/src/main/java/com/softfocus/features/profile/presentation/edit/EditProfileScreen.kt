@@ -279,7 +279,7 @@ fun EditProfileScreen(
                 value = bio,
                 onValueChange = { bio = it },
                 isEdited = bio != initialBio,
-                minLines = 3
+                modifier = Modifier.weight(1f)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -424,8 +424,7 @@ fun EditableTextField(
     value: String,
     onValueChange: (String) -> Unit,
     isEdited: Boolean,
-    modifier: Modifier = Modifier,
-    minLines: Int = 1
+    modifier: Modifier = Modifier
 ) {
     val textColor = if (isEdited) Green37 else GrayB2
     val borderColor = if (isEdited) Green37 else GrayB2
@@ -442,7 +441,6 @@ fun EditableTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            minLines = minLines,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFEBEFE5),
                 focusedContainerColor = Color(0xFFEBEFE5),
@@ -452,7 +450,8 @@ fun EditableTextField(
                 focusedTextColor = Green29
             ),
             shape = RoundedCornerShape(8.dp),
-            textStyle = SourceSansRegular.copy(fontSize = 16.sp)
+            textStyle = SourceSansRegular.copy(fontSize = 16.sp,
+                lineHeight = 24.sp)
         )
     }
 }
@@ -786,8 +785,7 @@ fun EditProfileScreenPreview() {
             label = "Descripción",
             value = "Me gusta la psicología y ayudar a las personas.",
             onValueChange = {},
-            isEdited = false,
-            minLines = 3
+            isEdited = false
         )
 
         Spacer(modifier = Modifier.height(16.dp))

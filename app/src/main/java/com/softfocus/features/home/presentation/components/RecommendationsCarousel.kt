@@ -56,8 +56,7 @@ fun RecommendationsSection(
         ) {
             Text(
                 text = "Recomendaciones",
-                style = CrimsonSemiBold,
-                fontSize = 20.sp,
+                style = CrimsonSemiBold.copy(fontSize = 20.sp),
                 color = Green65
             )
             TextButton(onClick = onNavigateToLibrary) {

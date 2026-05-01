@@ -1,6 +1,5 @@
 package com.softfocus.features.therapy.presentation.psychologist.patientlist
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,17 +16,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.rememberAsyncImagePainter
-import com.softfocus.R
 import com.softfocus.features.therapy.domain.models.PatientDirectory
+import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
 import java.time.ZonedDateTime
@@ -37,7 +32,6 @@ import java.time.format.DateTimeFormatter
 private val primaryGreen = Color(0xFF4B634B)
 private val cardBackground = Color(0xFFF7F7F3)
 private val lightGrayText = Color(0xFF8B8B8B)
-private val dividerColor = Color(0xFFE0E0E0) // Color para el placeholder de la imagen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,23 +158,18 @@ private fun PatientCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 13.dp, end = 16.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // --- Foto de Perfil (cargada desde URL) ---
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = patient.profilePhotoUrl,
-                    // Placeholder y error usan el ícono de perfil genérico
-                    placeholder = painterResource(id = R.drawable.ic_profile_user),
-                    error = painterResource(id = R.drawable.ic_profile_user)
-                ),
-                contentDescription = "Foto de ${patient.patientName}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(dividerColor)
+            ProfileAvatar(
+                imageUrl = patient.profilePhotoUrl.takeIf { it.isNotEmpty() },
+                fullName = patient.patientName,
+                size = 110.dp,
+                fontSize = 30.sp,
+                backgroundColor = Color(0xFFE8F5E9),
+                textColor = Green49,
+                shape = CircleShape
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -192,13 +181,13 @@ private fun PatientCard(
             ) {
                 Text(
                     text = patient.patientName,
-                    style = CrimsonSemiBold.copy(fontSize = 24.sp),
+                    style = CrimsonSemiBold.copy(fontSize = 21.sp),
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Conectado desde: $formattedDate",
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     color = lightGrayText
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -206,12 +195,12 @@ private fun PatientCard(
                 // Texto de Sesiones (reemplaza "Ver Perfil" para coincidir con la imagen)
                 Text(
                     text = "Sesiones: ${patient.sessionCount}",
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     color = lightGrayText,
                     fontWeight = FontWeight.Normal // Ajustado para ser info, no un botón
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(1.8.dp))
 
                 TextButton(
                     onClick = onClick,
@@ -219,7 +208,7 @@ private fun PatientCard(
                 ) {
                     Text(
                         text = "Ver Perfil",
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         color = primaryGreen,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Start
@@ -229,40 +218,3 @@ private fun PatientCard(
         }
     }
 }
-
-// --- Preview para ver el diseño (con datos falsos) ---
-/*
-@Preview(showBackground = true)
-@Composable
-fun PatientListScreenPreview() {
-    // Datos falsos para el preview
-    val fakePatient = PatientDirectory(
-        id = "1", psychologistId = "p1", patientId = "u1",
-        patientName = "Ana Gómez", age = 28, profilePhotoUrl = "",
-        status = "Active", startDate = "2024-10-10", sessionCount = 5, lastSessionDate = null
-    )
-    val fakeState = PatientListUiState(
-        isLoading = false,
-        patients = listOf(fakePatient, fakePatient.copy(id = "2", patientName = "Luis Torres", sessionCount = 12))
-    )
-
-    // ViewModel falso para el preview
-    class FakePatientListViewModel : PatientListViewModel(GetMyPatientsUseCase(object : TherapyRepository {
-        override suspend fun getMyRelationship() = Result.success(null)
-        override suspend fun connectWithPsychologist(code: String) = Result.success("")
-        override suspend fun getMyPatients() = Result.success(fakeState.patients)
-    })) {
-        init {
-            _uiState.value = fakeState
-        }
-    }
-
-    SoftFocusMobileTheme {
-        PatientListScreen(
-            viewModel = FakePatientListViewModel(),
-            onPatientClick = {}
-        )
-    }
-}
-
-*/

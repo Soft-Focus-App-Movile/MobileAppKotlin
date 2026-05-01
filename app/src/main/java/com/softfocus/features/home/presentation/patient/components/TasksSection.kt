@@ -210,8 +210,10 @@ fun TaskItem(
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = assignment.content.title,
-                style = SourceSansRegular,
-                fontSize = 14.sp,
+                style = SourceSansRegular.copy(
+                    fontSize = 14.sp,
+                    lineHeight = 17.sp
+                ),
                 color = Black
             )
         }

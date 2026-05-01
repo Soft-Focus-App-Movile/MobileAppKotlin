@@ -1,22 +1,16 @@
 package com.softfocus.features.therapy.presentation.patient
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.softfocus.core.data.local.LocalUserDataSource
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.profile.domain.models.AssignedPsychologist
-import com.softfocus.features.profile.domain.repositories.ProfileRepository
 import com.softfocus.features.profile.presentation.PsychologistLoadState
 import com.softfocus.features.search.domain.repositories.SearchRepository
 import com.softfocus.features.therapy.data.remote.SignalRService
 import com.softfocus.features.therapy.domain.models.ChatMessage
-import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 import com.softfocus.features.therapy.domain.usecases.GetChatHistoryUseCase
 import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
-import com.softfocus.features.therapy.domain.usecases.GetRelationshipWithPatientUseCase
 import com.softfocus.features.therapy.domain.usecases.SendChatMessageUseCase
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientSummaryState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

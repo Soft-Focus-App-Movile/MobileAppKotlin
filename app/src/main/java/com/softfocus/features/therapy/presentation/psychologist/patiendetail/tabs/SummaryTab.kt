@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientCheckInState
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.EvolutionChart
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.LastCheckInCard
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.primaryGreen
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Green65
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +31,7 @@ fun SummaryTab(state: PatientCheckInState) {
         if (state.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
-                color = primaryGreen
+                color = Green65
             )
         } else if (state.error != null) {
             Text(
@@ -53,7 +53,7 @@ fun SummaryTab(state: PatientCheckInState) {
                     modifier = Modifier
                         .padding(horizontal = 16.dp),
                     style = CrimsonSemiBold.copy(fontSize = 21.sp),
-                    color = primaryGreen
+                    color = Green65
                 )
                 Spacer(modifier = Modifier.height(21.dp))
 
@@ -63,11 +63,11 @@ fun SummaryTab(state: PatientCheckInState) {
                 Text(
                     text = "Evolución",
                     style = CrimsonSemiBold.copy(fontSize = 21.sp),
-                    color = primaryGreen,
+                    color = Green65,
                     modifier = Modifier
                         .padding(16.dp),
                 )
-                Spacer(modifier = Modifier.height(21.dp))
+                Spacer(modifier = Modifier.height(7.dp))
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {

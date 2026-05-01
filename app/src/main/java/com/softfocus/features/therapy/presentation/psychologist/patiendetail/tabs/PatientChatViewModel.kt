@@ -31,13 +31,6 @@ data class PatientChatUiState(
     val error: String? = null
 )
 
-data class PatientSummaryState(
-    val isLoading: Boolean = true,
-    val patientName: String = "Cargando...", // Valor inicial
-    val profilePhotoUrl: String = "",
-    val error: String? = null
-)
-
 // 2. VIEWMODEL
 class PatientChatViewModel(
     savedStateHandle: SavedStateHandle,

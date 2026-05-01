@@ -5,11 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material3.*
@@ -23,13 +21,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,7 +34,6 @@ import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.GreenA3
-import com.softfocus.ui.theme.ButtonPrimary
 import com.softfocus.R
 import java.net.URL
 import android.graphics.BitmapFactory
@@ -375,11 +370,29 @@ fun PatientProfileScreen(
                 onClick = onNavigateToHelpSupport
             )
 
-            ProfileOption(
-                icon = Icons.Outlined.Logout,
-                title = "Cerrar Sesión",
-                onClick = onLogout
-            )
+            Button(
+                onClick = onLogout,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = RedE8
+                ),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Logout,
+                    contentDescription = null,
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Cerrar Sesión",
+                    style = SourceSansBold,
+                    fontSize = 16.sp,
+                    color = White,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -411,8 +424,9 @@ fun CurrentTherapistCard(
             Text(
                 text = "Mi Terapeuta Actual",
                 style = CrimsonSemiBold,
-                fontSize = 20.sp,
-                color = Black
+                fontSize = 22.sp,
+                color = Black,
+                modifier = Modifier.align(Alignment.Start)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -441,7 +455,7 @@ fun CurrentTherapistCard(
                     Text(
                         text = therapistName,
                         style = CrimsonSemiBold,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         color = Black
                     )
 
@@ -450,7 +464,7 @@ fun CurrentTherapistCard(
                     Text(
                         text = "Ver perfil",
                         style = SourceSansRegular,
-                        fontSize = 13.sp,
+                        fontSize = 15.sp,
                         color = Blue77,
                         modifier = Modifier.clickable {
                             navController.navigate(
@@ -458,25 +472,26 @@ fun CurrentTherapistCard(
                             )
                         }
                     )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Button(
+                        onClick = onUnlinkClick,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = RedE8
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Desvincular",
+                            style = SourceSansBold,
+                            fontSize = 14.sp,
+                            color = White
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onUnlinkClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = RedE8
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    text = "Desvincular",
-                    style = SourceSansBold,
-                    fontSize = 14.sp,
-                    color = White
-                )
-            }
         }
     }
 }

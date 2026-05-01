@@ -42,6 +42,7 @@ import com.softfocus.ui.components.DraggableAIButton
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.features.home.presentation.patient.di.patientHomeViewModel
 import com.softfocus.ui.theme.Black
+import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.SourceSansRegular
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -153,13 +154,12 @@ fun PatientHomeScreen(
 
                 Text(
                     text = "Chat con terapeuta",
-                    style = CrimsonSemiBold,
-                    fontSize = 20.sp,
-                    color = Black,
+                    style = CrimsonSemiBold.copy(fontSize = 20.sp),
+                    color = Green65,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 TherapistChatCard(
                     therapistState = therapistState,
@@ -173,13 +173,12 @@ fun PatientHomeScreen(
 
                 Text(
                     text = "Tareas pendientes",
-                    style = CrimsonSemiBold,
-                    fontSize = 20.sp,
-                    color = Black,
+                    style = CrimsonSemiBold.copy(fontSize = 20.sp),
+                    color = Green65,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 TasksSection(
                     assignmentsState = assignmentsState,

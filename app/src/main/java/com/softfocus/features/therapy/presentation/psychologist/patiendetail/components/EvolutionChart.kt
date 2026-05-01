@@ -1,51 +1,57 @@
 package com.softfocus.features.therapy.presentation.psychologist.patiendetail.components
 
-import android.graphics.Path
-import android.graphics.RectF
+import android.graphics.Typeface
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.patrykandpatryk.vico.compose.axis.axisLabelComponent
-import com.patrykandpatryk.vico.compose.axis.horizontal.bottomAxis
-import com.patrykandpatryk.vico.compose.chart.Chart
-import com.patrykandpatryk.vico.compose.chart.column.columnChart
-import com.patrykandpatryk.vico.compose.chart.line.lineChart
-import com.patrykandpatryk.vico.compose.chart.line.lineSpec
-import com.patrykandpatryk.vico.compose.component.shape.shader.verticalGradient
-import com.patrykandpatryk.vico.core.axis.AxisPosition
-import com.patrykandpatryk.vico.core.axis.formatter.AxisValueFormatter
-import com.patrykandpatryk.vico.core.chart.composed.plus
-import com.patrykandpatryk.vico.core.chart.dimensions.HorizontalDimensions
-import com.patrykandpatryk.vico.core.chart.line.LineChart
-import com.patrykandpatryk.vico.core.component.shape.LineComponent
-import com.patrykandpatryk.vico.core.entry.ChartEntryModel
-import com.patrykandpatryk.vico.core.entry.entryModelOf
-import com.patrykandpatryk.vico.core.entry.composed.ComposedChartEntryModelProducer
-import com.patrykandpatryk.vico.core.entry.entriesOf
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
+import com.patrykandpatrick.vico.compose.cartesian.layer.continuous
+import com.patrykandpatrick.vico.compose.cartesian.layer.point
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
+import com.patrykandpatrick.vico.compose.common.fill
+import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModel
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.core.cartesian.data.ColumnCartesianLayerModel
+import com.patrykandpatrick.vico.core.cartesian.data.LineCartesianLayerModel
+import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.core.common.Insets
+import com.patrykandpatrick.vico.core.common.shader.ShaderProvider
+import com.patrykandpatrick.vico.core.common.shape.CorneredShape
+import com.patrykandpatrick.vico.core.cartesian.marker.LineCartesianLayerMarkerTarget
+import com.patrykandpatrick.vico.core.cartesian.marker.ColumnCartesianLayerMarkerTarget
+import com.softfocus.ui.theme.Gray89
+import com.softfocus.ui.theme.GreenAB
+import com.softfocus.ui.theme.SourceSansSemiBold
 
-val lightGreen = Color(0xFFABBC8A)
-val lightGrayText = Color(0xFF888888)
-
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvolutionChart(
     lineData: List<Float>,
     columnData: List<Float>,
     isLoading: Boolean
 ) {
-
     // --- 1. ESTADO DE CARGA ---
     if (isLoading) {
         Box(
@@ -56,7 +62,7 @@ fun EvolutionChart(
         ) {
             CircularProgressIndicator()
         }
-        return // No dibujes el gráfico si está cargando
+        return
     }
 
     // --- 2. ESTADO VACÍO (PERO CON EJE) ---
@@ -68,129 +74,152 @@ fun EvolutionChart(
             modifier = Modifier
                 .height(150.dp)
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp), // Empareja el padding del Chart
+                .padding(horizontal = 2.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "No hay datos de evolución para esta semana.",
-                color = lightGrayText, // Usa un color de texto suave
-                fontSize = 14.sp
+                color = Gray89,
+                style = SourceSansSemiBold.copy(fontSize = 10.sp)
             )
         }
-        // Igualmente dibujamos el gráfico (sin modelo) para mostrar el eje X
+        return
     }
 
-    val lineEntryModel: ChartEntryModel = entryModelOf(*lineData.toTypedArray())
-    val columnEntryModel: ChartEntryModel = entryModelOf(*columnData.toTypedArray())
+    // --- 1. MODELO DE DATOS ---
+    val model = remember(lineData, columnData) {
+        CartesianChartModel(
+            ColumnCartesianLayerModel.build { series(columnData) },
+            LineCartesianLayerModel.build { series(lineData) }
+        )
+    }
 
-    // 5. Define el gráfico de Columna (la barra)
-    val columnChart = columnChart(
-        columns = listOf(
-            LineComponent(
-                color = lightGreen.copy(alpha = 0.5f).hashCode(),
-                thicknessDp = 6f
+    // --- 2. CONFIGURACIÓN DE CAPAS ---
+
+    // Capa de Columnas
+    val columnLayer = rememberColumnCartesianLayer(
+        columnProvider = ColumnCartesianLayer.ColumnProvider.series(
+            rememberLineComponent(
+                fill = fill(GreenAB.copy(alpha = 0.5f)),
+                thickness = 6.dp,
+                shape = CorneredShape.rounded(topLeftPercent = 20, topRightPercent = 20)
             )
         )
     )
 
-    // 6. Define el gráfico de Línea (la línea principal)
-    val lineChart = lineChart(
-        lines = listOf(
-            lineSpec(
-                lineColor = lightGreen, // Puedes usar el Color de Compose directamente
-                lineThickness = 2.dp,
-                lineBackgroundShader = verticalGradient(
-                    arrayOf(lightGreen.copy(alpha = 0.4f), lightGreen.copy(alpha = 0.0f)),
+    // Capa de Líneas
+    val lineLayer = rememberLineCartesianLayer(
+        lineProvider = LineCartesianLayer.LineProvider.series(
+            LineCartesianLayer.rememberLine(
+                // fill: Le damos el color a la línea
+                // stroke: definimos el grosor de la línea
+                fill = LineCartesianLayer.LineFill.single(
+                    fill(GreenAB)
                 ),
-                // Conector: Evita que la línea se dibuje conectando con los días
-                // que tienen valor 0 (sin datos).
-                pointConnector = object : LineChart.LineSpec.PointConnector {
-                    override fun connect(
-                        path: Path,
-                        prevX: Float,
-                        prevY: Float,
-                        x: Float,
-                        y: Float,
-                        horizontalDimensions: HorizontalDimensions,
-                        bounds: RectF
-                    ) {
-                        // Lógica clave: solo dibuja la línea si AMBOS puntos son distintos de 0.
-                        if (prevY != 0f && y != 0f) {
-
-                            // Si el path está vacío, es el primer segmento que dibujamos.
-                            // Empezamos moviendo el "lápiz" al punto previo.
-                            if (path.isEmpty) {
-                                path.moveTo(prevX, prevY)
-                            }
-                            // Luego, dibujamos la línea hasta el punto actual.
-                            path.lineTo(x, y)
-
-                        } else {
-                            // Si uno de los puntos es 0, no dibujamos.
-                            // PERO, si el punto actual (y) NO es 0,
-                            // debemos mover el "lápiz" a ese punto,
-                            // para que sea el *inicio* del próximo segmento válido.
-                            if (y != 0f) {
-                                path.moveTo(x, y)
-                            }
-                        }
-                    }
-                }
+                stroke = LineCartesianLayer.LineStroke.continuous(
+                    thickness = 3.dp
+                ),
+                // DEGRADADO BAJO LA LÍNEA (areaFill)
+                // Usamos verticalGradient con el color lightGreen.
+                // Va desde una opacidad media (0.4f o 0.5f) arriba hasta transparente (0.0f) abajo.
+                areaFill = LineCartesianLayer.AreaFill.single(
+                    fill(
+                        ShaderProvider.verticalGradient(
+                            colors = arrayOf(
+                                GreenAB.copy(alpha = 0.5f), // Ajusta este valor (ej. 0.4f a 0.6f) para la intensidad superior
+                                GreenAB.copy(alpha = 0.0f)  // Transparente abajo
+                            ).map { it.toArgb() }.toIntArray()
+                        ))
+                ),
+                pointProvider = LineCartesianLayer.PointProvider.single(
+                    LineCartesianLayer.point(
+                        component = rememberShapeComponent(
+                            shape = CorneredShape.rounded(allPercent = 50),
+                            fill = fill(GreenAB),
+                            strokeThickness = 0.dp
+                        ),
+                        size = 8.dp
+                    )
+                ),
+                pointConnector = LineCartesianLayer.PointConnector.cubic(curvature = 0.3f)
             )
         )
     )
 
-    // 7. Combina ambos gráficos
-    val composedChart = columnChart.plus(lineChart)
+    // --- 3. EJES ---
+    val days = listOf("Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do")
 
-    // 8. Definir el formateador del eje X
-    val days = listOf("Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do")
-    val bottomAxisValueFormatter =
-        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, chartValues ->
-            // Lo convertimos a Int y lo usamos como índice para nuestra lista de días
+    val bottomAxis = HorizontalAxis.rememberBottom(
+        valueFormatter = CartesianValueFormatter { _, value, _ ->
             days.getOrNull(value.toInt()) ?: ""
-        }
+        },
+        label = rememberTextComponent(
+            color = Gray89,
+            padding = Insets(horizontalDp = 1f, verticalDp = 0f),
+            margins = Insets(horizontalDp = 0f, verticalDp = 5f)
+        ),
+        tick = null,
+        guideline = null
+    )
 
-    // --- 6. Crear el Model Producer con 'entriesOf' ---
-    val modelProducer = remember(lineData, columnData) {
-        ComposedChartEntryModelProducer.build {
-            // Usamos 'entriesOf' que devuelve List<ChartEntry>
-            add(entriesOf(*columnData.toTypedArray()))
-            add(entriesOf(*lineData.toTypedArray()))
-        }
-    }
+    val marker = rememberMarker()
 
-    // --- 7. Crear el 'Producer' para el estado vacío (también con 'entriesOf') ---
-    val emptyModelProducer = remember {
-        val emptyData = List(7) { 0f }.toTypedArray()
-        ComposedChartEntryModelProducer.build {
-            add(entriesOf(*emptyData))
-            add(entriesOf(*emptyData))
-        }
-    }
-
-    // 9. Muestra el gráfico
-    Chart(
-        chart = composedChart,
-        // Si hay datos, combina los modelos. Si no, pasa un modelo vacío
-        // para que Vico dibuje el eje X correctamente.
-        chartModelProducer = if (hasData) modelProducer else emptyModelProducer,
+    CartesianChartHost(
+        chart = rememberCartesianChart(
+            columnLayer,
+            lineLayer,
+            startAxis = null,
+            bottomAxis = bottomAxis,
+            marker = marker
+        ),
+        model = model,
         modifier = Modifier
-            .height(150.dp)
-            .padding(horizontal = 2.dp),
-        // Ocultamos el eje Y (startAxis)
-        startAxis = null,
-        // Eje X (bottomAxis) con nuestro formato personalizado
-        bottomAxis = bottomAxis(
-            valueFormatter = bottomAxisValueFormatter,
-            label = axisLabelComponent(
-                color = lightGrayText,
-                horizontalPadding = 1.dp
-            ),
-            // Oculta la línea del eje y los "ticks" (marcas)
-            axis = null,
-            tick = null,
-            guideline = null
-        )
+            .fillMaxSize()
+            .padding(horizontal = 18.dp)
+    )
+}
+
+// --- MARKER (TOOLTIP) ---
+@Composable
+fun rememberMarker(): CartesianMarker {
+    val labelBackground = rememberShapeComponent(
+        shape = CorneredShape.rounded(allPercent = 50),
+        fill = fill(GreenAB)
+    )
+
+    val label = rememberTextComponent(
+        background = labelBackground,
+        lineCount = 1,
+        padding = Insets(horizontalDp = 8f, verticalDp = 4f),
+        typeface = Typeface.DEFAULT_BOLD,
+        color = Color.White,
+        margins = Insets(horizontalDp = 0f, verticalDp = 6f)
+    )
+
+    val indicator = rememberShapeComponent(
+        shape = CorneredShape.rounded(allPercent = 50),
+        fill = fill(GreenAB),
+        strokeThickness = 2.dp,
+        strokeFill = fill(Color.White)
+    )
+
+    return rememberDefaultCartesianMarker(
+        label = label,
+        indicator = { indicator },
+        indicatorSize = 12.dp,
+        guideline = null,
+        valueFormatter = { _, targets ->
+            // Buscamos primero si hay un target de LÍNEA (prioridad)
+            val lineTarget = targets.filterIsInstance<LineCartesianLayerMarkerTarget>().firstOrNull()
+            // Buscamos si hay un target de COLUMNA
+            val columnTarget = targets.filterIsInstance<ColumnCartesianLayerMarkerTarget>().firstOrNull()
+
+            // Extraemos el valor Y accediendo a 'entry' primero
+            val value = lineTarget?.points?.firstOrNull()?.entry?.y
+                ?: columnTarget?.columns?.firstOrNull()?.entry?.y
+
+            // Formateamos: Si hay valor lo convertimos a Int, si no, devolvemos vacío
+            value?.toInt()?.toString() ?: ""
+        }
     )
 }

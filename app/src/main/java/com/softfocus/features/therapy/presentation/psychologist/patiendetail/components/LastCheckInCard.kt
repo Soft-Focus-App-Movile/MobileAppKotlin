@@ -18,15 +18,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientCheckInState
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.cardBackground
-import com.softfocus.features.therapy.presentation.psychologist.patiendetail.lightGrayText
+import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Gray89
+import com.softfocus.ui.theme.GreenF2
 import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.theme.White
+import com.softfocus.ui.theme.YellowCB9C
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +46,7 @@ fun LastCheckInCard(state: PatientCheckInState) {
         ) {
             Text(
                 text = "No hay registros de check-in.",
-                color = lightGrayText,
+                color = Gray89,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(16.dp),
@@ -56,7 +58,7 @@ fun LastCheckInCard(state: PatientCheckInState) {
         Card(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = cardBackground)
+            colors = CardDefaults.cardColors(containerColor = GreenF2)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
@@ -66,18 +68,18 @@ fun LastCheckInCard(state: PatientCheckInState) {
                     Text(
                         text = state.formattedDate,
                         style = CrimsonSemiBold.copy(fontSize = 20.sp),
-                        color = Color.Black
+                        color = Black
                     )
                     Text(
                         text = "${checkIn.emotionalLevel}/10", // Nivel de como se siente el paciente "${emotionalLevel}/10"
                         modifier = Modifier
                             .background(
-                                color = Color(0xFFCBCD9C),
+                                color = YellowCB9C,
                                 RoundedCornerShape(8.dp)
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                         style = SourceSansRegular.copy(fontSize = 10.sp),
-                        color = Color.White
+                        color = White
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -95,9 +97,15 @@ fun LastCheckInCard(state: PatientCheckInState) {
 
                 checkIn.notes?.let {
                     Text(
-                        text = it, // Notas del paciente (notes)
-                        style = SourceSansRegular.copy(fontSize = 12.sp),
-                        color = Color.Black
+                        text = it,
+                        style = SourceSansRegular.copy(
+                            fontSize = 12.sp,
+                            // Define la altura de línea para evitar solapamiento
+                            lineHeight = 16.sp
+                        ),
+                        color = Black,
+                        // Para asegurar que ocupe el ancho disponible si fuera necesario
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -111,11 +119,11 @@ fun TagItem(text: String) { //Para los síntomas del paciente
         text = text,
         modifier = Modifier
             .background(
-                color = Color(0xFFCBCD9C),
+                color = YellowCB9C,
                 RoundedCornerShape(8.dp)
             )
             .padding(horizontal = 8.dp, vertical = 4.dp),
         style = SourceSansRegular.copy(fontSize = 10.sp),
-        color = Color.White
+        color = White
     )
 }

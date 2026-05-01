@@ -409,7 +409,8 @@ fun EditPersonalInfoScreen(
             PsychologistEditableField(
                 label = "Nombre del Negocio",
                 value = businessName,
-                onValueChange = { if (it.length <= 100) businessName = it }
+                onValueChange = { if (it.length <= 100) businessName = it },
+                minLines = 1
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -417,7 +418,8 @@ fun EditPersonalInfoScreen(
             PsychologistEditableField(
                 label = "Dirección del Consultorio",
                 value = businessAddress,
-                onValueChange = { if (it.length <= 200) businessAddress = it }
+                onValueChange = { if (it.length <= 200) businessAddress = it },
+                minLines = 1
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -426,7 +428,8 @@ fun EditPersonalInfoScreen(
             PsychologistEditableField(
                 label = "Cuenta Bancaria",
                 value = bankAccount,
-                onValueChange = { if (it.length <= 50) bankAccount = it }
+                onValueChange = { if (it.length <= 50) bankAccount = it },
+                minLines = 1
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -434,7 +437,8 @@ fun EditPersonalInfoScreen(
             PsychologistEditableField(
                 label = "Métodos de Pago",
                 value = paymentMethods,
-                onValueChange = { if (it.length <= 200) paymentMethods = it }
+                onValueChange = { if (it.length <= 200) paymentMethods = it },
+                minLines = 1
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -650,7 +654,7 @@ fun PsychologistEditableField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    minLines: Int = 5,
+    minLines: Int = 1,
     isExpandable: Boolean = true
 ) {
     Column(modifier = modifier) {
@@ -676,7 +680,7 @@ fun PsychologistEditableField(
                 unfocusedBorderColor = Color.Transparent,
                 focusedBorderColor = Green37
             ),
-            textStyle = SourceSansRegular,
+            textStyle = SourceSansRegular.copy(lineHeight = 22.sp),
             minLines = minLines,
             maxLines = if (isExpandable) Int.MAX_VALUE else 1,
             singleLine = !isExpandable && minLines == 1
@@ -948,13 +952,15 @@ fun EditPersonalInfoScreenPreview() {
                 label = "Nombre",
                 value = "Patricia",
                 onValueChange = {},
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                minLines = 1
             )
             PsychologistEditableField(
                 label = "Apellido",
                 value = "Sanchez",
                 onValueChange = {},
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                minLines = 1
             )
         }
 
