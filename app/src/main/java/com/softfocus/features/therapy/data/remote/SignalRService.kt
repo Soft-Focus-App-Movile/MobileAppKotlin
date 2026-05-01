@@ -28,7 +28,7 @@ class SignalRService(
         }
 
         // Construimos la URL del Hub. Asegúrate que "chathub" coincide con tu backend
-        val hubUrl = "http://98.90.172.251:5000/chatHub"
+        val hubUrl = "http://32.194.77.233:5000/chatHub"
 
         try {
             hubConnection = HubConnectionBuilder.create(hubUrl)

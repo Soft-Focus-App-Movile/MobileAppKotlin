@@ -3,6 +3,7 @@ package com.softfocus.core.networking
 object ApiConstants {
 
     const val BASE_URL = "http://32.194.77.233:5000/api/v1/"
+
     // Google OAuth Client IDs
     // Web Client ID - Used for serverClientId in Credential Manager and backend verification
     const val GOOGLE_WEB_CLIENT_ID = "456468181765-quas8eebf9rfjg33ovhn42efqu4uqcag.apps.googleusercontent.com"
