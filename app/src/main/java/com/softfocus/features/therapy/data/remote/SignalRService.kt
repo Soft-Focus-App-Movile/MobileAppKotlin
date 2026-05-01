@@ -17,23 +17,19 @@ class SignalRService(
 
     private var hubConnection: HubConnection? = null
     private val gson = Gson()
-    private var isManuallyStopping = false // Para evitar reconexión si cerramos a propósito
+    private var isManuallyStopping = false
 
-    // Función para construir y configurar la conexión
     fun initConnection() {
-        // Obtenemos el token de la sesión
         val token = userSession.getUser()?.token ?: run {
             Log.e("SignalRService", "No se pudo iniciar SignalR: Token es nulo.")
             return
         }
 
-        // Construimos la URL del Hub. Asegúrate que "chathub" coincide con tu backend
         val hubUrl = "http://32.194.77.233:5000/chatHub"
 
         try {
             hubConnection = HubConnectionBuilder.create(hubUrl)
                 .withAccessTokenProvider(Single.defer {
-                    // SignalR necesita el token LIMPIO, sin el prefijo "Bearer ".
                     val cleanToken = token.removePrefix("Bearer ")
                     Single.just(cleanToken)
                 })
@@ -44,21 +40,20 @@ class SignalRService(
             hubConnection?.onClosed { exception ->
                 if (isManuallyStopping) {
                     Log.d("SignalRService", "Conexión cerrada manualmente.")
-                    isManuallyStopping = false // Resetea el flag
+                    isManuallyStopping = false
                     return@onClosed
                 }
 
                 if (exception != null) {
-                    Log.w("SignalRService", "Conexión perdida por error: ${exception.message}. Intentando reconectar en 5s...")
+                    Log.w("SignalRService", "Conexión perdida: ${exception.message}. Reconectando en 5s...")
                     try {
-                        // Espera 5 segundos antes de reintentar
                         Thread.sleep(5000)
                         startConnection()
                     } catch (e: InterruptedException) {
                         Log.e("SignalRService", "Espera de reconexión interrumpida", e)
                     }
                 } else {
-                    Log.d("SignalRService", "Conexión cerrada limpiamente (sin error).")
+                    Log.d("SignalRService", "Conexión cerrada limpiamente.")
                 }
             }
 
@@ -67,7 +62,6 @@ class SignalRService(
         }
     }
 
-    // Función para iniciar la conexión
     fun startConnection(onConnected: () -> Unit = {}) {
         if (hubConnection?.connectionState == HubConnectionState.DISCONNECTED) {
             try {
@@ -78,23 +72,19 @@ class SignalRService(
                 Log.e("SignalRService", "Error al iniciar conexión SignalR: ${e.message}", e)
             }
         } else {
-            Log.d("SignalRService", "SignalR ya estaba conectado o conectando.")
+            Log.d("SignalRService", "SignalR ya conectado o conectando.")
             if (hubConnection?.connectionState == HubConnectionState.CONNECTED) {
                 onConnected()
             }
         }
     }
 
-    // Función para detener la conexión
     fun stopConnection() {
-        isManuallyStopping = true // <- Avisa que la detención es intencional
+        isManuallyStopping = true
         hubConnection?.stop()
         Log.d("SignalRService", "SignalR Desconectado.")
     }
 
-    /**
-     * Registra el listener para el evento "ReceiveMessage".
-     */
     fun registerMessageHandler(onMessageReceived: (ChatMessage) -> Unit) {
         if (hubConnection == null) {
             Log.e("SignalRService", "HubConnection no inicializado. Llama a initConnection() primero.")
@@ -103,34 +93,37 @@ class SignalRService(
 
         hubConnection?.on(
             "ReceiveMessage",
-            { messageJson: String ->
+            { messageMap: Map<*, *> ->
                 try {
-                    Log.d("SignalRService", "Mensaje JSON recibido: $messageJson")
+                    Log.d("SignalRService", "Mensaje objeto recibido: $messageMap")
+
+                    // Convertimos el Map de vuelta a JSON string para que Gson pueda
+                    // deserializarlo correctamente al DTO tipado.
+                    val messageJson = gson.toJson(messageMap)
+                    Log.d("SignalRService", "Mensaje JSON reconvertido: $messageJson")
 
                     val dto = gson.fromJson(messageJson, TherapyChatResponseDto::class.java)
-
                     val chatMessage = dto.toDomain(userSession.getUser()?.id ?: "")
-
                     onMessageReceived(chatMessage)
 
                 } catch (e: Exception) {
                     Log.e("SignalRService", "Error al deserializar mensaje SignalR: ${e.message}", e)
                 }
             },
-            String::class.java
+            // FIX: Map::class.java en lugar de String::class.java
+            Map::class.java
         )
 
-        Log.d("SignalRService", "Listener 'ReceiveMessage' registrado.")
+        Log.d("SignalRService", "Listener 'ReceiveMessage' registrado (tipo Map).")
     }
 
-    // Mapeador simple de DTO a Dominio
     private fun TherapyChatResponseDto.toDomain(currentUserId: String): ChatMessage {
         return ChatMessage(
             id = this.id,
             relationshipId = this.relationshipId,
             senderId = this.senderId,
             receiverId = this.receiverId,
-            content = this.content.value, // Mapeo clave
+            content = this.content.value,
             timestamp = this.timestamp,
             isFromMe = this.senderId == currentUserId,
             messageType = this.messageType
