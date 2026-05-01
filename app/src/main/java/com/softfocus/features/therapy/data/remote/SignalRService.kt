@@ -110,7 +110,6 @@ class SignalRService(
                     Log.e("SignalRService", "Error al deserializar mensaje SignalR: ${e.message}", e)
                 }
             },
-            // FIX: Map::class.java en lugar de String::class.java
             Map::class.java
         )
 
