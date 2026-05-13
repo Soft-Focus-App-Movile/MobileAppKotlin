@@ -1,5 +1,6 @@
 package com.softfocus.uitests.profile
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -193,7 +194,7 @@ class ProfileUiTest {
         // (eso está en la pantalla de conectar), pero la sesión y nombre sí se muestran
         composeTestRule
             .onNodeWithTag(TestTags.Profile.PROFILE_NAME_TEXT)
-            .assertExists()
+            .assertIsDisplayed()
     }
 
     @Test

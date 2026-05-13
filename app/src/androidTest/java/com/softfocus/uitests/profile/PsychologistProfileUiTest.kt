@@ -1,5 +1,6 @@
 package com.softfocus.uitests.profile
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -81,7 +82,7 @@ class PsychologistProfileUiTest {
     fun psychologistProfileScreen_isVisible_afterLoad() {
         launchScreen()
         composeTestRule.waitUntilTagVisible(TestTags.Profile.PSYCHOLOGIST_PROFILE_SCREEN)
-        composeTestRule.onNodeWithTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_SCREEN).assertExists()
+        composeTestRule.onNodeWithTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_SCREEN).assertIsDisplayed()
     }
 
     @Test
@@ -108,7 +109,7 @@ class PsychologistProfileUiTest {
         composeTestRule.waitUntilTagVisible(TestTags.Profile.PSYCHOLOGIST_PROFILE_SPECIALTIES)
         composeTestRule
             .onNodeWithTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_SPECIALTIES)
-            .assertExists()
+            .assertIsDisplayed()
     }
 
     @Test
