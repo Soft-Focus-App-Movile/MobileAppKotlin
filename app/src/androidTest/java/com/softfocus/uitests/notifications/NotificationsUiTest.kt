@@ -92,7 +92,7 @@ class NotificationsUiTest {
         // Comprueba que el sistema muestra visualmente que es prioridad CRÍTICA
         composeTestRule.onNodeWithText("!").assertIsDisplayed()
 
-        Thread.sleep(2000) // Pausa para que veas la alerta crítica en pantalla
+        Thread.sleep(2000)
 
         // ---------------------------------------------------------
         // VALIDACIÓN ESCENARIO 1: Recordatorios de check-in
