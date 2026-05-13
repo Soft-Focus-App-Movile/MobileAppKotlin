@@ -62,6 +62,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import com.softfocus.helpers.TestTags
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -271,7 +273,8 @@ fun RegisterScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 32.dp)
-            .padding(top = 48.dp, bottom = 16.dp),
+            .padding(top = 48.dp, bottom = 16.dp)
+            .testTag(TestTags.Auth.REGISTER_SCREEN),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -307,7 +310,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).testTag(TestTags.Auth.REGISTER_FIRST_NAME_FIELD),
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -329,7 +332,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).testTag(TestTags.Auth.REGISTER_LAST_NAME_FIELD),
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -356,7 +359,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { viewModel.updateEmail(it) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.REGISTER_EMAIL_FIELD),
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -383,7 +386,7 @@ fun RegisterScreen(
                     color = Color.Red,
                     style = SourceSansRegular,
                     fontSize = 12.sp,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp).testTag(TestTags.Auth.REGISTER_EMAIL_ERROR)
                 )
             }
         }
@@ -397,7 +400,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.updatePassword(it) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.REGISTER_PASSWORD_FIELD),
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
@@ -450,7 +453,7 @@ fun RegisterScreen(
                         color = Color.Red,
                         style = SourceSansRegular,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp).testTag(TestTags.Auth.REGISTER_PASSWORD_ERROR)
                     )
                 }
             }
@@ -462,7 +465,7 @@ fun RegisterScreen(
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { viewModel.updateConfirmPassword(it) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.REGISTER_CONFIRM_PASSWORD_FIELD),
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
@@ -515,7 +518,7 @@ fun RegisterScreen(
                         color = Color.Red,
                         style = SourceSansRegular,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp).testTag(TestTags.Auth.REGISTER_CONFIRM_PASSWORD_ERROR)
                     )
                 }
             }
@@ -564,6 +567,7 @@ fun RegisterScreen(
                                 if (checked) UserType.PSYCHOLOGIST else UserType.GENERAL
                             )
                         },
+                        modifier = Modifier.testTag(TestTags.Auth.REGISTER_USER_TYPE_SWITCH),
                         enabled = !isLoading,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Green49,
@@ -1185,6 +1189,7 @@ fun RegisterScreen(
 
         // Register button
         Button(
+            modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.REGISTER_BUTTON),
             onClick = {
                 if (userType == UserType.GENERAL) {
                     // Register general user
@@ -1215,7 +1220,6 @@ fun RegisterScreen(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Green49
@@ -1235,7 +1239,7 @@ fun RegisterScreen(
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(20.dp).testTag(TestTags.Auth.REGISTER_LOADING),
                     color = Color.White
                 )
             } else {
@@ -1256,7 +1260,8 @@ fun RegisterScreen(
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(TestTags.Auth.REGISTER_ERROR_MESSAGE)
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -1264,7 +1269,10 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         // Login link
-        TextButton(onClick = onNavigateToLogin) {
+        TextButton(
+            onClick = onNavigateToLogin,
+            modifier = Modifier.testTag(TestTags.Auth.REGISTER_LOGIN_LINK)
+        ) {
             Text(
                 text = "Ya tienes cuenta? ",
                 color = Color.Gray

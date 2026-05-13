@@ -40,6 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import com.softfocus.helpers.TestTags
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -135,7 +137,8 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 32.dp)
-            .padding(top = 48.dp),
+            .padding(top = 48.dp)
+            .testTag(TestTags.Auth.LOGIN_SCREEN),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -166,7 +169,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { viewModel.updateEmail(it) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.LOGIN_EMAIL_FIELD),
             shape = RoundedCornerShape(12.dp),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -196,7 +199,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { viewModel.updatePassword(it) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.LOGIN_PASSWORD_FIELD),
             shape = RoundedCornerShape(12.dp),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -249,7 +252,10 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            TextButton(onClick = onNavigateToForgotPassword) {
+            TextButton(
+                onClick = onNavigateToForgotPassword,
+                modifier = Modifier.testTag(TestTags.Auth.LOGIN_FORGOT_PASSWORD_LINK)
+            ) {
                 Text(
                     text = "¿Olvidaste tu contraseña?",
                     color = Green49,
@@ -264,7 +270,7 @@ fun LoginScreen(
         // Login button
         Button(
             onClick = { viewModel.login() },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.LOGIN_BUTTON),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Green49
@@ -273,7 +279,7 @@ fun LoginScreen(
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(20.dp).testTag(TestTags.Auth.LOGIN_LOADING),
                     color = Color.White
                 )
             } else {
@@ -294,7 +300,8 @@ fun LoginScreen(
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(TestTags.Auth.LOGIN_ERROR_MESSAGE)
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -330,7 +337,7 @@ fun LoginScreen(
             onClick = {
                 viewModel.signInWithGoogle(ApiConstants.GOOGLE_SERVER_CLIENT_ID)
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag(TestTags.Auth.LOGIN_GOOGLE_BUTTON),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = YellowEB
@@ -349,7 +356,10 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
 
-        TextButton(onClick = onNavigateToRegister) {
+        TextButton(
+            onClick = onNavigateToRegister,
+            modifier = Modifier.testTag(TestTags.Auth.LOGIN_REGISTER_LINK)
+        ) {
             Text(
                 text = "No tienes cuenta? ",
                 color = Color.Gray

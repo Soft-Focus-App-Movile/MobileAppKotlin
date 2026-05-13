@@ -24,6 +24,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
+import com.softfocus.helpers.TestTags
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -60,7 +62,7 @@ fun GeneralProfileScreen(
     onNavigateToHelpSupport: () -> Unit = {},
     onNavigateToMyPlan: () -> Unit = {},
     onLogout: () -> Unit = {},
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val user by viewModel.user.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
@@ -97,7 +99,8 @@ fun GeneralProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color.White)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .testTag(TestTags.Profile.PROFILE_SCREEN),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(24.dp))
@@ -129,7 +132,8 @@ fun GeneralProfileScreen(
                         text = user?.fullName ?: "Usuario",
                         style = CrimsonSemiBold,
                         fontSize = 28.sp,
-                        color = Black
+                        color = Black,
+                        modifier = Modifier.testTag(TestTags.Profile.PROFILE_NAME_TEXT)
                     )
 
                     // Edad calculada desde dateOfBirth
@@ -149,7 +153,8 @@ fun GeneralProfileScreen(
                         text = user?.email ?: "",
                         style = CrimsonSemiBold,
                         fontSize = 18.sp,
-                        color = Black
+                        color = Black,
+                        modifier = Modifier.testTag(TestTags.Profile.PROFILE_EMAIL_TEXT)
                     )
                 }
             }
@@ -195,7 +200,8 @@ fun GeneralProfileScreen(
             ProfileOption(
                 icon = Icons.Outlined.Logout,
                 title = "Cerrar Sesión",
-                onClick = onLogout
+                onClick = onLogout,
+                testTag = TestTags.Profile.PROFILE_LOGOUT_BUTTON
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -207,13 +213,15 @@ fun GeneralProfileScreen(
 fun ProfileOption(
     icon: ImageVector,
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    testTag: String = ""
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = GreenA3

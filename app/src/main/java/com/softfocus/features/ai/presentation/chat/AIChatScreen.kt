@@ -46,9 +46,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
+import com.softfocus.helpers.TestTags
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,10 +74,11 @@ fun AIChatScreen(
     initialMessage: String? = null,
     sessionId: String? = null,
     onBackClick: () -> Unit,
-    onNavigateToEmotionDetection: () -> Unit = {}
+    onNavigateToEmotionDetection: () -> Unit = {},
+    viewModel: AIChatViewModel? = null
 ) {
     val context = LocalContext.current
-    val viewModel = remember { AIPresentationModule.getAIChatViewModel(context) }
+    val viewModel = viewModel ?: remember { AIPresentationModule.getAIChatViewModel(context) }
     val state by viewModel.state.collectAsState()
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -146,12 +149,14 @@ fun AIChatScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Black)
+                .testTag(TestTags.AI.AI_CHAT_SCREEN)
         ) {
             if (state.showLimitWarning) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .testTag(TestTags.AI.AI_CHAT_LIMIT_WARNING),
                     colors = CardDefaults.cardColors(
                         containerColor = YellowE8
                     )
@@ -170,7 +175,8 @@ fun AIChatScreen(
                 state = listState,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag(TestTags.AI.AI_CHAT_MESSAGE_LIST),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
@@ -257,7 +263,8 @@ fun AIChatScreen(
                                         viewModel.sendMessage()
                                     }
                                 },
-                                enabled = state.currentMessage.isNotBlank() && !state.isLoading
+                                enabled = state.currentMessage.isNotBlank() && !state.isLoading,
+                                modifier = Modifier.testTag(TestTags.AI.AI_CHAT_SEND_BUTTON)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Send,
@@ -267,7 +274,9 @@ fun AIChatScreen(
                             }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TestTags.AI.AI_CHAT_INPUT_FIELD),
                     shape = RoundedCornerShape(24.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Gray222,
