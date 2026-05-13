@@ -4,7 +4,7 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import com.softfocus.helpers.TestTags
 import com.softfocus.robots.BaseRobot
 
-class ProfileRobot(composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
+class ProfileRobot(composeTestRule: ComposeTestRule, stepDelayMs: Long = 800) : BaseRobot(composeTestRule, stepDelayMs) {
 
     fun assertProfileScreenVisible(): ProfileRobot {
         assertVisible(TestTags.Profile.PROFILE_SCREEN)

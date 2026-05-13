@@ -15,7 +15,7 @@ import com.softfocus.robots.BaseRobot
  *
  * Si cambia un tag o un texto en la pantalla, solo se actualiza aquí.
  */
-class LoginRobot(composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
+class LoginRobot(composeTestRule: ComposeTestRule, stepDelayMs: Long = 800) : BaseRobot(composeTestRule, stepDelayMs) {
 
     fun enterEmail(email: String): LoginRobot {
         type(TestTags.Auth.LOGIN_EMAIL_FIELD, email)

@@ -14,7 +14,7 @@ import com.softfocus.robots.BaseRobot
  * Robot para RegisterScreen.
  * Cubre flujo General y flujo Psicólogo (con switch de tipo de cuenta).
  */
-class RegisterRobot(composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
+class RegisterRobot(composeTestRule: ComposeTestRule, stepDelayMs: Long = 800) : BaseRobot(composeTestRule, stepDelayMs) {
 
     fun enterFirstName(name: String): RegisterRobot {
         type(TestTags.Auth.REGISTER_FIRST_NAME_FIELD, name)

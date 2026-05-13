@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import com.softfocus.helpers.TestTags
 import com.softfocus.robots.BaseRobot
 
-class AIChatRobot(composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
+class AIChatRobot(composeTestRule: ComposeTestRule, stepDelayMs: Long = 800) : BaseRobot(composeTestRule, stepDelayMs) {
 
     fun assertChatScreenVisible(): AIChatRobot {
         assertVisible(TestTags.AI.AI_CHAT_SCREEN)
