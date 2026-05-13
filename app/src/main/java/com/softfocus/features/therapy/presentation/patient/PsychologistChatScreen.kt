@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import com.softfocus.core.navigation.Route
 import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.ui.components.ProfileAvatar
+import androidx.compose.ui.platform.testTag
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Gray9B
 import com.softfocus.ui.theme.Green49
@@ -58,6 +59,7 @@ fun PsychologistChatScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(GreenF8)
+            .testTag("ChatScreen")
     ) {
 
         ChatHeader(
@@ -174,7 +176,8 @@ fun ChatInput(
             modifier = Modifier
                 .border(1.dp, Gray9B, RoundedCornerShape(24.dp))
                 .weight(1f)
-                .background(White, RoundedCornerShape(24.dp)),
+                .background(White, RoundedCornerShape(24.dp))
+                .testTag("ChatInputTextField"),
             shape = RoundedCornerShape(24.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))
@@ -184,6 +187,7 @@ fun ChatInput(
                 .size(48.dp)
                 .clip(CircleShape)
                 .background(Transparent)
+                .testTag("ChatSendButton")
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,

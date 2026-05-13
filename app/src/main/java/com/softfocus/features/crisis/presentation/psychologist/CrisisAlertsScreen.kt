@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -121,7 +122,9 @@ fun CrisisAlertsScreen(
 
                 is CrisisAlertsState.Empty -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("CrisisAlertsEmpty"),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -147,7 +150,9 @@ fun CrisisAlertsScreen(
                 is CrisisAlertsState.Success -> {
                     val alerts = (alertsState as CrisisAlertsState.Success).alerts
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag("CrisisAlertsList"),
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(alerts) { alert ->
