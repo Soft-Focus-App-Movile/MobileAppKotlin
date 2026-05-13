@@ -20,12 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.softfocus.helpers.TestTags
 import com.softfocus.R
 import com.softfocus.ui.theme.*
 import java.net.URL
@@ -91,7 +93,8 @@ fun PsychologistProfileScreen(
                 ) {
                     Text(
                         text = (uiState as PsychologistProfileUiState.Error).message,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_ERROR_TEXT)
                     )
                 }
             }
@@ -103,7 +106,8 @@ fun PsychologistProfileScreen(
                             .fillMaxSize()
                             .padding(paddingValues)
                             .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 24.dp),
+                            .padding(horizontal = 24.dp)
+                            .testTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_SCREEN),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Spacer(modifier = Modifier.height(24.dp))
@@ -138,7 +142,8 @@ fun PsychologistProfileScreen(
                                     ),
                                     color = Black,
                                     maxLines = 2,
-                                    lineHeight = 28.sp
+                                    lineHeight = 28.sp,
+                                    modifier = Modifier.testTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_NAME_TEXT)
                                 )
 
                                 // Age
@@ -160,13 +165,16 @@ fun PsychologistProfileScreen(
                                     style = CrimsonSemiBold,
                                     fontSize = 18.sp,
                                     color = Black,
-                                    maxLines = 1
+                                    maxLines = 1,
+                                    modifier = Modifier.testTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_EMAIL_TEXT)
                                 )
 
                                 // Badges - Solo mostrar las 2 primeras especialidades del backend
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag(TestTags.Profile.PSYCHOLOGIST_PROFILE_SPECIALTIES)
                                 ) {
                                     // Show only first two specialties from backend
                                     psychProfile.specialties.take(2).forEach { specialty ->
@@ -230,7 +238,8 @@ fun PsychologistProfileScreen(
                         MenuOption(
                             icon = Icons.Outlined.Logout,
                             text = "Cerrar Sesión",
-                            onClick = onLogout
+                            onClick = onLogout,
+                            testTag = TestTags.Profile.PSYCHOLOGIST_PROFILE_LOGOUT_BUTTON
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -262,13 +271,15 @@ private fun Badge(text: String) {
 private fun MenuOption(
     icon: ImageVector,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    testTag: String = ""
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),
         shape = RoundedCornerShape(12.dp),
         color = GreenA3,
         tonalElevation = 2.dp

@@ -72,6 +72,14 @@ object TestTags {
         const val PROFILE_NO_THERAPIST_TEXT = "profile_no_therapist_text"
         const val PROFILE_EDIT_BUTTON = "profile_edit_button"
 
+        // Psicólogo
+        const val PSYCHOLOGIST_PROFILE_SCREEN = "psychologist_profile_screen"
+        const val PSYCHOLOGIST_PROFILE_NAME_TEXT = "psychologist_profile_name_text"
+        const val PSYCHOLOGIST_PROFILE_EMAIL_TEXT = "psychologist_profile_email_text"
+        const val PSYCHOLOGIST_PROFILE_LOGOUT_BUTTON = "psychologist_profile_logout_button"
+        const val PSYCHOLOGIST_PROFILE_SPECIALTIES = "psychologist_profile_specialties"
+        const val PSYCHOLOGIST_PROFILE_ERROR_TEXT = "psychologist_profile_error_text"
+
         const val EDIT_PROFILE_SCREEN = "edit_profile_screen"
         const val EDIT_PROFILE_FIRST_NAME_FIELD = "edit_profile_first_name_field"
         const val EDIT_PROFILE_LAST_NAME_FIELD = "edit_profile_last_name_field"

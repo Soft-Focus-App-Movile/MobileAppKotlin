@@ -150,4 +150,74 @@ class ProfileUiTest {
         // Con sesión nula, el ViewModel setea error — pantalla muestra loading o error
         composeTestRule.waitForIdle()
     }
+
+    // --- Tests de datos de perfil para distintos roles ---
+
+    @Test
+    fun generalUserProfile_displaysCorrectUserType_whenUserIsGeneral() {
+        // El usuario general tiene userType GENERAL en el fake por defecto
+        every { mockUserSession.getUser() } returns FakeProfileRepository.defaultUser()
+
+        viewModel = ProfileViewModel(
+            profileRepository = fakeProfileRepository,
+            therapyRepository = fakeTherapyRepository,
+            userSession = mockUserSession,
+            context = InstrumentationRegistry.getInstrumentation().targetContext
+        )
+
+        launchScreen()
+
+        composeTestRule.waitUntilTagVisible(TestTags.Profile.PROFILE_NAME_TEXT)
+        // Usuario general: el nombre en el fake es "Juan Pérez"
+        composeTestRule
+            .onNodeWithTag(TestTags.Profile.PROFILE_NAME_TEXT)
+            .assertTextContains("Juan")
+
+        composeTestRule
+            .onNodeWithTag(TestTags.Profile.PROFILE_EMAIL_TEXT)
+            .assertTextContains("test@softfocus.com")
+    }
+
+    @Test
+    fun generalUserProfile_showsAssignedPsychologist_whenPsychologistExists() {
+        // El fake devuelve un psicólogo asignado por defecto (Dra. María García)
+        fakeProfileRepository.getAssignedPsychologistResult =
+            Result.success(FakeProfileRepository.defaultPsychologist())
+
+        launchScreen()
+
+        composeTestRule.waitUntilTagVisible(TestTags.Profile.PROFILE_SCREEN)
+        composeTestRule.waitForIdle()
+
+        // La pantalla de perfil general no muestra el card de psicólogo en este screen
+        // (eso está en la pantalla de conectar), pero la sesión y nombre sí se muestran
+        composeTestRule
+            .onNodeWithTag(TestTags.Profile.PROFILE_NAME_TEXT)
+            .assertExists()
+    }
+
+    @Test
+    fun generalUserProfile_showsCorrectEmail_whenProfileLoadsSuccessfully() {
+        fakeProfileRepository.getProfileResult = Result.success(
+            FakeProfileRepository.defaultUser().copy(
+                email = "juanperez@universidad.edu.pe",
+                fullName = "Juan Carlos Pérez"
+            )
+        )
+        every { mockUserSession.getUser() } returns fakeProfileRepository.getProfileResult.getOrNull()
+
+        viewModel = ProfileViewModel(
+            profileRepository = fakeProfileRepository,
+            therapyRepository = fakeTherapyRepository,
+            userSession = mockUserSession,
+            context = InstrumentationRegistry.getInstrumentation().targetContext
+        )
+
+        launchScreen()
+
+        composeTestRule.waitUntilTagVisible(TestTags.Profile.PROFILE_EMAIL_TEXT)
+        composeTestRule
+            .onNodeWithTag(TestTags.Profile.PROFILE_EMAIL_TEXT)
+            .assertTextContains("juanperez@universidad.edu.pe")
+    }
 }

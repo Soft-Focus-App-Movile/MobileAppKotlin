@@ -55,4 +55,25 @@ class ProfileRobot(composeTestRule: ComposeTestRule, stepDelayMs: Long = 800) : 
         click(TestTags.Profile.PROFILE_DISCONNECT_CONFIRM_BUTTON)
         return this
     }
+
+    // Psicólogo
+    fun assertPsychologistProfileVisible(): ProfileRobot {
+        assertVisible(TestTags.Profile.PSYCHOLOGIST_PROFILE_SCREEN)
+        return this
+    }
+
+    fun assertPsychologistNameDisplayed(): ProfileRobot {
+        assertVisible(TestTags.Profile.PSYCHOLOGIST_PROFILE_NAME_TEXT)
+        return this
+    }
+
+    fun assertPsychologistEmailDisplayed(): ProfileRobot {
+        assertVisible(TestTags.Profile.PSYCHOLOGIST_PROFILE_EMAIL_TEXT)
+        return this
+    }
+
+    fun tapPsychologistLogout(): ProfileRobot {
+        click(TestTags.Profile.PSYCHOLOGIST_PROFILE_LOGOUT_BUTTON)
+        return this
+    }
 }

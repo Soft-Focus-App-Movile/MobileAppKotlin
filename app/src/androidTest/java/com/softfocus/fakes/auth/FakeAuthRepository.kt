@@ -16,8 +16,12 @@ class FakeAuthRepository : AuthRepository {
     var loginResult: Result<User> = Result.success(defaultUser())
     var forgotPasswordResult: Result<String> = Result.success("Correo enviado")
     var registerResult: Result<Pair<String, String>> = Result.success(Pair("user-123", "test@softfocus.com"))
+    var verifyOAuthResult: Result<OAuthVerificationData> = Result.success(
+        OAuthVerificationData("test@gmail.com", "Test User", "Google", "temp-token", false, "General")
+    )
 
     var loginCallCount = 0
+    var verifyOAuthCallCount = 0
 
     override suspend fun login(email: String, password: String): Result<User> {
         loginCallCount++
@@ -42,8 +46,10 @@ class FakeAuthRepository : AuthRepository {
     override suspend fun socialLogin(provider: String, token: String): Result<User> =
         Result.success(defaultUser())
 
-    override suspend fun verifyOAuth(provider: String, accessToken: String): Result<OAuthVerificationData> =
-        Result.success(OAuthVerificationData("test@gmail.com", "Test User", provider, "temp-token", false, "General"))
+    override suspend fun verifyOAuth(provider: String, accessToken: String): Result<OAuthVerificationData> {
+        verifyOAuthCallCount++
+        return verifyOAuthResult
+    }
 
     override suspend fun oauthLogin(provider: String, token: String): Result<User> =
         Result.success(defaultUser())
@@ -67,7 +73,11 @@ class FakeAuthRepository : AuthRepository {
         loginResult = Result.success(defaultUser())
         forgotPasswordResult = Result.success("Correo enviado")
         registerResult = Result.success(Pair("user-123", "test@softfocus.com"))
+        verifyOAuthResult = Result.success(
+            OAuthVerificationData("test@gmail.com", "Test User", "Google", "temp-token", false, "General")
+        )
         loginCallCount = 0
+        verifyOAuthCallCount = 0
     }
 
     companion object {
