@@ -1,9 +1,11 @@
 package com.softfocus.features.therapy.presentation.call
 
-import android.view.SurfaceView
+import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.features.therapy.data.remote.AgoraCallManager
+import com.softfocus.features.therapy.data.remote.CallSignalEvent
+import com.softfocus.features.therapy.data.remote.CallSignalRService
 import com.softfocus.features.therapy.domain.models.CallAccess
 import com.softfocus.features.therapy.domain.usecases.AnswerCallUseCase
 import com.softfocus.features.therapy.domain.usecases.EndCallUseCase
@@ -36,6 +38,7 @@ class CallViewModel(
     private val initiateCallUseCase: InitiateCallUseCase,
     private val answerCallUseCase: AnswerCallUseCase,
     private val endCallUseCase: EndCallUseCase,
+    private val callSignalRService: CallSignalRService,
     val agora: AgoraCallManager,
     calleeName: String,
     isVideo: Boolean,
@@ -57,9 +60,41 @@ class CallViewModel(
 
     private var access: CallAccess? = null
 
+    private var signalingObserved = false
+
     /** Entry point once permissions are granted: answers an incoming call or starts an outgoing one. */
     fun start() {
+        observeSignaling()
         if (incomingCallId != null) answerIncomingCall() else startOutgoingCall()
+    }
+
+    /**
+     * Reacts to call signaling from the backend (over /callHub) for THIS call:
+     * accepted -> connected, rejected/ended -> close. This is what drives the call state,
+     * independent of the Agora media layer.
+     */
+    private fun observeSignaling() {
+        if (signalingObserved) return
+        signalingObserved = true
+        viewModelScope.launch {
+            callSignalRService.callEvents.collect { event ->
+                val myCallId = _uiState.value.callId ?: return@collect
+                if (event.callId != myCallId) return@collect
+                when (event) {
+                    is CallSignalEvent.Accepted ->
+                        _uiState.update { if (it.phase == CallPhase.Ringing) it.copy(phase = CallPhase.InCall) else it }
+                    is CallSignalEvent.Rejected -> endLocally("Llamada rechazada")
+                    is CallSignalEvent.Ended -> endLocally(null)
+                }
+            }
+        }
+    }
+
+    /** Tears down the call locally (the other party ended/rejected; no backend call needed). */
+    private fun endLocally(message: String?) {
+        if (_uiState.value.phase == CallPhase.Ended) return
+        agora.leaveAndDestroy()
+        _uiState.update { it.copy(phase = CallPhase.Ended, errorMessage = message ?: it.errorMessage) }
     }
 
     /** Starts an outgoing call to the patient's psychologist. Idempotent. */
@@ -89,7 +124,8 @@ class CallViewModel(
             answerCallUseCase(id)
                 .onSuccess { ca ->
                     access = ca
-                    _uiState.update { it.copy(callId = ca.callId, phase = CallPhase.Ringing) }
+                    // The user just accepted, so they're already in the call.
+                    _uiState.update { it.copy(callId = ca.callId, phase = CallPhase.InCall) }
                     joinChannel(ca)
                 }
                 .onFailure { e ->
@@ -144,10 +180,10 @@ class CallViewModel(
         }
     }
 
-    // --- Helpers used by the Composable to render Agora SurfaceViews ---
-    fun createSurfaceView(): SurfaceView = agora.createRendererView()
-    fun setupLocalVideo(surface: SurfaceView) = agora.setupLocalVideo(surface)
-    fun setupRemoteVideo(surface: SurfaceView, uid: Int) = agora.setupRemoteVideo(surface, uid)
+    // --- Helpers used by the Composable to render Agora video (TextureView) ---
+    fun createRendererView(): View = agora.createRendererView()
+    fun setupLocalVideo(view: View) = agora.setupLocalVideo(view)
+    fun setupRemoteVideo(view: View, uid: Int) = agora.setupRemoteVideo(view, uid)
 
     override fun onCleared() {
         if (_uiState.value.phase != CallPhase.Ended) {

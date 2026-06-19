@@ -39,7 +39,7 @@ import com.softfocus.ui.theme.White
 fun PatientChatScreen(
     viewModel: PatientChatViewModel,
     onNavigateBack: () -> Unit,
-    onStartCall: (callType: String) -> Unit = {}
+    onStartCall: (callType: String, calleeName: String) -> Unit = { _, _ -> }
 ) {
     // --- 4. OBTENER ESTADO DEL VIEWMODEL ---
     val uiState by viewModel.uiState.collectAsState()
@@ -101,7 +101,7 @@ fun PatientChatScreen(
 fun ChatHeader(
     summaryState: PatientSummaryState,
     onNavigateBack: () -> Unit,
-    onStartCall: (callType: String) -> Unit
+    onStartCall: (callType: String, calleeName: String) -> Unit
 ) {
 
     Surface(
@@ -146,7 +146,7 @@ fun ChatHeader(
             }
 
             // Llamada de voz
-            IconButton(onClick = { onStartCall("Audio") }) {
+            IconButton(onClick = { onStartCall("Audio", summaryState.patientName) }) {
                 Icon(
                     imageVector = Icons.Filled.Call,
                     contentDescription = "Llamada de voz",
@@ -156,7 +156,7 @@ fun ChatHeader(
             }
 
             // Videollamada
-            IconButton(onClick = { onStartCall("Video") }) {
+            IconButton(onClick = { onStartCall("Video", summaryState.patientName) }) {
                 Icon(
                     imageVector = Icons.Filled.Videocam,
                     contentDescription = "Videollamada",

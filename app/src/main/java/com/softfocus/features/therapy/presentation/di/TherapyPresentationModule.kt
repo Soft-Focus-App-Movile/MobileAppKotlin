@@ -245,6 +245,7 @@ object TherapyPresentationModule {
             initiateCallUseCase = getInitiateCallUseCase(),
             answerCallUseCase = getAnswerCallUseCase(),
             endCallUseCase = getEndCallUseCase(),
+            callSignalRService = getCallSignalRService(),
             agora = AgoraCallManager(context),
             calleeName = calleeName,
             isVideo = callType.equals("Video", ignoreCase = true),

@@ -3,6 +3,7 @@ package com.softfocus.features.therapy.presentation.call
 import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -71,6 +72,12 @@ fun CallScreen(
         }
     }
 
+    // Back button hangs up properly (ends the call on the backend) instead of just leaving,
+    // so the user isn't left "in a call" and blocked from starting new ones.
+    BackHandler(enabled = uiState.phase != CallPhase.Ended) {
+        viewModel.hangUp()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -83,8 +90,8 @@ fun CallScreen(
             key(uiState.remoteUid) {
                 AndroidView(
                     factory = {
-                        viewModel.createSurfaceView().also { surface ->
-                            viewModel.setupRemoteVideo(surface, uiState.remoteUid!!)
+                        viewModel.createRendererView().also { view ->
+                            viewModel.setupRemoteVideo(view, uiState.remoteUid!!)
                         }
                     },
                     modifier = Modifier.fillMaxSize()
@@ -104,9 +111,8 @@ fun CallScreen(
         if (uiState.isVideo && uiState.cameraOn && uiState.phase != CallPhase.Error && uiState.phase != CallPhase.Connecting) {
             AndroidView(
                 factory = {
-                    viewModel.createSurfaceView().also { surface ->
-                        surface.setZOrderMediaOverlay(true)
-                        viewModel.setupLocalVideo(surface)
+                    viewModel.createRendererView().also { view ->
+                        viewModel.setupLocalVideo(view)
                     }
                 },
                 modifier = Modifier
@@ -234,9 +240,10 @@ private fun CallControls(
                 onClick = onSwitchCamera
             )
         } else {
-            // Speaker (audio calls)
+            // Speaker (audio calls): always a clean speaker icon (no "slash"), like WhatsApp.
+            // On/off is shown by the highlight (filled white when the loudspeaker is active).
             CallControlButton(
-                icon = if (uiState.speakerOn) Icons.Filled.VolumeUp else Icons.Filled.VolumeOff,
+                icon = Icons.Filled.VolumeUp,
                 description = "Altavoz",
                 background = if (uiState.speakerOn) Color.White else Color(0x33FFFFFF),
                 tint = if (uiState.speakerOn) Color.Black else Color.White,

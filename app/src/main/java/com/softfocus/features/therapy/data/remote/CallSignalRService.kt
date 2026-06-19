@@ -9,10 +9,21 @@ import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.features.therapy.domain.models.IncomingCallInfo
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.TimeUnit
+
+/** Signaling events for the call the current user is actively in (caller or answerer). */
+sealed class CallSignalEvent {
+    abstract val callId: String
+    data class Accepted(override val callId: String, val userName: String?) : CallSignalEvent()
+    data class Rejected(override val callId: String) : CallSignalEvent()
+    data class Ended(override val callId: String) : CallSignalEvent()
+}
 
 /**
  * Connects to the backend "/callHub" and listens for call signaling so the app can ring the callee
@@ -31,6 +42,10 @@ class CallSignalRService(
 
     private val _incomingCall = MutableStateFlow<IncomingCallInfo?>(null)
     val incomingCall: StateFlow<IncomingCallInfo?> = _incomingCall.asStateFlow()
+
+    // Events for the active call (accepted / rejected / ended), consumed by the CallViewModel.
+    private val _callEvents = MutableSharedFlow<CallSignalEvent>(extraBufferCapacity = 16)
+    val callEvents: SharedFlow<CallSignalEvent> = _callEvents.asSharedFlow()
 
     fun initConnection() {
         if (hubConnection != null) return
@@ -94,14 +109,47 @@ class CallSignalRService(
         )
 
         hubConnection?.on(
+            "CallAccepted",
+            { payload: Map<*, *> ->
+                try {
+                    val dto = gson.fromJson(gson.toJson(payload), CallAcceptedPayload::class.java)
+                    Log.d(TAG, "CallAccepted: callId=${dto.callId}")
+                    dto.callId?.let { _callEvents.tryEmit(CallSignalEvent.Accepted(it, dto.user?.name)) }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parseando CallAccepted: ${e.message}", e)
+                }
+            },
+            Map::class.java
+        )
+
+        hubConnection?.on(
+            "CallRejected",
+            { payload: Map<*, *> ->
+                try {
+                    val dto = gson.fromJson(gson.toJson(payload), CallEndedPayload::class.java)
+                    Log.d(TAG, "CallRejected: callId=${dto.callId}")
+                    dto.callId?.let {
+                        _callEvents.tryEmit(CallSignalEvent.Rejected(it))
+                        if (_incomingCall.value?.callId == it) _incomingCall.value = null
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parseando CallRejected: ${e.message}", e)
+                }
+            },
+            Map::class.java
+        )
+
+        hubConnection?.on(
             "CallEnded",
             { payload: Map<*, *> ->
                 try {
                     val json = gson.toJson(payload)
                     val dto = gson.fromJson(json, CallEndedPayload::class.java)
-                    // If the call that ended is the one we're ringing for, dismiss the ring.
-                    if (_incomingCall.value?.callId == dto.callId) {
-                        _incomingCall.value = null
+                    Log.d(TAG, "CallEnded: callId=${dto.callId}")
+                    dto.callId?.let {
+                        _callEvents.tryEmit(CallSignalEvent.Ended(it))
+                        // If the call that ended is the one we're ringing for, dismiss the ring.
+                        if (_incomingCall.value?.callId == it) _incomingCall.value = null
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parseando CallEnded: ${e.message}", e)
@@ -152,6 +200,14 @@ class CallSignalRService(
         val endedBy: String?,
         val status: String?
     )
+
+    private data class CallAcceptedPayload(
+        val callId: String?,
+        val channelName: String?,
+        val user: User?
+    ) {
+        data class User(val id: String?, val name: String?)
+    }
 
     companion object {
         private const val TAG = "CallSignalRService"
