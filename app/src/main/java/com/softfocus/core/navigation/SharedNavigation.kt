@@ -35,6 +35,7 @@ import com.softfocus.features.notifications.presentation.preferences.Notificatio
 import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
 import com.softfocus.features.search.presentation.detail.PsychologistDetailScreen
 import com.softfocus.features.search.presentation.search.SearchPsychologistScreen
+import com.softfocus.features.therapy.presentation.call.CallScreen
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.features.tracking.presentation.screens.CheckInFormScreen
@@ -607,6 +608,42 @@ fun NavGraphBuilder.sharedNavigation(
     composable(Route.HelpSupport.path) {
         com.softfocus.features.profile.presentation.shared.HelpSupportScreen(
             onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    // Call Screen (Agora voice/video) - shared by all logged-in users (patient & psychologist),
+    // full screen with no bottom nav. Used both for outgoing calls and for answering incoming ones.
+    composable(
+        route = Route.Call.path,
+        arguments = listOf(
+            navArgument("callType") { type = NavType.StringType },
+            navArgument("calleeName") { type = NavType.StringType },
+            navArgument("avatarUrl") { type = NavType.StringType; nullable = true; defaultValue = "null" },
+            navArgument("callId") { type = NavType.StringType; nullable = true; defaultValue = "null" },
+            navArgument("targetUserId") { type = NavType.StringType; nullable = true; defaultValue = "null" }
+        )
+    ) { backStackEntry ->
+        val callType = backStackEntry.arguments?.getString("callType") ?: "Video"
+        val rawName = backStackEntry.arguments?.getString("calleeName").orEmpty()
+        val rawAvatar = backStackEntry.arguments?.getString("avatarUrl")
+        val calleeName = java.net.URLDecoder.decode(rawName, "UTF-8")
+        val avatarUrl = rawAvatar?.takeIf { it != "null" }?.let { java.net.URLDecoder.decode(it, "UTF-8") }
+        val callId = backStackEntry.arguments?.getString("callId")?.takeIf { it != "null" }
+        val targetUserId = backStackEntry.arguments?.getString("targetUserId")?.takeIf { it != "null" }
+
+        val callViewModel = remember {
+            TherapyPresentationModule.getCallViewModel(
+                callType = callType,
+                calleeName = calleeName,
+                incomingCallId = callId,
+                targetUserId = targetUserId
+            )
+        }
+
+        CallScreen(
+            viewModel = callViewModel,
+            calleeAvatarUrl = avatarUrl,
+            navController = navController
         )
     }
 

@@ -71,6 +71,24 @@ object ApiConstants {
         const val LAST_MESSAGE = "chat/last-received"
     }
 
+    // Calls endpoints (Agora voice/video)
+    object Calls {
+        const val INITIATE = "calls/initiate"
+        const val ANSWER = "calls/{callId}/answer"
+        const val REJECT = "calls/{callId}/reject"
+        const val END = "calls/{callId}/end"
+        const val TOKEN = "calls/{callId}/token"
+        const val HISTORY = "calls/history"
+
+        // Real-time signaling hub (note: NOT under /api/v1, same host as the chat hub)
+        const val HUB_URL = "http://32.194.77.233:5000/callHub"
+
+        fun answer(callId: String) = ANSWER.replace("{callId}", callId)
+        fun reject(callId: String) = REJECT.replace("{callId}", callId)
+        fun end(callId: String) = END.replace("{callId}", callId)
+        fun token(callId: String) = TOKEN.replace("{callId}", callId)
+    }
+
     // AI endpoints
     object AI {
         const val CHAT_MESSAGE = "ai/chat/message"

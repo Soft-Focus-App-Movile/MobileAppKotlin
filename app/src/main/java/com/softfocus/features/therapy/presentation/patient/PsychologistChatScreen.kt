@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -130,13 +132,51 @@ fun ChatHeader(summaryState: PsychologistSummaryState, navController: NavHostCon
                 Column {
                     Text(
                         text = summaryState.psychologistName,
-                        style = CrimsonSemiBold.copy(fontSize = 25.sp),
-                        color = Color.White
+                        style = CrimsonSemiBold.copy(fontSize = 20.sp),
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f)) // Empuja el ícono a la derecha
+            Spacer(modifier = Modifier.weight(1f)) // Empuja los íconos a la derecha
+
+            // Llamada de voz
+            IconButton(onClick = {
+                navController.navigate(
+                    Route.Call.createRoute(
+                        callType = "Audio",
+                        calleeName = summaryState.psychologistName,
+                        avatarUrl = summaryState.profilePhotoUrl
+                    )
+                )
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Call,
+                    contentDescription = "Llamada de voz",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
+                )
+            }
+
+            // Videollamada
+            IconButton(onClick = {
+                navController.navigate(
+                    Route.Call.createRoute(
+                        callType = "Video",
+                        calleeName = summaryState.psychologistName,
+                        avatarUrl = summaryState.profilePhotoUrl
+                    )
+                )
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Videocam,
+                    contentDescription = "Videollamada",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
+                )
+            }
 
             IconButton(onClick = {
                 navController.navigate(
@@ -146,7 +186,7 @@ fun ChatHeader(summaryState: PsychologistSummaryState, navController: NavHostCon
                 Icon(
                     imageVector = Icons.Outlined.ContentPaste,
                     contentDescription = "Botón de portapapeles",
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(24.dp),
                     tint = Color.White
                 )
             }

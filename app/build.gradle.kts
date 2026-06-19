@@ -82,6 +82,9 @@ dependencies {
     implementation("com.microsoft.signalr:signalr:7.0.5")
     implementation("io.reactivex.rxjava3:rxjava:3.1.12")
 
+    // Agora RTC (voice/video calls)
+    implementation("io.agora.rtc:full-sdk:4.6.3")
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
 

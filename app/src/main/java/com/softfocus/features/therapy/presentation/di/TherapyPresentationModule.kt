@@ -32,7 +32,17 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import com.softfocus.features.therapy.data.remote.SignalRService
+import com.softfocus.features.therapy.data.remote.AgoraCallManager
+import com.softfocus.features.therapy.data.remote.CallService
+import com.softfocus.features.therapy.data.remote.CallSignalRService
+import com.softfocus.features.therapy.data.repositories.CallRepositoryImpl
+import com.softfocus.features.therapy.domain.repositories.CallRepository
+import com.softfocus.features.therapy.domain.usecases.AnswerCallUseCase
+import com.softfocus.features.therapy.domain.usecases.EndCallUseCase
+import com.softfocus.features.therapy.domain.usecases.InitiateCallUseCase
+import com.softfocus.features.therapy.domain.usecases.RejectCallUseCase
 import com.softfocus.features.therapy.domain.usecases.GetRelationshipWithPatientUseCase
+import com.softfocus.features.therapy.presentation.call.CallViewModel
 import com.softfocus.features.therapy.presentation.patient.PsychologistChatViewModel
 import com.softfocus.features.therapy.presentation.patient.psychologistprofile.PsyChatProfileViewModel
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.PatientChatViewModel
@@ -41,6 +51,7 @@ object TherapyPresentationModule {
 
     private var applicationContext: Context? = null
     private var signalRService: SignalRService? = null
+    private var callSignalRService: CallSignalRService? = null
 
 
     fun init(context: Context) {
@@ -190,6 +201,55 @@ object TherapyPresentationModule {
             sendChatMessageUseCase = getSendChatMessageUseCase(),
             signalRService = getSignalRService(),
             userSession = UserSession(context)
+        )
+    }
+
+    // --- Calls (Agora) ---
+
+    private fun getCallService(): CallService {
+        return getRetrofit().create(CallService::class.java)
+    }
+
+    private fun getCallRepository(): CallRepository {
+        return CallRepositoryImpl(
+            getCallService(),
+            applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
+        )
+    }
+
+    fun getInitiateCallUseCase(): InitiateCallUseCase = InitiateCallUseCase(getCallRepository())
+
+    fun getAnswerCallUseCase(): AnswerCallUseCase = AnswerCallUseCase(getCallRepository())
+
+    fun getRejectCallUseCase(): RejectCallUseCase = RejectCallUseCase(getCallRepository())
+
+    fun getEndCallUseCase(): EndCallUseCase = EndCallUseCase(getCallRepository())
+
+    /** Singleton listener for incoming calls over /callHub. */
+    fun getCallSignalRService(): CallSignalRService {
+        if (callSignalRService == null) {
+            val context = applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
+            callSignalRService = CallSignalRService(UserSession(context))
+        }
+        return callSignalRService!!
+    }
+
+    fun getCallViewModel(
+        callType: String,
+        calleeName: String,
+        incomingCallId: String? = null,
+        targetUserId: String? = null
+    ): CallViewModel {
+        val context = applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
+        return CallViewModel(
+            initiateCallUseCase = getInitiateCallUseCase(),
+            answerCallUseCase = getAnswerCallUseCase(),
+            endCallUseCase = getEndCallUseCase(),
+            agora = AgoraCallManager(context),
+            calleeName = calleeName,
+            isVideo = callType.equals("Video", ignoreCase = true),
+            incomingCallId = incomingCallId,
+            targetUserId = targetUserId
         )
     }
 
