@@ -30,11 +30,29 @@ interface TrackingRepository {
     // ============= EMOTIONAL CALENDAR =============
 
     suspend fun createEmotionalCalendarEntry(
-        date: String,
+        timestamp: String,
         emotionalEmoji: String,
         moodLevel: Int,
-        emotionalTags: List<String>
+        emotionalTags: List<String>,
+        content: String = "",
+        sessionDurationSeconds: Int = 0,
+        entryType: String = "spontaneous"
     ): Result<EmotionalCalendarEntry>
+
+    suspend fun createQuickEmotionalEntry(
+        timestamp: String,
+        emotionalEmoji: String,
+        moodLevel: Int,
+        content: String = "",
+        sessionDurationSeconds: Int = 0,
+        entryType: String = "spontaneous"
+    ): Result<EmotionalCalendarEntry>
+
+    suspend fun getTodayEmotionalEntries(): Result<List<EmotionalCalendarEntry>>
+
+    suspend fun deleteTodayEmotionalEntries(entryType: String? = null): Result<DeleteTodayEmotionalEntriesResult>
+
+    suspend fun getEmotionalEntriesByDate(date: String): Result<List<EmotionalCalendarEntry>>
 
     suspend fun getEmotionalCalendar(
         startDate: String? = null,

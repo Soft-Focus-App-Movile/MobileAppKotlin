@@ -14,7 +14,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SummaryStep(
     onSubmit: () -> Unit,
-    isLoading: Boolean
+    isLoading: Boolean,
+    errorMessage: String? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -45,7 +46,20 @@ fun SummaryStep(
             fontSize = 120.sp
         )
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
+
+        if (!errorMessage.isNullOrBlank()) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.errorContainer,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         Button(
             onClick = onSubmit,

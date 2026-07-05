@@ -4,6 +4,7 @@ import com.softfocus.core.common.result.Result
 import com.softfocus.features.tracking.data.mapper.toDomain
 import com.softfocus.features.tracking.data.model.CreateCheckInRequest
 import com.softfocus.features.tracking.data.model.CreateEmotionalCalendarRequest
+import com.softfocus.features.tracking.data.model.CreateQuickEmotionalEntryRequest
 import com.softfocus.features.tracking.data.remote.TrackingApi
 import com.softfocus.features.tracking.domain.model.*
 import com.softfocus.features.tracking.domain.repository.TrackingRepository
@@ -91,17 +92,23 @@ class TrackingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createEmotionalCalendarEntry(
-        date: String,
+        timestamp: String,
         emotionalEmoji: String,
         moodLevel: Int,
-        emotionalTags: List<String>
+        emotionalTags: List<String>,
+        content: String,
+        sessionDurationSeconds: Int,
+        entryType: String
     ): Result<EmotionalCalendarEntry> {
         return try {
             val request = CreateEmotionalCalendarRequest(
-                date = date,
+                timestamp = timestamp,
                 emotionalEmoji = emotionalEmoji,
                 moodLevel = moodLevel,
-                emotionalTags = emotionalTags
+                emotionalTags = emotionalTags,
+                content = content,
+                sessionDurationSeconds = sessionDurationSeconds,
+                entryType = entryType
             )
 
             val response = api.createEmotionalCalendarEntry(request)
@@ -110,6 +117,77 @@ class TrackingRepositoryImpl @Inject constructor(
                 Result.Success(response.body()!!.data.toDomain())
             } else {
                 Result.Error(response.message() ?: "Error creating emotional calendar entry")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
+    override suspend fun createQuickEmotionalEntry(
+        timestamp: String,
+        emotionalEmoji: String,
+        moodLevel: Int,
+        content: String,
+        sessionDurationSeconds: Int,
+        entryType: String
+    ): Result<EmotionalCalendarEntry> {
+        return try {
+            val request = CreateQuickEmotionalEntryRequest(
+                timestamp = timestamp,
+                emotionalEmoji = emotionalEmoji,
+                moodLevel = moodLevel,
+                content = content,
+                sessionDurationSeconds = sessionDurationSeconds
+            )
+
+            val response = api.createQuickEmotionalEntry(request)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!.data.toDomain())
+            } else {
+                Result.Error(response.message() ?: "Error creating quick emotional entry")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
+    override suspend fun getTodayEmotionalEntries(): Result<List<EmotionalCalendarEntry>> {
+        return try {
+            val response = api.getTodayEmotionalEntries()
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!.entries.map { it.toDomain() })
+            } else {
+                Result.Error(response.message() ?: "Error fetching today's emotional entries")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
+    override suspend fun deleteTodayEmotionalEntries(entryType: String?): Result<DeleteTodayEmotionalEntriesResult> {
+        return try {
+            val response = api.deleteTodayEmotionalEntries(entryType)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!.toDomain())
+            } else {
+                Result.Error(response.message() ?: "Error deleting today's emotional entries")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error occurred")
+        }
+    }
+
+    override suspend fun getEmotionalEntriesByDate(date: String): Result<List<EmotionalCalendarEntry>> {
+        return try {
+            val response = api.getEmotionalEntriesByDate(date)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!.entries.map { it.toDomain() })
+            } else {
+                Result.Error(response.message() ?: "Error fetching emotional entries by date")
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error occurred")

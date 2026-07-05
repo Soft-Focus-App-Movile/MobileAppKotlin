@@ -36,6 +36,24 @@ interface TrackingApi {
         @Body request: CreateEmotionalCalendarRequest
     ): Response<CreateEmotionalCalendarApiResponse>
 
+    @POST("tracking/emotional-calendar/quick")
+    suspend fun createQuickEmotionalEntry(
+        @Body request: CreateQuickEmotionalEntryRequest
+    ): Response<CreateEmotionalCalendarApiResponse>
+
+    @GET("tracking/emotional-calendar/today")
+    suspend fun getTodayEmotionalEntries(): Response<TodayEmotionalEntriesApiResponse>
+
+    @DELETE("tracking/emotional-calendar/today")
+    suspend fun deleteTodayEmotionalEntries(
+        @Query("entryType") entryType: String? = null
+    ): Response<DeleteTodayEmotionalEntriesApiResponse>
+
+    @GET("tracking/emotional-calendar/date/{date}")
+    suspend fun getEmotionalEntriesByDate(
+        @Path("date") date: String
+    ): Response<TodayEmotionalEntriesApiResponse>
+
     @GET("tracking/emotional-calendar")
     suspend fun getEmotionalCalendar(
         @Query("startDate") startDate: String? = null,

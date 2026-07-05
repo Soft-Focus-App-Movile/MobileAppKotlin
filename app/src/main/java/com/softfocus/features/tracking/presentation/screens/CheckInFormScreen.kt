@@ -31,6 +31,12 @@ fun CheckInFormScreen(
 ) {
     val formState by viewModel.checkInFormState.collectAsState()
     val emotionalCalendarFormState by viewModel.emotionalCalendarFormState.collectAsState()
+    val submitErrorMessage = when {
+        formState is CheckInFormState.Error -> (formState as CheckInFormState.Error).message
+        emotionalCalendarFormState is EmotionalCalendarFormState.Error ->
+            (emotionalCalendarFormState as EmotionalCalendarFormState.Error).message
+        else -> null
+    }
     var currentStep by remember { mutableStateOf(0) }
 
     // Form data
@@ -42,7 +48,8 @@ fun CheckInFormScreen(
     var emotionalLevel by remember { mutableStateOf(5) }
     var energyLevel by remember { mutableStateOf(5) }
     var sleepHours by remember { mutableStateOf(7) }
-    var notes by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    val sessionStartTime = remember { System.currentTimeMillis() }
 
     val totalSteps = 6
 
@@ -126,8 +133,8 @@ fun CheckInFormScreen(
                     )
                     2 -> DetailsStep(
                         question = "Te gustaría dar más detalles de lo que pasó?",
-                        notes = notes,
-                        onNotesChanged = { notes = it },
+                        notes = content,
+                        onNotesChanged = { content = it },
                         onNext = { currentStep++ },
                         onSkip = { currentStep++ }
                     )
@@ -157,29 +164,27 @@ fun CheckInFormScreen(
                                 else -> "Me siento excelente"
                             }
 
-                            // 1. Guardar CHECK-IN
-                            viewModel.createCheckIn(
+                            val sessionDuration =
+                                ((System.currentTimeMillis() - sessionStartTime) / 1000).toInt()
+
+                            viewModel.submitDailyCheckIn(
                                 emotionalLevel = emotionalLevel,
                                 energyLevel = energyLevel,
                                 moodDescription = moodDescription,
                                 sleepHours = sleepHours,
                                 symptoms = selectedSymptoms,
-                                notes = notes.ifBlank { null }
-                            )
-
-                            // 2. Guardar EMOTIONAL CALENDAR
-                            val currentDate = java.time.LocalDateTime.now()
-                                .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
-
-                            viewModel.createEmotionalCalendarEntry(
-                                date = currentDate,
+                                notes = content.ifBlank { null },
+                                timestamp = java.time.Instant.now().toString(),
                                 emotionalEmoji = selectedMoodEmoji,
                                 moodLevel = moodLevel,
-                                emotionalTags = selectedCategories
+                                emotionalTags = selectedCategories,
+                                content = content,
+                                sessionDurationSeconds = sessionDuration
                             )
                         },
                         isLoading = formState is CheckInFormState.Loading ||
-                                emotionalCalendarFormState is EmotionalCalendarFormState.Loading
+                                emotionalCalendarFormState is EmotionalCalendarFormState.Loading,
+                        errorMessage = submitErrorMessage
                     )
                 }
 
