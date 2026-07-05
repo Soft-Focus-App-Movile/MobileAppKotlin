@@ -14,7 +14,6 @@ import com.softfocus.features.library.domain.models.ContentItem
 import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.features.library.domain.models.EmotionalTag
 import com.softfocus.features.library.domain.models.Favorite
-import com.softfocus.features.library.domain.models.WeatherCondition
 import com.softfocus.features.library.domain.repositories.LibraryRepository
 
 /**
@@ -317,26 +316,6 @@ class LibraryRepositoryImpl(
     // ============================================================
     // RECOMMENDATIONS
     // ============================================================
-
-    override suspend fun getWeather(
-        latitude: Double,
-        longitude: Double
-    ): Result<WeatherCondition> {
-        return try {
-            val response = recommendationsService.getRecommendedPlaces(
-                token = getAuthToken(),
-                latitude = latitude,
-                longitude = longitude,
-                emotionFilter = null,
-                limit = 5
-            )
-
-            val weather = response.weather.toDomain()
-            Result.success(weather)
-        } catch (e: Exception) {
-            Result.failure(Exception("Error al obtener clima: ${e.message}", e))
-        }
-    }
 
     override suspend fun getRecommendedContent(
         contentType: ContentType?,

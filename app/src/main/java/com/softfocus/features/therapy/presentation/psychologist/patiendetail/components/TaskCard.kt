@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayCircleOutline
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,7 +99,6 @@ private fun getIconForContentType(type: ContentType): ImageVector {
         ContentType.Movie -> Icons.Default.Movie
         ContentType.Music -> Icons.Default.MusicNote
         ContentType.Video -> Icons.Default.PlayCircleOutline
-        ContentType.Weather -> Icons.Default.WbSunny
     }
 }
 

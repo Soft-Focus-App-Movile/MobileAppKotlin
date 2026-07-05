@@ -81,7 +81,6 @@ data class ContentItem(
         ContentType.Movie -> posterUrl
         ContentType.Music -> posterUrl
         ContentType.Video -> thumbnailUrl
-        ContentType.Weather -> null
     }
 
     fun getFormattedDuration(): String? = duration?.let {
