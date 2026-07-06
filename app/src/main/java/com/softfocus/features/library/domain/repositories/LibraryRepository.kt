@@ -5,7 +5,6 @@ import com.softfocus.features.library.domain.models.ContentItem
 import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.features.library.domain.models.EmotionalTag
 import com.softfocus.features.library.domain.models.Favorite
-import com.softfocus.features.library.domain.models.WeatherCondition
 
 /**
  * Interfaz del repositorio de Library (Domain Layer)
@@ -117,20 +116,6 @@ interface LibraryRepository {
     // ============================================================
     // RECOMMENDATIONS
     // ============================================================
-
-    /**
-     * Obtiene recomendaciones de lugares basadas en clima actual
-     *
-     * @param latitude Latitud de la ubicación
-     * @param longitude Longitud de la ubicación
-     * @param emotionFilter Filtro opcional por emoción
-     * @param limit Número máximo de resultados (1-50)
-     * @return Result con condición climática y lista de lugares
-     */
-    suspend fun getWeather(
-        latitude: Double,
-        longitude: Double
-    ): Result<WeatherCondition>
 
     /**
      * Obtiene recomendaciones de contenido basadas en la emoción del usuario

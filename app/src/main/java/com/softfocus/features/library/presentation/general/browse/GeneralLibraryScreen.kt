@@ -72,18 +72,14 @@ import com.softfocus.features.library.presentation.general.browse.components.Sea
 import com.softfocus.features.library.presentation.general.browse.components.VideoCategory
 import com.softfocus.features.library.presentation.shared.getDisplayName
 import com.softfocus.ui.theme.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Pantalla principal de biblioteca para usuarios General
  *
  * Muestra tabs con diferentes tipos de contenido:
- * - Películas
- * - Música
- * - Videos
- * - Lugares
+    * - Películas
+    * - Música
+    * - Videos
  *
  * @param onContentClick Callback al hacer clic en un contenido
  * @param modifier Modificador opcional
@@ -119,10 +115,7 @@ fun GeneralLibraryScreen(
 
     val isPsychologist = userType == UserType.PSYCHOLOGIST
     val isSelectionMode = isPsychologist && selectedContentIds.isNotEmpty()
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-
     val hasTherapist = remember { mutableStateOf<Boolean?>(null) }
-    var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
 
     LaunchedEffect(Unit) {
         if (!isPsychologist) {
@@ -133,25 +126,6 @@ fun GeneralLibraryScreen(
                 is Result.Error -> {
                     hasTherapist.value = false
                 }
-            }
-        }
-    }
-
-    LaunchedEffect(selectedType) {
-        if (selectedType == ContentType.Weather) {
-            android.util.Log.d("GeneralLibraryScreen", "Tab Weather seleccionado, obteniendo ubicación...")
-            withContext(Dispatchers.IO) {
-                val location = try {
-                    com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
-                } catch (e: Exception) {
-                    android.util.Log.e("GeneralLibraryScreen", "Error al obtener ubicación", e)
-                    null
-                }
-                val latitude = location?.latitude ?: -12.0464
-                val longitude = location?.longitude ?: -77.0428
-                currentLocation = Pair(latitude, longitude)
-                android.util.Log.d("GeneralLibraryScreen", "Ubicación: lat=$latitude, lon=$longitude (${if (location != null) "GPS" else "default"})")
-                viewModel.loadWeather(latitude, longitude)
             }
         }
     }
@@ -198,22 +172,7 @@ fun GeneralLibraryScreen(
         onFavoritesClear = { viewModel.clearFavoritesFilter() },
         onVideoCategorySelected = { viewModel.loadContentByVideoCategory(it) },
         onRetry = { viewModel.retry() },
-        onRefresh = {
-            if (selectedType == ContentType.Weather) {
-                scope.launch(Dispatchers.IO) {
-                    val location = try {
-                        com.softfocus.core.utils.LocationHelper.getCurrentLocation(context)
-                    } catch (e: Exception) {
-                        null
-                    }
-                    val latitude = location?.latitude ?: currentLocation?.first ?: -12.0464
-                    val longitude = location?.longitude ?: currentLocation?.second ?: -77.0428
-                    viewModel.refreshContent(latitude, longitude)
-                }
-            } else {
-                viewModel.refreshContent()
-            }
-        },
+        onRefresh = { viewModel.refreshContent() },
         onFavoriteClick = { viewModel.toggleFavorite(it) },
         onContentClick = {
             if (isSelectionMode) {
@@ -357,9 +316,6 @@ fun GeneralLibraryScreenContent(
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
                     }
-                    ContentType.Weather -> {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
                     else -> {
                         SearchBarWithFilter(
                             searchQuery = searchQuery,
@@ -501,8 +457,7 @@ private fun GeneralLibraryScreenPreview() {
                         )
                     ),
                     ContentType.Music to emptyList(),
-                    ContentType.Video to emptyList(),
-                    ContentType.Weather to emptyList()
+                    ContentType.Video to emptyList()
                 ),
                 selectedType = ContentType.Movie
             ),
@@ -551,8 +506,7 @@ private fun GeneralLibraryScreenEmptyPreview() {
                 contentByType = mapOf(
                     ContentType.Movie to emptyList(),
                     ContentType.Music to emptyList(),
-                    ContentType.Video to emptyList(),
-                    ContentType.Weather to emptyList()
+                    ContentType.Video to emptyList()
                 ),
                 selectedType = ContentType.Movie
             ),

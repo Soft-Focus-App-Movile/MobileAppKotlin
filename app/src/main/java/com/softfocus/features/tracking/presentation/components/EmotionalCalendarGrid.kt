@@ -22,14 +22,11 @@ import androidx.compose.ui.unit.sp
 import com.softfocus.R
 import com.softfocus.features.tracking.domain.model.EmotionalCalendarEntry
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.*
 
 @Composable
 fun EmotionalCalendarGrid(
     entries: List<EmotionalCalendarEntry>,
-    onDateClick: (EmotionalCalendarEntry) -> Unit,
+    onDateClick: (LocalDate, EmotionalCalendarEntry?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -56,10 +53,13 @@ fun EmotionalCalendarGrid(
         val daysInMonth = currentMonth.lengthOfMonth()
         val firstDayOfWeek = currentMonth.dayOfWeek.value % 7
         val totalCells = firstDayOfWeek + daysInMonth
+        val totalRows = (totalCells + 6) / 7
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height((totalRows * 48 + (totalRows - 1) * 4 + 8).dp),
             contentPadding = PaddingValues(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -80,7 +80,7 @@ fun EmotionalCalendarGrid(
                 EmotionalCalendarDay(
                     day = day,
                     moodLevel = entry?.moodLevel,
-                    onClick = { entry?.let { onDateClick(it) } }
+                    onClick = { onDateClick(date, entry) }
                 )
             }
         }
@@ -98,7 +98,7 @@ private fun EmotionalCalendarDay(
             .size(48.dp)
             .clip(CircleShape)
             .background(if (moodLevel != null) Color(0xFFE8F5E9) else Color.Transparent)
-            .clickable(enabled = moodLevel != null, onClick = onClick),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         if (moodLevel != null) {
@@ -119,7 +119,7 @@ private fun EmotionalCalendarDay(
 }
 
 // NUEVA FUNCIÓN: Mapear mood level a recurso de imagen
-private fun getMoodImageResource(moodLevel: Int): Int {
+fun getMoodImageResource(moodLevel: Int): Int {
     return when (moodLevel) {
         in 1..2 -> R.drawable.calendar_emoji_angry     // Muy triste
         in 3..4 -> R.drawable.calendar_emoji_sad          // Triste

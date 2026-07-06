@@ -22,9 +22,9 @@ import com.softfocus.ui.theme.SourceSansRegular
 
 /**
  * Componente de tabs de la biblioteca
- * Para PATIENT: Muestra todas las tabs de contenido (Movies, Music, Videos, Weather) + "Asignados"
+ * Para PATIENT: Muestra todas las tabs de contenido (Movies, Music, Videos) + "Asignados"
  * Para PSYCHOLOGIST: Muestra solo Movies, Music, Videos
- * Para GENERAL: Muestra todas las tabs de contenido (Movies, Music, Videos, Weather) SIN "Asignados"
+ * Para GENERAL: Muestra todas las tabs de contenido (Movies, Music, Videos) SIN "Asignados"
  *
  * @param isPatient Si el usuario es PATIENT (con terapeuta asignado)
  * @param currentTab Tab actual ("content" o "assignments")

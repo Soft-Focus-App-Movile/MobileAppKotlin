@@ -177,7 +177,6 @@ object ApiConstants {
         const val PSYCHOLOGIST_ASSIGNMENTS = "library/assignments/by-psychologist"
 
         // Recommendation endpoints
-        const val RECOMMEND_PLACES = "library/recommendations/places"
         const val RECOMMEND_CONTENT = "library/recommendations/content"
         const val RECOMMEND_BY_EMOTION = "library/recommendations/emotion/{emotion}"
 

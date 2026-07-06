@@ -40,10 +40,14 @@ data class Pagination(
 data class EmotionalCalendarEntry(
     val id: String,
     val userId: String,
-    val date: String,
+    val timestamp: String,  // NUEVO: ISO-8601 con hora/minuto (reemplaza a date como fuente principal)
+    val date: String,  // Se mantiene por compatibilidad con vistas de calendario existentes
     val emotionalEmoji: String,
     val moodLevel: Int,
     val emotionalTags: List<String>,
+    val content: String = "",  // NUEVO
+    val sessionDurationSeconds: Int = 0,  // NUEVO
+    val entryType: String = "spontaneous",  // NUEVO: "scheduled" | "spontaneous"
     val createdAt: String,
     val updatedAt: String
 )
@@ -52,6 +56,13 @@ data class EmotionalCalendar(
     val entries: List<EmotionalCalendarEntry>,
     val totalCount: Int,
     val dateRange: DateRange
+)
+
+data class DeleteTodayEmotionalEntriesResult(
+    val deletedCount: Int,
+    val failedCount: Int,
+    val totalMatched: Int,
+    val entryType: String
 )
 
 data class DateRange(

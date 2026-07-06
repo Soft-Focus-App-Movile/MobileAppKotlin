@@ -90,23 +90,7 @@ fun LibraryContent(
                 },
                 modifier = modifier
             ) {
-                // Weather se maneja de forma especial (no usa lista de contenido)
-                if (selectedType == ContentType.Weather) {
-                    if (uiState.weatherCondition != null) {
-                        PlacesWeatherView(
-                            weather = uiState.weatherCondition,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        // Cargando clima
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = Green29)
-                        }
-                    }
-                } else if (content.isEmpty()) {
+                if (content.isEmpty()) {
                     // Mensaje cuando no hay contenido (para Movie, Music, Video)
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -190,13 +174,10 @@ fun LibraryContent(
                             }
                         }
                     }
-                    ContentType.Weather -> {
-                        // Weather ya se maneja arriba, esto no debería ejecutarse nunca
-                        // pero Kotlin requiere que el when sea exhaustivo
-                    }
-                }
                 }
             }
+        }
+
         }
 
         is GeneralLibraryUiState.Error -> {

@@ -7,16 +7,53 @@ class CreateEmotionalCalendarEntryUseCase @Inject constructor(
     private val repository: TrackingRepository
 ) {
     suspend operator fun invoke(
-        date: String,
+        timestamp: String,
         emotionalEmoji: String,
         moodLevel: Int,
-        emotionalTags: List<String>
+        emotionalTags: List<String>,
+        content: String = "",
+        sessionDurationSeconds: Int = 0,
+        entryType: String = "spontaneous"
     ) = repository.createEmotionalCalendarEntry(
-        date = date,
+        timestamp = timestamp,
         emotionalEmoji = emotionalEmoji,
         moodLevel = moodLevel,
-        emotionalTags = emotionalTags
+        emotionalTags = emotionalTags,
+        content = content,
+        sessionDurationSeconds = sessionDurationSeconds,
+        entryType = entryType
     )
+}
+
+class CreateQuickEmotionalEntryUseCase @Inject constructor(
+    private val repository: TrackingRepository
+) {
+    suspend operator fun invoke(
+        emotionalEmoji: String,
+        moodLevel: Int,
+        content: String = "",
+        sessionDurationSeconds: Int = 0
+    ) = repository.createQuickEmotionalEntry(
+        timestamp = java.time.Instant.now().toString(),
+        emotionalEmoji = emotionalEmoji,
+        moodLevel = moodLevel,
+        content = content,
+        sessionDurationSeconds = sessionDurationSeconds,
+        entryType = "spontaneous"
+    )
+}
+
+class GetTodayEmotionalEntriesUseCase @Inject constructor(
+    private val repository: TrackingRepository
+) {
+    suspend operator fun invoke() = repository.getTodayEmotionalEntries()
+}
+
+class DeleteTodayEmotionalEntriesUseCase @Inject constructor(
+    private val repository: TrackingRepository
+) {
+    suspend operator fun invoke(entryType: String? = null) =
+        repository.deleteTodayEmotionalEntries(entryType)
 }
 
 class GetEmotionalCalendarUseCase @Inject constructor(
