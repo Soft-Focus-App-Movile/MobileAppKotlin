@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.softfocus.core.navigation.Route
 import com.softfocus.ui.components.DraggableAIButton
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.features.home.presentation.patient.di.patientHomeViewModel
 import com.softfocus.ui.theme.Black
@@ -90,6 +91,7 @@ fun PatientHomeScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
+            containerColor = AppColors.background,
             topBar = {
                 TopAppBar(
                     title = {
@@ -125,7 +127,7 @@ fun PatientHomeScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
+                        containerColor = AppColors.background
                     )
                 )
             }
@@ -135,7 +137,7 @@ fun PatientHomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .background(Color.White)
+                    .background(AppColors.background)
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 

@@ -210,12 +210,21 @@ fun ChatInput(
         OutlinedTextField(
             value = text,
             onValueChange = onTextChange,
-            placeholder = { Text("Escribe un mensaje...") },
+            placeholder = { Text("Escribe un mensaje...", color = Gray9B) },
             modifier = Modifier
                 .border(1.dp, Gray9B, RoundedCornerShape(24.dp))
                 .weight(1f)
                 .background(White, RoundedCornerShape(24.dp)),
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(24.dp),
+            // El chat tiene diseño claro: forzamos texto oscuro para que sea legible también
+            // cuando el celular está en modo oscuro (si no, el texto se vuelve blanco sobre blanco).
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black,
+                focusedPlaceholderColor = Gray9B,
+                unfocusedPlaceholderColor = Gray9B
+            )
         )
         Spacer(modifier = Modifier.width(4.dp))
         IconButton(

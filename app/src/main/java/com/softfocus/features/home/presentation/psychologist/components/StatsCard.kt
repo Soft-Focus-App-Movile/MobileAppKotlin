@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.R
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.GrayA2
@@ -93,7 +94,7 @@ fun StatCard(
         modifier = modifier
             .height(220.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = AppColors.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -128,7 +129,7 @@ fun StatCard(
                 text = stat.title,
                 style = SourceSansRegular,
                 fontSize = 12.sp,
-                color = Black,
+                color = AppColors.textPrimary,
                 textAlign = TextAlign.Center,
                 lineHeight = 14.sp
             )
@@ -147,7 +148,7 @@ fun StatCard(
                 text = stat.subtitle,
                 style = SourceSansRegular,
                 fontSize = 10.sp,
-                color = GrayA2,
+                color = AppColors.textSecondary,
                 textAlign = TextAlign.Center,
                 lineHeight = 12.sp
             )

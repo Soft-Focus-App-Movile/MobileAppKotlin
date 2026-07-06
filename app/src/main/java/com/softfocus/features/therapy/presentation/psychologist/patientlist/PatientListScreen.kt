@@ -23,15 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.therapy.domain.models.PatientDirectory
 import com.softfocus.ui.components.ProfileAvatar
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-
-// --- Definición de Colores (del archivo original) ---
-private val primaryGreen = Color(0xFF4B634B)
-private val cardBackground = Color(0xFFF7F7F3)
-private val lightGrayText = Color(0xFF8B8B8B)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,17 +47,18 @@ fun PatientListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(AppColors.background)
     ) {
         // --- Barra Superior (Diseño Original) ---
         TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = AppColors.background),
             title = {
                 Text(
                     text = "Pacientes",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = CrimsonSemiBold.copy(fontSize = 32.sp),
-                    color = Green49
+                    color = AppColors.accent
                 )
             },
             navigationIcon = {
@@ -69,7 +66,7 @@ fun PatientListScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Volver",
-                        tint = Color.Black
+                        tint = AppColors.textPrimary
                     )
                 }
             },
@@ -85,7 +82,7 @@ fun PatientListScreen(
                 uiState.isLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = primaryGreen
+                        color = AppColors.accent
                     )
                 }
 
@@ -121,7 +118,7 @@ fun PatientListScreen(
                 else -> {
                     Text(
                         text = "Aún no tienes pacientes asignados.",
-                        color = lightGrayText,
+                        color = AppColors.textSecondary,
                         modifier = Modifier
                             .align(Alignment.Center)
                             .padding(16.dp),
@@ -154,7 +151,7 @@ private fun PatientCard(
             .fillMaxWidth()
             .clickable(onClick = onClick), // El Card completo es clickeable
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBackground),
+        colors = CardDefaults.cardColors(containerColor = AppColors.cardNeutral),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -182,13 +179,13 @@ private fun PatientCard(
                 Text(
                     text = patient.patientName,
                     style = CrimsonSemiBold.copy(fontSize = 21.sp),
-                    color = Color.Black
+                    color = AppColors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Conectado desde: $formattedDate",
                     fontSize = 12.sp,
-                    color = lightGrayText
+                    color = AppColors.textSecondary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
 
@@ -196,7 +193,7 @@ private fun PatientCard(
                 Text(
                     text = "Sesiones: ${patient.sessionCount}",
                     fontSize = 12.sp,
-                    color = lightGrayText,
+                    color = AppColors.textSecondary,
                     fontWeight = FontWeight.Normal // Ajustado para ser info, no un botón
                 )
 
@@ -209,7 +206,7 @@ private fun PatientCard(
                     Text(
                         text = "Ver Perfil",
                         fontSize = 13.sp,
-                        color = primaryGreen,
+                        color = AppColors.accent,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Start
                     )

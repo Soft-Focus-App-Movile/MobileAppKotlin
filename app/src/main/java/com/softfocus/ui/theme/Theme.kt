@@ -3,13 +3,17 @@ package com.softfocus.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -116,19 +120,32 @@ fun SoftFocusMobileTheme(
         else -> LightColorScheme
     }
 
+    // Our semantic, theme-aware palette (used by screens via AppColors).
+    val softFocusColors = if (darkTheme) DarkSoftFocusColors else LightSoftFocusColors
+
     // Update system bars
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
+            window.statusBarColor = softFocusColors.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalSoftFocusColors provides softFocusColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography
+        ) {
+            // Adaptive background so screens that don't paint their own (e.g. login) follow the theme.
+            // This is what makes text legible in dark mode instead of white-on-white.
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = softFocusColors.background
+            ) {
+                content()
+            }
+        }
+    }
 }

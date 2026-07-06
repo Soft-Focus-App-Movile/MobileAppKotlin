@@ -23,6 +23,7 @@ import com.softfocus.features.crisis.domain.models.Location
 import com.softfocus.features.crisis.presentation.psychologist.components.PatientCrisisCard
 import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.features.library.presentation.shared.getDisplayName
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
@@ -53,6 +54,7 @@ fun CrisisAlertsScreen(
     )
 
     Scaffold(
+        containerColor = AppColors.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -66,7 +68,7 @@ fun CrisisAlertsScreen(
 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -75,7 +77,7 @@ fun CrisisAlertsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(White)
+                .background(AppColors.background)
         ) {
             ScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
