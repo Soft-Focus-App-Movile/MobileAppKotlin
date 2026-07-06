@@ -7,8 +7,11 @@ import com.softfocus.core.data.local.UserSession
 import com.softfocus.core.networking.ApiConstants
 import com.softfocus.core.networking.Auth401Interceptor
 import com.softfocus.features.therapy.data.remote.TherapyService
+import com.softfocus.features.therapy.data.remote.PatientTaskService
 import com.softfocus.features.therapy.data.repositories.TherapyRepositoryImpl
+import com.softfocus.features.therapy.data.repositories.PatientTaskRepositoryImpl
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
+import com.softfocus.features.therapy.domain.repositories.PatientTaskRepository
 import com.softfocus.features.therapy.domain.usecases.ConnectWithPsychologistUseCase
 import com.softfocus.features.therapy.domain.usecases.GetMyRelationshipUseCase
 import com.softfocus.features.therapy.presentation.connect.ConnectPsychologistViewModel
@@ -112,6 +115,17 @@ object TherapyPresentationModule {
         )
     }
 
+    private fun getPatientTaskService(): PatientTaskService {
+        return getRetrofit().create(PatientTaskService::class.java)
+    }
+
+    fun getPatientTaskRepository(): PatientTaskRepository {
+        return PatientTaskRepositoryImpl(
+            getPatientTaskService(),
+            applicationContext ?: throw IllegalStateException("TherapyPresentationModule not initialized")
+        )
+    }
+
     private fun getPsychologistSearchService(): PsychologistSearchService {
         return getRetrofit().create(PsychologistSearchService::class.java)
     }
@@ -187,7 +201,8 @@ object TherapyPresentationModule {
             savedStateHandle = savedStateHandle,
             getPatientProfileUseCase = getGetPatientProfileUseCase(),
             getPatientCheckInsUseCase = getGetPatientCheckInsUseCase(),
-            repository = getAssignmentsRepository()
+            repository = getAssignmentsRepository(),
+            patientTaskRepository = getPatientTaskRepository()
         )
     }
 

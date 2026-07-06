@@ -62,6 +62,15 @@ object ApiConstants {
         const val DISCONNECT = "therapy/disconnect/{relationshipId}"
 
         fun disconnect(relationshipId: String) = DISCONNECT.replace("{relationshipId}", relationshipId)
+
+        // Tareas/propósitos de texto libre asignadas por el psicólogo
+        object Tasks {
+            const val BASE = "therapy/tasks"
+            const val ASSIGNED = "therapy/tasks/assigned"
+            const val COMPLETE = "therapy/tasks/{taskId}/complete"
+
+            fun complete(taskId: String) = COMPLETE.replace("{taskId}", taskId)
+        }
     }
 
     object Chat {

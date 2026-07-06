@@ -43,6 +43,7 @@ fun PatientDetailScreen(
     val summaryState by viewModel.summaryState.collectAsState()
     val checkInState by viewModel.checkInState.collectAsState()
     val tasksState by viewModel.tasksState.collectAsState()
+    val customTasksState by viewModel.customTasksState.collectAsState()
 
 
     Scaffold(
@@ -109,7 +110,11 @@ fun PatientDetailScreen(
                 when (selectedTabIndex) {
                     0 -> SummaryTab(checkInState)
                     1 -> TasksTab(
-                        tasksState = tasksState
+                        tasksState = tasksState,
+                        customTasksState = customTasksState,
+                        onCreateTask = { title, description, onResult ->
+                            viewModel.createCustomTask(title, description, onResult)
+                        }
                     )
                 }
             }

@@ -11,6 +11,8 @@ import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.features.library.domain.repositories.LibraryRepository
 import com.softfocus.features.search.domain.models.Psychologist
 import com.softfocus.features.search.domain.repositories.SearchRepository
+import com.softfocus.features.therapy.domain.models.PatientTask
+import com.softfocus.features.therapy.domain.repositories.PatientTaskRepository
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +25,8 @@ class PatientHomeViewModel(
     private val libraryRepository: LibraryRepository,
     private val therapyRepository: TherapyRepository,
     private val searchRepository: SearchRepository,
-    private val assignmentsRepository: AssignmentsRepository
+    private val assignmentsRepository: AssignmentsRepository,
+    private val patientTaskRepository: PatientTaskRepository
 ) : ViewModel() {
 
     companion object {
@@ -42,6 +45,10 @@ class PatientHomeViewModel(
     private val _assignmentsState = MutableStateFlow<AssignmentsUiState>(AssignmentsUiState.Loading)
     val assignmentsState: StateFlow<AssignmentsUiState> = _assignmentsState.asStateFlow()
 
+    // Tareas de texto libre asignadas por el psicólogo
+    private val _customTasksState = MutableStateFlow<CustomTasksUiState>(CustomTasksUiState.Loading)
+    val customTasksState: StateFlow<CustomTasksUiState> = _customTasksState.asStateFlow()
+
     private var currentKeywordIndex = 0
     private val allContent = mutableListOf<ContentItem>()
 
@@ -49,6 +56,7 @@ class PatientHomeViewModel(
         loadRecommendations()
         loadTherapistInfo()
         loadAssignments()
+        loadCustomTasks()
     }
 
     private fun loadTherapistInfo() {
@@ -214,6 +222,36 @@ class PatientHomeViewModel(
         loadAssignments()
     }
 
+    fun loadCustomTasks() {
+        viewModelScope.launch {
+            _customTasksState.value = CustomTasksUiState.Loading
+            patientTaskRepository.getMyTasks().fold(
+                onSuccess = { tasks ->
+                    _customTasksState.value = CustomTasksUiState.Success(tasks)
+                },
+                onFailure = { exception ->
+                    _customTasksState.value = CustomTasksUiState.Error(
+                        exception.message ?: "Error al cargar tareas"
+                    )
+                }
+            )
+        }
+    }
+
+    /**
+     * El paciente marca una tarea como completada y se recarga la lista.
+     */
+    fun completeCustomTask(taskId: String) {
+        viewModelScope.launch {
+            patientTaskRepository.completeTask(taskId).fold(
+                onSuccess = { loadCustomTasks() },
+                onFailure = { exception ->
+                    Log.w(TAG, "completeCustomTask: error: ${exception.message}")
+                }
+            )
+        }
+    }
+
     private fun formatMessageTime(timestamp: String): String {
         return try {
             // El timestamp viene en formato ISO-8601: "2025-01-13T17:30:00"
@@ -236,4 +274,10 @@ sealed class TherapistState {
     ) : TherapistState()
     object NoTherapist : TherapistState()
     data class Error(val message: String) : TherapistState()
+}
+
+sealed class CustomTasksUiState {
+    object Loading : CustomTasksUiState()
+    data class Success(val tasks: List<PatientTask>) : CustomTasksUiState()
+    data class Error(val message: String) : CustomTasksUiState()
 }
