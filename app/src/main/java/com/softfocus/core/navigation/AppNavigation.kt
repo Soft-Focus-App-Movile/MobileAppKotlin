@@ -1,5 +1,7 @@
 package com.softfocus.core.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -8,12 +10,17 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.auth.domain.models.UserType
+import com.softfocus.features.therapy.presentation.call.IncomingCallHost
+import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
  * Main navigation orchestrator for the SoftFocus app.
@@ -54,11 +61,26 @@ fun AppNavigation() {
 
     val userTypeKey = currentUser?.userType?.name ?: "none"
 
+    // Connect/disconnect the incoming-call (/callHub) listener based on login state.
+    LaunchedEffect(currentUser?.id) {
+        TherapyPresentationModule.init(context)
+        val callService = TherapyPresentationModule.getCallSignalRService()
+        withContext(Dispatchers.IO) {
+            if (currentUser?.id != null) {
+                callService.initConnection()
+                callService.startConnection()
+            } else {
+                callService.stopConnection()
+            }
+        }
+    }
+
     // Use key() to force NavHost to rebuild when user type changes
     // This ensures the correct navigation routes are registered after login/logout
     key(userTypeKey) {
         val navController = rememberNavController()
 
+        Box(modifier = Modifier.fillMaxSize()) {
         NavHost(
             navController = navController,
             startDestination = Route.Splash.path
@@ -91,6 +113,10 @@ fun AppNavigation() {
                     // No additional routes for unauthenticated users
                 }
             }
+        }
+
+            // Global incoming-call ring, shown above any screen.
+            IncomingCallHost(navController)
         }
     }
 }

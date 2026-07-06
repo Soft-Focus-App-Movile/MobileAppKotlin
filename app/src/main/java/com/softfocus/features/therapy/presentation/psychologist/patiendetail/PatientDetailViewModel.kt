@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
 import com.softfocus.features.library.assignments.presentation.AssignmentsUiState
+import com.softfocus.features.therapy.domain.models.PatientTask
+import com.softfocus.features.therapy.domain.repositories.PatientTaskRepository
 import com.softfocus.features.therapy.domain.usecases.GetPatientCheckInsUseCase
 import com.softfocus.features.therapy.domain.usecases.GetPatientProfileUseCase
 import com.softfocus.features.tracking.domain.model.CheckIn
@@ -45,11 +47,22 @@ data class PatientCheckInState(
     val isChartLoading: Boolean = true // Cargando para el "EvolucionChart"
 )
 
+/**
+ * Estado de las tareas/propósitos de texto libre que el psicólogo asigna al paciente.
+ */
+data class CustomTasksState(
+    val isLoading: Boolean = true,
+    val tasks: List<PatientTask> = emptyList(),
+    val error: String? = null,
+    val isCreating: Boolean = false
+)
+
 class PatientDetailViewModel(
     savedStateHandle: SavedStateHandle,
     private val getPatientProfileUseCase: GetPatientProfileUseCase,
     private val getPatientCheckInsUseCase: GetPatientCheckInsUseCase,
-    private val repository: AssignmentsRepository
+    private val repository: AssignmentsRepository,
+    private val patientTaskRepository: PatientTaskRepository
 ) : ViewModel() {
 
     // Ejemplo de cómo manejarías el estado
@@ -65,6 +78,10 @@ class PatientDetailViewModel(
     private val _checkInState = MutableStateFlow(PatientCheckInState())
     val checkInState: StateFlow<PatientCheckInState> = _checkInState.asStateFlow()
 
+    // --- Custom Tasks State (tareas de texto libre) ---
+    private val _customTasksState = MutableStateFlow(CustomTasksState())
+    val customTasksState: StateFlow<CustomTasksState> = _customTasksState.asStateFlow()
+
     private val patientId: String = savedStateHandle.get<String>("patientId") ?: ""
     private val encodedStartDate: String = savedStateHandle.get<String>("startDate") ?: ""
 
@@ -79,6 +96,7 @@ class PatientDetailViewModel(
             loadLastPatientCheckIn(patientId)
             loadWeeklyCheckIns(patientId)
             loadPsychologistAssignments()
+            loadCustomTasks()
         } else {
             val errorMsg = "Patient ID inválido"
             _summaryState.update { it.copy(isLoading = false, error = errorMsg) }
@@ -144,6 +162,56 @@ class PatientDetailViewModel(
                     )
                 }
             )
+        }
+    }
+
+    /**
+     * Carga las tareas de texto libre que el psicólogo asignó a este paciente.
+     */
+    fun loadCustomTasks() {
+        if (patientId.isBlank()) return
+        viewModelScope.launch {
+            _customTasksState.update { it.copy(isLoading = true, error = null) }
+            patientTaskRepository.getPatientTasks(patientId)
+                .onSuccess { tasks ->
+                    _customTasksState.update {
+                        it.copy(isLoading = false, tasks = tasks, error = null)
+                    }
+                }
+                .onFailure { exception ->
+                    _customTasksState.update {
+                        it.copy(isLoading = false, error = exception.message ?: "Error al cargar tareas")
+                    }
+                }
+        }
+    }
+
+    /**
+     * Crea una tarea/propósito de texto libre para el paciente y recarga la lista.
+     *
+     * @param onResult callback (éxito, mensajeDeError?) para que la UI reaccione.
+     */
+    fun createCustomTask(
+        title: String,
+        description: String,
+        onResult: (Boolean, String?) -> Unit = { _, _ -> }
+    ) {
+        if (patientId.isBlank()) {
+            onResult(false, "Paciente inválido")
+            return
+        }
+        viewModelScope.launch {
+            _customTasksState.update { it.copy(isCreating = true) }
+            patientTaskRepository.createTask(patientId, title, description)
+                .onSuccess {
+                    _customTasksState.update { it.copy(isCreating = false) }
+                    loadCustomTasks()
+                    onResult(true, null)
+                }
+                .onFailure { exception ->
+                    _customTasksState.update { it.copy(isCreating = false) }
+                    onResult(false, exception.message ?: "Error al crear la tarea")
+                }
         }
     }
 

@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.softfocus.R
 import com.softfocus.core.navigation.Route
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Green29
 import com.softfocus.ui.theme.SourceSansRegular
 
@@ -62,7 +63,7 @@ fun GeneralBottomNav(navController: NavController) {
 
     Surface(
         shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-        color = Color.White,
+        color = AppColors.background,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
@@ -100,7 +101,7 @@ fun GeneralBottomNav(navController: NavController) {
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                unselectedTextColor = AppColors.textSecondary,
                 indicatorColor = Color.Transparent
             )
         )
@@ -126,7 +127,7 @@ fun GeneralBottomNav(navController: NavController) {
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                unselectedTextColor = AppColors.textSecondary,
                 disabledIconColor = Color.LightGray,
                 disabledTextColor = Color.LightGray,
                 indicatorColor = Color.Transparent
@@ -153,7 +154,7 @@ fun GeneralBottomNav(navController: NavController) {
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                unselectedTextColor = AppColors.textSecondary,
                 indicatorColor = Color.Transparent
             )
         )
@@ -178,7 +179,7 @@ fun GeneralBottomNav(navController: NavController) {
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                unselectedTextColor = AppColors.textSecondary,
                 indicatorColor = Color.Transparent
             )
         )
@@ -204,7 +205,7 @@ fun GeneralBottomNav(navController: NavController) {
                 selectedIconColor = Green29,
                 selectedTextColor = Green29,
                 unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                unselectedTextColor = AppColors.textSecondary,
                 indicatorColor = Color.Transparent
             )
         )

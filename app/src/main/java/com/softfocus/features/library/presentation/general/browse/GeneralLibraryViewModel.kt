@@ -131,13 +131,6 @@ class GeneralLibraryViewModel(
         viewModelScope.launch {
             Log.d(TAG, "loadAllContent: Iniciando carga de contenido")
 
-            val currentState = _uiState.value
-            val previousWeather = if (currentState is GeneralLibraryUiState.Success) {
-                currentState.weatherCondition
-            } else {
-                null
-            }
-
             _uiState.value = GeneralLibraryUiState.Loading
 
             try {
@@ -145,10 +138,6 @@ class GeneralLibraryViewModel(
                 val errors = mutableListOf<String>()
 
                 for (type in ContentType.values()) {
-                    if (type == ContentType.Weather) {
-                        contentMap[type] = emptyList()
-                        continue
-                    }
                     Log.d(TAG, "loadAllContent: Cargando contenido para $type")
 
                     val result = repository.getRecommendedContent(
@@ -178,11 +167,10 @@ class GeneralLibraryViewModel(
                         "Error al cargar contenido:\n${errors.joinToString("\n")}"
                     )
                 } else {
-                    Log.d(TAG, "loadAllContent: Estableciendo estado Success, preservando weather: ${previousWeather != null}")
+                    Log.d(TAG, "loadAllContent: Estableciendo estado Success")
                     _uiState.value = GeneralLibraryUiState.Success(
                         contentByType = contentMap,
-                        selectedType = _selectedType.value,
-                        weatherCondition = previousWeather
+                        selectedType = _selectedType.value
                     )
                 }
             } catch (e: Exception) {
@@ -210,11 +198,6 @@ class GeneralLibraryViewModel(
                 }
 
                 val contentMap = existingContent.toMutableMap()
-
-                if (currentType == ContentType.Weather) {
-                    Log.w(TAG, "loadContentByEmotion: Weather no soporta filtro de emoción")
-                    return@launch
-                }
 
                 val result = repository.getRecommendedByEmotion(
                     emotion = emotion,
@@ -457,9 +440,7 @@ class GeneralLibraryViewModel(
 
             val hasContent = !currentState.contentByType[type].isNullOrEmpty()
 
-            if (type == ContentType.Weather) {
-                Log.d(TAG, "selectContentType: Weather se carga con loadWeather(), no con loadAllContent()")
-            } else if (isNewTypeFavoritesActive && !hasContent) {
+            if (isNewTypeFavoritesActive && !hasContent) {
                 Log.d(TAG, "selectContentType: Cargando favoritos para $type")
                 loadFavoriteContent()
             } else if (!isNewTypeFavoritesActive && !hasContent) {
@@ -471,22 +452,18 @@ class GeneralLibraryViewModel(
                 }
             }
         } else {
-            if (type == ContentType.Weather) {
-                Log.d(TAG, "selectContentType: Weather se carga con loadWeather(), esperando LaunchedEffect")
-            } else {
-                when {
-                    isNewTypeFavoritesActive -> {
-                        Log.d(TAG, "selectContentType: Cargando favoritos de $type")
-                        loadFavoriteContent()
-                    }
-                    _selectedEmotion.value != null -> {
-                        Log.d(TAG, "selectContentType: Cargando por emoción")
-                        loadContentByEmotion(_selectedEmotion.value!!)
-                    }
-                    else -> {
-                        Log.d(TAG, "selectContentType: Cargando todo el contenido")
-                        loadAllContent()
-                    }
+            when {
+                isNewTypeFavoritesActive -> {
+                    Log.d(TAG, "selectContentType: Cargando favoritos de $type")
+                    loadFavoriteContent()
+                }
+                _selectedEmotion.value != null -> {
+                    Log.d(TAG, "selectContentType: Cargando por emoción")
+                    loadContentByEmotion(_selectedEmotion.value!!)
+                }
+                else -> {
+                    Log.d(TAG, "selectContentType: Cargando todo el contenido")
+                    loadAllContent()
                 }
             }
         }
@@ -566,47 +543,6 @@ class GeneralLibraryViewModel(
         }
     }
 
-    fun loadWeather(latitude: Double, longitude: Double) {
-        viewModelScope.launch {
-            Log.d(TAG, "loadWeather: Iniciando carga de clima para lat=$latitude, lon=$longitude")
-            _uiState.value = GeneralLibraryUiState.Loading
-
-            try {
-                repository.getWeather(latitude, longitude).onSuccess { weather ->
-                    Log.d(TAG, "loadWeather: ✅ Clima cargado: ${weather.condition}")
-
-                    val currentState = _uiState.value
-                    val existingContent = if (currentState is GeneralLibraryUiState.Success) {
-                        currentState.contentByType
-                    } else {
-                        emptyMap()
-                    }
-
-                    val updatedContentMap = existingContent.toMutableMap()
-                    if (!updatedContentMap.containsKey(ContentType.Weather)) {
-                        updatedContentMap[ContentType.Weather] = emptyList()
-                    }
-
-                    _uiState.value = GeneralLibraryUiState.Success(
-                        contentByType = updatedContentMap,
-                        selectedType = ContentType.Weather,
-                        weatherCondition = weather
-                    )
-                }.onFailure { error ->
-                    Log.e(TAG, "loadWeather: ❌ Error: ${error.message}", error)
-                    _uiState.value = GeneralLibraryUiState.Error(
-                        error.message ?: "Error al cargar clima"
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "loadWeather: ❌ Excepción: ${e.message}", e)
-                _uiState.value = GeneralLibraryUiState.Error(
-                    e.message ?: "Error al cargar clima"
-                )
-            }
-        }
-    }
-
     fun retry() {
         if (_selectedEmotion.value != null) {
             loadContentByEmotion(_selectedEmotion.value!!)
@@ -615,35 +551,26 @@ class GeneralLibraryViewModel(
         }
     }
 
-    fun refreshContent(latitude: Double? = null, longitude: Double? = null) {
+    fun refreshContent() {
         val currentType = _selectedType.value
         Log.d(TAG, "refreshContent: Refrescando contenido de $currentType")
 
-        when (currentType) {
-            ContentType.Weather -> {
-                if (latitude != null && longitude != null) {
-                    loadWeather(latitude, longitude)
-                }
+        val isShowingFavorites = _showFavoritesByType.value[currentType] ?: false
+        val hasEmotion = _selectedEmotion.value != null
+        val hasVideoCategory = currentType == ContentType.Video && _selectedVideoCategory.value != null
+
+        when {
+            hasVideoCategory -> {
+                _selectedVideoCategory.value?.let { loadContentByVideoCategory(it) }
+            }
+            isShowingFavorites -> {
+                loadFavoriteContent()
+            }
+            hasEmotion -> {
+                loadContentByEmotion(_selectedEmotion.value!!)
             }
             else -> {
-                val isShowingFavorites = _showFavoritesByType.value[currentType] ?: false
-                val hasEmotion = _selectedEmotion.value != null
-                val hasVideoCategory = currentType == ContentType.Video && _selectedVideoCategory.value != null
-
-                when {
-                    hasVideoCategory -> {
-                        _selectedVideoCategory.value?.let { loadContentByVideoCategory(it) }
-                    }
-                    isShowingFavorites -> {
-                        loadFavoriteContent()
-                    }
-                    hasEmotion -> {
-                        loadContentByEmotion(_selectedEmotion.value!!)
-                    }
-                    else -> {
-                        loadAllContent()
-                    }
-                }
+                loadAllContent()
             }
         }
     }

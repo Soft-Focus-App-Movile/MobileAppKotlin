@@ -21,7 +21,10 @@ class TrackingViewModel @Inject constructor(
     private val createEmotionalCalendarEntryUseCase: CreateEmotionalCalendarEntryUseCase,
     private val getEmotionalCalendarUseCase: GetEmotionalCalendarUseCase,
     private val getEmotionalCalendarByDateUseCase: GetEmotionalCalendarByDateUseCase,
-    private val getTrackingDashboardUseCase: GetTrackingDashboardUseCase
+    private val getTrackingDashboardUseCase: GetTrackingDashboardUseCase,
+    private val createQuickEmotionalEntryUseCase: CreateQuickEmotionalEntryUseCase,
+    private val getTodayEmotionalEntriesUseCase: GetTodayEmotionalEntriesUseCase,
+    private val deleteTodayEmotionalEntriesUseCase: DeleteTodayEmotionalEntriesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TrackingUiState>(TrackingUiState.Initial)
@@ -32,6 +35,15 @@ class TrackingViewModel @Inject constructor(
 
     private val _emotionalCalendarFormState = MutableStateFlow<EmotionalCalendarFormState>(EmotionalCalendarFormState.Idle)
     val emotionalCalendarFormState: StateFlow<EmotionalCalendarFormState> = _emotionalCalendarFormState.asStateFlow()
+
+    private val _todayEntries = MutableStateFlow<List<com.softfocus.features.tracking.domain.model.EmotionalCalendarEntry>>(emptyList())
+    val todayEntries: StateFlow<List<com.softfocus.features.tracking.domain.model.EmotionalCalendarEntry>> = _todayEntries.asStateFlow()
+
+    private val _quickMoodState = MutableStateFlow<QuickMoodState>(QuickMoodState.Idle)
+    val quickMoodState: StateFlow<QuickMoodState> = _quickMoodState.asStateFlow()
+
+    private val _deleteTodayEntriesState = MutableStateFlow<DeleteTodayEntriesState>(DeleteTodayEntriesState.Idle)
+    val deleteTodayEntriesState: StateFlow<DeleteTodayEntriesState> = _deleteTodayEntriesState.asStateFlow()
 
     init {
         loadInitialData()
@@ -116,24 +128,31 @@ class TrackingViewModel @Inject constructor(
     }
 
     fun createEmotionalCalendarEntry(
-        date: String,
+        timestamp: String,
         emotionalEmoji: String,
         moodLevel: Int,
-        emotionalTags: List<String>
+        emotionalTags: List<String>,
+        content: String = "",
+        sessionDurationSeconds: Int = 0,
+        entryType: String = "spontaneous"
     ) {
         viewModelScope.launch {
             _emotionalCalendarFormState.value = EmotionalCalendarFormState.Loading
 
             when (val result = createEmotionalCalendarEntryUseCase(
-                date = date,
+                timestamp = timestamp,
                 emotionalEmoji = emotionalEmoji,
                 moodLevel = moodLevel,
-                emotionalTags = emotionalTags
+                emotionalTags = emotionalTags,
+                content = content,
+                sessionDurationSeconds = sessionDurationSeconds,
+                entryType = entryType
             )) {
                 is Result.Success -> {
                     _emotionalCalendarFormState.value = EmotionalCalendarFormState.Success
                     // Recargar calendario después de crear entrada
                     loadEmotionalCalendar()
+                    loadTodayEmotionalEntries()
                 }
                 is Result.Error -> {
                     _emotionalCalendarFormState.value = EmotionalCalendarFormState.Error(result.message)
@@ -142,23 +161,191 @@ class TrackingViewModel @Inject constructor(
         }
     }
 
+    fun submitDailyCheckIn(
+        emotionalLevel: Int,
+        energyLevel: Int,
+        moodDescription: String,
+        sleepHours: Int,
+        symptoms: List<String>,
+        notes: String?,
+        timestamp: String,
+        emotionalEmoji: String,
+        moodLevel: Int,
+        emotionalTags: List<String>,
+        content: String = "",
+        sessionDurationSeconds: Int = 0
+    ) {
+        if (_checkInFormState.value is CheckInFormState.Loading ||
+            _emotionalCalendarFormState.value is EmotionalCalendarFormState.Loading
+        ) return
+
+        _checkInFormState.value = CheckInFormState.Loading
+        _emotionalCalendarFormState.value = EmotionalCalendarFormState.Loading
+
+        viewModelScope.launch {
+            when (val todayResult = getTodayCheckInUseCase()) {
+                is Result.Success -> {
+                    updateTodayCheckIn(todayResult.data)
+                    if (todayResult.data.hasCompletedToday || todayResult.data.checkIn != null) {
+                        _checkInFormState.value =
+                            CheckInFormState.Error("Ya completaste el check-in diario de hoy.")
+                        _emotionalCalendarFormState.value = EmotionalCalendarFormState.Idle
+                        loadTodayEmotionalEntries()
+                        loadEmotionalCalendar()
+                        loadDashboard(days = 7)
+                        return@launch
+                    }
+                }
+                is Result.Error -> {
+                    _checkInFormState.value =
+                        CheckInFormState.Error("No se pudo verificar si ya hiciste el check-in de hoy.")
+                    _emotionalCalendarFormState.value = EmotionalCalendarFormState.Idle
+                    return@launch
+                }
+            }
+
+            when (val checkInResult = createCheckInUseCase(
+                emotionalLevel = emotionalLevel,
+                energyLevel = energyLevel,
+                moodDescription = moodDescription,
+                sleepHours = sleepHours,
+                symptoms = symptoms,
+                notes = notes
+            )) {
+                is Result.Success -> {
+                    _checkInFormState.value = CheckInFormState.Success
+                    loadTodayCheckIn()
+                    loadCheckInHistory()
+                    loadDashboard(days = 7)
+                }
+                is Result.Error -> {
+                    _checkInFormState.value = CheckInFormState.Error(checkInResult.message)
+                    _emotionalCalendarFormState.value = EmotionalCalendarFormState.Idle
+                    loadTodayCheckIn()
+                    loadDashboard(days = 7)
+                    return@launch
+                }
+            }
+
+            when (val calendarResult = createEmotionalCalendarEntryUseCase(
+                timestamp = timestamp,
+                emotionalEmoji = emotionalEmoji,
+                moodLevel = moodLevel,
+                emotionalTags = emotionalTags,
+                content = content,
+                sessionDurationSeconds = sessionDurationSeconds,
+                entryType = "scheduled"
+            )) {
+                is Result.Success -> {
+                    _emotionalCalendarFormState.value = EmotionalCalendarFormState.Success
+                    loadEmotionalCalendar()
+                    loadTodayEmotionalEntries()
+                }
+                is Result.Error -> {
+                    _emotionalCalendarFormState.value =
+                        EmotionalCalendarFormState.Error(calendarResult.message)
+                    loadEmotionalCalendar()
+                    loadTodayEmotionalEntries()
+                }
+            }
+        }
+    }
+
+    fun createQuickEmotionalEntry(
+        emoji: String,
+        level: Int,
+        content: String = "",
+        durationSeconds: Int = 0
+    ) {
+        if (_quickMoodState.value is QuickMoodState.Loading) return
+        _quickMoodState.value = QuickMoodState.Loading
+
+        viewModelScope.launch {
+            when (val result = createQuickEmotionalEntryUseCase(
+                emotionalEmoji = emoji,
+                moodLevel = level,
+                content = content,
+                sessionDurationSeconds = durationSeconds
+            )) {
+                is Result.Success -> {
+                    _quickMoodState.value = QuickMoodState.Success(result.data)
+                    loadTodayEmotionalEntries()
+                    loadEmotionalCalendar()
+                }
+                is Result.Error -> {
+                    _quickMoodState.value = QuickMoodState.Error(result.message)
+                }
+            }
+        }
+    }
+
+    fun loadTodayEmotionalEntries() {
+        viewModelScope.launch {
+            when (val result = getTodayEmotionalEntriesUseCase()) {
+                is Result.Success -> {
+                    _todayEntries.value = result.data
+                }
+                is Result.Error -> {
+                    // Handle error silently
+                }
+            }
+        }
+    }
+
+    fun refreshTodayEntries() {
+        loadTodayEmotionalEntries()
+    }
+
+    fun deleteTodayQuickEntries() {
+        if (_deleteTodayEntriesState.value is DeleteTodayEntriesState.Loading) return
+        _deleteTodayEntriesState.value = DeleteTodayEntriesState.Loading
+
+        viewModelScope.launch {
+            when (val result = deleteTodayEmotionalEntriesUseCase(entryType = "spontaneous")) {
+                is Result.Success -> {
+                    _deleteTodayEntriesState.value =
+                        DeleteTodayEntriesState.Success(result.data.deletedCount)
+                    loadTodayCheckIn()
+                    loadTodayEmotionalEntries()
+                    loadEmotionalCalendar()
+                    loadDashboard(days = 7)
+                }
+                is Result.Error -> {
+                    _deleteTodayEntriesState.value = DeleteTodayEntriesState.Error(result.message)
+                }
+            }
+        }
+    }
+
+    fun resetDeleteTodayEntriesState() {
+        _deleteTodayEntriesState.value = DeleteTodayEntriesState.Idle
+    }
+
+    fun resetQuickMoodState() {
+        _quickMoodState.value = QuickMoodState.Idle
+    }
+
     fun loadTodayCheckIn() {
         viewModelScope.launch {
             when (val result = getTodayCheckInUseCase()) {
                 is Result.Success -> {
-                    _uiState.update { state ->
-                        if (state is TrackingUiState.Success) {
-                            state.copy(
-                                data = state.data.copy(todayCheckIn = result.data)
-                            )
-                        } else {
-                            TrackingUiState.Success(TrackingData(todayCheckIn = result.data))
-                        }
-                    }
+                    updateTodayCheckIn(result.data)
                 }
                 is Result.Error -> {
                     // Handle error silently or show message
                 }
+            }
+        }
+    }
+
+    private fun updateTodayCheckIn(todayCheckIn: com.softfocus.features.tracking.domain.model.TodayCheckIn) {
+        _uiState.update { state ->
+            if (state is TrackingUiState.Success) {
+                state.copy(
+                    data = state.data.copy(todayCheckIn = todayCheckIn)
+                )
+            } else {
+                TrackingUiState.Success(TrackingData(todayCheckIn = todayCheckIn))
             }
         }
     }

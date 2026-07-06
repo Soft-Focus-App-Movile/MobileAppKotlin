@@ -30,3 +30,10 @@ sealed class EmotionalCalendarFormState {
     object Success : EmotionalCalendarFormState()
     data class Error(val message: String) : EmotionalCalendarFormState()
 }
+
+sealed class DeleteTodayEntriesState {
+    object Idle : DeleteTodayEntriesState()
+    object Loading : DeleteTodayEntriesState()
+    data class Success(val deletedCount: Int) : DeleteTodayEntriesState()
+    data class Error(val message: String) : DeleteTodayEntriesState()
+}

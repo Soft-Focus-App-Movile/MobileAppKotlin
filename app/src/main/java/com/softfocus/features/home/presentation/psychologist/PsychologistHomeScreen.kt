@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.psychologist.presentation.di.PsychologistPresentationModule
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Gray828
 import com.softfocus.ui.theme.SourceSansRegular
@@ -57,8 +58,15 @@ fun PsychologistHomeScreen(
     // Obtener información del usuario
     val userSession = remember { UserSession(context) }
     val currentUser = remember { userSession.getUser() }
+    // Para psicólogos el nombre completo suele ser "Dra. Patricia Sanchez" → mostramos
+    // título + apellido ("Dra. Sanchez"). Si hay apellido guardado, lo usamos directamente.
     val userName = remember {
-        currentUser?.fullName?.split(" ")?.firstOrNull() ?: "Usuario"
+        val parts = currentUser?.fullName?.trim()?.split(" ")?.filter { it.isNotBlank() }.orEmpty()
+        when {
+            parts.isEmpty() -> "Doctor(a)"
+            parts.size == 1 -> parts.first()
+            else -> "${parts.first()} ${parts.last()}" // título + apellido
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -132,6 +140,7 @@ fun PsychologistHomeScreen(
     )
 
     Scaffold(
+        containerColor = AppColors.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -165,7 +174,7 @@ fun PsychologistHomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -175,13 +184,13 @@ fun PsychologistHomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(AppColors.background)
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Saludo
             Text(
-                text = "Hola $userName ,",
+                text = "Hola $userName,",
                 style = CrimsonSemiBold,
                 fontSize = 24.sp,
                 color = Green65,

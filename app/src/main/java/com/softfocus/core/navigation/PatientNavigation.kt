@@ -157,9 +157,6 @@ fun NavGraphBuilder.patientNavigation(
                             com.softfocus.features.library.domain.models.ContentType.Movie -> {
                                 navController.navigate(Route.LibraryGeneralDetail.createRoute(content.id))
                             }
-                            com.softfocus.features.library.domain.models.ContentType.Weather -> {
-                                Toast.makeText(context, "Información del clima en tu ubicación actual", Toast.LENGTH_SHORT).show()
-                            }
                             com.softfocus.features.library.domain.models.ContentType.Music -> {
                                 val spotifyUrl = content.spotifyUrl
                                 if (!spotifyUrl.isNullOrBlank()) {

@@ -289,7 +289,19 @@ fun NavGraphBuilder.psychologistNavigation(
             Box(modifier = Modifier.padding(paddingValues)){
                 PatientChatScreen(
                     viewModel = chatViewModel,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onStartCall = { callType, calleeName ->
+                        val patientId = backStackEntry.arguments?.getString("patientId").orEmpty()
+                        val avatar = backStackEntry.arguments?.getString("profilePhotoUrl")?.takeIf { it != "null" }
+                        navController.navigate(
+                            Route.Call.createRoute(
+                                callType = callType,
+                                calleeName = calleeName,
+                                avatarUrl = avatar,
+                                targetUserId = patientId
+                            )
+                        )
+                    }
                 )
             }
         }

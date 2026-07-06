@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.softfocus.features.profile.presentation.ProfileViewModel
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.GreenA3
 import com.softfocus.R
@@ -92,7 +93,7 @@ fun PatientProfileScreen(
                     text = "Desvincular Terapeuta",
                     style = CrimsonSemiBold,
                     fontSize = 20.sp,
-                    color = Black,
+                    color = AppColors.textPrimary,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
@@ -107,7 +108,7 @@ fun PatientProfileScreen(
                         text = "¿Estás seguro de que deseas desvincularte de tu terapeuta?",
                         style = SourceSansRegular,
                         fontSize = 16.sp,
-                        color = Black,
+                        color = AppColors.textPrimary,
                         lineHeight = 22.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -158,7 +159,7 @@ fun PatientProfileScreen(
                 ) {
                     Text(
                         text = "Cancelar",
-                        color = Black,
+                        color = AppColors.textPrimary,
                         style = SourceSansBold,
                         fontSize = 14.sp
                     )
@@ -181,6 +182,7 @@ fun PatientProfileScreen(
     }
 
     Scaffold(
+        containerColor = AppColors.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -192,7 +194,7 @@ fun PatientProfileScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -201,7 +203,7 @@ fun PatientProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(AppColors.background)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -234,7 +236,7 @@ fun PatientProfileScreen(
                         text = user?.fullName ?: "Usuario",
                         style = CrimsonSemiBold,
                         fontSize = 28.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
 
                     // Edad calculada desde dateOfBirth
@@ -245,7 +247,7 @@ fun PatientProfileScreen(
                                 text = "$age años",
                                 style = CrimsonSemiBold,
                                 fontSize = 18.sp,
-                                color = Black
+                                color = AppColors.textPrimary
                             )
                         }
                     }
@@ -254,7 +256,7 @@ fun PatientProfileScreen(
                         text = user?.email ?: "",
                         style = CrimsonSemiBold,
                         fontSize = 18.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                 }
             }
@@ -287,7 +289,7 @@ fun PatientProfileScreen(
                             .padding(horizontal = 16.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFF5F5F5)
+                            containerColor = AppColors.surface
                         )
                     ) {
                         Column(
@@ -300,7 +302,7 @@ fun PatientProfileScreen(
                                 text = "No tienes un terapeuta asignado",
                                 style = SourceSansRegular,
                                 fontSize = 16.sp,
-                                color = Black
+                                color = AppColors.textPrimary
                             )
                         }
                     }
@@ -312,7 +314,7 @@ fun PatientProfileScreen(
                             .padding(horizontal = 16.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFF5F5F5)
+                            containerColor = AppColors.surface
                         )
                     ) {
                         Column(
@@ -412,7 +414,7 @@ fun CurrentTherapistCard(
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5)
+            containerColor = AppColors.surface
         )
     ) {
         Column(
@@ -425,7 +427,7 @@ fun CurrentTherapistCard(
                 text = "Mi Terapeuta Actual",
                 style = CrimsonSemiBold,
                 fontSize = 22.sp,
-                color = Black,
+                color = AppColors.textPrimary,
                 modifier = Modifier.align(Alignment.Start)
             )
 
@@ -456,7 +458,7 @@ fun CurrentTherapistCard(
                         text = therapistName,
                         style = CrimsonSemiBold,
                         fontSize = 20.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -534,7 +536,7 @@ fun ProfileOption(
                     text = title,
                     style = SourceSansRegular,
                     fontSize = 16.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
             }
             Icon(
@@ -584,7 +586,7 @@ fun ProfileOptionDrawable(
                     text = title,
                     style = SourceSansRegular,
                     fontSize = 16.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
             }
             Icon(
@@ -673,19 +675,19 @@ fun PatientProfileScreenPreview() {
                     text = "Laura Gomez",
                     style = CrimsonSemiBold,
                     fontSize = 28.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
                 Text(
                     text = "20 años",
                     style = CrimsonSemiBold,
                     fontSize = 18.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
                 Text(
                     text = "laura@gmail.com",
                     style = CrimsonSemiBold,
                     fontSize = 18.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
             }
         }

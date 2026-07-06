@@ -13,14 +13,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
-import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.core.navigation.Route
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.PatientDetailHeader
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.SummaryTab
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.tabs.TasksTab
-import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.GrayB2
 import com.softfocus.ui.theme.Green65
 
@@ -43,9 +42,11 @@ fun PatientDetailScreen(
     val summaryState by viewModel.summaryState.collectAsState()
     val checkInState by viewModel.checkInState.collectAsState()
     val tasksState by viewModel.tasksState.collectAsState()
+    val customTasksState by viewModel.customTasksState.collectAsState()
 
 
     Scaffold(
+        containerColor = AppColors.background,
         topBar = { PatientDetailTopBar(onBack = onBack) }
     ) { paddingValues ->
         LazyColumn(
@@ -109,7 +110,11 @@ fun PatientDetailScreen(
                 when (selectedTabIndex) {
                     0 -> SummaryTab(checkInState)
                     1 -> TasksTab(
-                        tasksState = tasksState
+                        tasksState = tasksState,
+                        customTasksState = customTasksState,
+                        onCreateTask = { title, description, onResult ->
+                            viewModel.createCustomTask(title, description, onResult)
+                        }
                     )
                 }
             }
@@ -124,13 +129,14 @@ fun PatientDetailTopBar(
     onBack: () -> Unit
 ) {
     TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = AppColors.background),
         title = {
             Text(
                 text = "Pacientes",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = CrimsonSemiBold.copy(fontSize = 32.sp),
-                color = Green49
+                color = AppColors.accent
             )
         },
         navigationIcon = {
@@ -138,7 +144,7 @@ fun PatientDetailTopBar(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Volver",
-                    tint = Black
+                    tint = AppColors.textPrimary
                 )
             }
         },

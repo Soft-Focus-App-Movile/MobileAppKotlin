@@ -95,14 +95,33 @@ data class PaginationResponse(
 // ============= EMOTIONAL CALENDAR =============
 
 data class CreateEmotionalCalendarRequest(
-    @SerializedName("date")
-    val date: String, // ISO 8601 format
+    @SerializedName("timestamp")
+    val timestamp: String, // ISO 8601 format con hora/minuto
     @SerializedName("emotionalEmoji")
     val emotionalEmoji: String,
     @SerializedName("moodLevel")
     val moodLevel: Int,
     @SerializedName("emotionalTags")
-    val emotionalTags: List<String>
+    val emotionalTags: List<String>,
+    @SerializedName("content")
+    val content: String = "",
+    @SerializedName("sessionDurationSeconds")
+    val sessionDurationSeconds: Int = 0,
+    @SerializedName("entryType")
+    val entryType: String = "spontaneous"
+)
+
+data class CreateQuickEmotionalEntryRequest(
+    @SerializedName("timestamp")
+    val timestamp: String, // ISO 8601 format
+    @SerializedName("emotionalEmoji")
+    val emotionalEmoji: String,
+    @SerializedName("moodLevel")
+    val moodLevel: Int,
+    @SerializedName("content")
+    val content: String = "",
+    @SerializedName("sessionDurationSeconds")
+    val sessionDurationSeconds: Int = 0
 )
 
 data class EmotionalCalendarEntryResponse(
@@ -110,6 +129,8 @@ data class EmotionalCalendarEntryResponse(
     val id: String,
     @SerializedName("userId")
     val userId: String,
+    @SerializedName("timestamp")
+    val timestamp: String?,
     @SerializedName("date")
     val date: String,
     @SerializedName("emotionalEmoji")
@@ -118,10 +139,42 @@ data class EmotionalCalendarEntryResponse(
     val moodLevel: Int,
     @SerializedName("emotionalTags")
     val emotionalTags: List<String>,
+    @SerializedName("content")
+    val content: String?,
+    @SerializedName("sessionDurationSeconds")
+    val sessionDurationSeconds: Int?,
+    @SerializedName("entryType")
+    val entryType: String?,
     @SerializedName("createdAt")
     val createdAt: String,
     @SerializedName("updatedAt")
     val updatedAt: String
+)
+
+data class TodayEmotionalEntriesApiResponse(
+    @SerializedName("success")
+    val success: Boolean,
+    @SerializedName("entries")
+    val entries: List<EmotionalCalendarEntryResponse>,
+    @SerializedName("totalCount")
+    val totalCount: Int,
+    @SerializedName("timestamp")
+    val timestamp: String
+)
+
+data class DeleteTodayEmotionalEntriesApiResponse(
+    @SerializedName("success")
+    val success: Boolean,
+    @SerializedName("deletedCount")
+    val deletedCount: Int,
+    @SerializedName("failedCount")
+    val failedCount: Int,
+    @SerializedName("totalMatched")
+    val totalMatched: Int,
+    @SerializedName("entryType")
+    val entryType: String,
+    @SerializedName("timestamp")
+    val timestamp: String
 )
 
 data class CreateEmotionalCalendarApiResponse(

@@ -25,6 +25,7 @@ import com.softfocus.features.home.presentation.components.TrackingHome
 import com.softfocus.features.home.presentation.components.WelcomeCard
 import com.softfocus.features.crisis.presentation.components.CrisisButton
 import com.softfocus.features.home.presentation.patient.components.TasksSection
+import com.softfocus.features.home.presentation.patient.components.PatientCustomTasksSection
 import com.softfocus.features.home.presentation.patient.components.TherapistChatCard
 import com.softfocus.features.tracking.presentation.state.TrackingUiState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
@@ -39,6 +40,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.softfocus.core.navigation.Route
 import com.softfocus.ui.components.DraggableAIButton
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.features.home.presentation.patient.di.patientHomeViewModel
 import com.softfocus.ui.theme.Black
@@ -66,6 +68,7 @@ fun PatientHomeScreen(
     val recommendationsState by viewModel.recommendationsState.collectAsState()
     val therapistState by viewModel.therapistState.collectAsState()
     val assignmentsState by viewModel.assignmentsState.collectAsState()
+    val customTasksState by viewModel.customTasksState.collectAsState()
 
     // AGREGAR: Estados del tracking
     val trackingUiState by trackingViewModel.uiState.collectAsState()
@@ -90,6 +93,7 @@ fun PatientHomeScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
+            containerColor = AppColors.background,
             topBar = {
                 TopAppBar(
                     title = {
@@ -125,7 +129,7 @@ fun PatientHomeScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
+                        containerColor = AppColors.background
                     )
                 )
             }
@@ -135,7 +139,7 @@ fun PatientHomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .background(Color.White)
+                    .background(AppColors.background)
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -189,6 +193,12 @@ fun PatientHomeScreen(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                // Tareas de texto libre asignadas por el psicólogo (se oculta si no hay ninguna)
+                PatientCustomTasksSection(
+                    state = customTasksState,
+                    onCompleteTask = { taskId -> viewModel.completeCustomTask(taskId) }
+                )
 
                 RecommendationsSection(
                     recommendationsState = recommendationsState,

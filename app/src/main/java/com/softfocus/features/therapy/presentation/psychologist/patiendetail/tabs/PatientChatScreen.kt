@@ -38,7 +38,8 @@ import com.softfocus.ui.theme.White
 @Composable
 fun PatientChatScreen(
     viewModel: PatientChatViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onStartCall: (callType: String, calleeName: String) -> Unit = { _, _ -> }
 ) {
     // --- 4. OBTENER ESTADO DEL VIEWMODEL ---
     val uiState by viewModel.uiState.collectAsState()
@@ -61,7 +62,8 @@ fun PatientChatScreen(
 
         ChatHeader(
             summaryState = summaryState,
-            onNavigateBack = onNavigateBack
+            onNavigateBack = onNavigateBack,
+            onStartCall = onStartCall
         )
 
         if (uiState.isLoading && uiState.messages.isEmpty()) {
@@ -96,7 +98,11 @@ fun PatientChatScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatHeader(summaryState: PatientSummaryState, onNavigateBack: () -> Unit) {
+fun ChatHeader(
+    summaryState: PatientSummaryState,
+    onNavigateBack: () -> Unit,
+    onStartCall: (callType: String, calleeName: String) -> Unit
+) {
 
     Surface(
         color = Green8B,
@@ -109,6 +115,7 @@ fun ChatHeader(summaryState: PatientSummaryState, onNavigateBack: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
+                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
@@ -118,7 +125,7 @@ fun ChatHeader(summaryState: PatientSummaryState, onNavigateBack: () -> Unit) {
                         tint = Color.White
                     )
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 ProfileAvatar(
                     imageUrl = summaryState.profilePhotoUrl.takeIf { it.isNotEmpty() },
                     fullName = summaryState.patientName,
@@ -129,13 +136,33 @@ fun ChatHeader(summaryState: PatientSummaryState, onNavigateBack: () -> Unit) {
                     shape = CircleShape
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = summaryState.patientName,
-                        style = CrimsonSemiBold.copy(fontSize = 23.sp),
-                        color = Color.White
-                    )
-                }
+                Text(
+                    text = summaryState.patientName,
+                    style = CrimsonSemiBold.copy(fontSize = 20.sp),
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+            }
+
+            // Llamada de voz
+            IconButton(onClick = { onStartCall("Audio", summaryState.patientName) }) {
+                Icon(
+                    imageVector = Icons.Filled.Call,
+                    contentDescription = "Llamada de voz",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
+                )
+            }
+
+            // Videollamada
+            IconButton(onClick = { onStartCall("Video", summaryState.patientName) }) {
+                Icon(
+                    imageVector = Icons.Filled.Videocam,
+                    contentDescription = "Videollamada",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
+                )
             }
         }
     }
@@ -157,12 +184,21 @@ fun ChatInput(
         OutlinedTextField(
             value = text,
             onValueChange = onTextChange,
-            placeholder = { Text("Escribe un mensaje...") },
+            placeholder = { Text("Escribe un mensaje...", color = Gray9B) },
             modifier = Modifier
                 .border(1.dp, Gray9B, RoundedCornerShape(24.dp))
                 .weight(1f)
                 .background(White, RoundedCornerShape(24.dp)),
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(24.dp),
+            // El chat tiene diseño claro: forzamos texto oscuro para que sea legible también
+            // cuando el celular está en modo oscuro (si no, el texto se vuelve blanco sobre blanco).
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black,
+                focusedPlaceholderColor = Gray9B,
+                unfocusedPlaceholderColor = Gray9B
+            )
         )
         Spacer(modifier = Modifier.width(4.dp))
         IconButton(

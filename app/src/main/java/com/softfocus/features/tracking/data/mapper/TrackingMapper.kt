@@ -52,10 +52,14 @@ fun EmotionalCalendarEntryResponse.toDomain(): EmotionalCalendarEntry {
     return EmotionalCalendarEntry(
         id = id,
         userId = userId,
+        timestamp = timestamp ?: date,  // Fallback a date para entradas legacy sin timestamp
         date = date,
         emotionalEmoji = emotionalEmoji,
         moodLevel = moodLevel,
         emotionalTags = emotionalTags,
+        content = content ?: "",
+        sessionDurationSeconds = sessionDurationSeconds ?: 0,
+        entryType = entryType ?: "spontaneous",
         createdAt = createdAt,
         updatedAt = updatedAt
     )
@@ -73,6 +77,15 @@ fun EmotionalCalendarApiResponse.toDomain(): EmotionalCalendar {
         entries = data.entries.map { it.toDomain() },
         totalCount = data.totalCount,
         dateRange = data.dateRange.toDomain()
+    )
+}
+
+fun DeleteTodayEmotionalEntriesApiResponse.toDomain(): DeleteTodayEmotionalEntriesResult {
+    return DeleteTodayEmotionalEntriesResult(
+        deletedCount = deletedCount,
+        failedCount = failedCount,
+        totalMatched = totalMatched,
+        entryType = entryType
     )
 }
 

@@ -62,6 +62,15 @@ object ApiConstants {
         const val DISCONNECT = "therapy/disconnect/{relationshipId}"
 
         fun disconnect(relationshipId: String) = DISCONNECT.replace("{relationshipId}", relationshipId)
+
+        // Tareas/propósitos de texto libre asignadas por el psicólogo
+        object Tasks {
+            const val BASE = "therapy/tasks"
+            const val ASSIGNED = "therapy/tasks/assigned"
+            const val COMPLETE = "therapy/tasks/{taskId}/complete"
+
+            fun complete(taskId: String) = COMPLETE.replace("{taskId}", taskId)
+        }
     }
 
     object Chat {
@@ -69,6 +78,24 @@ object ApiConstants {
         const val SEND = "chat/send"
 
         const val LAST_MESSAGE = "chat/last-received"
+    }
+
+    // Calls endpoints (Agora voice/video)
+    object Calls {
+        const val INITIATE = "calls/initiate"
+        const val ANSWER = "calls/{callId}/answer"
+        const val REJECT = "calls/{callId}/reject"
+        const val END = "calls/{callId}/end"
+        const val TOKEN = "calls/{callId}/token"
+        const val HISTORY = "calls/history"
+
+        // Real-time signaling hub (note: NOT under /api/v1, same host as the chat hub)
+        const val HUB_URL = "http://32.194.77.233:5000/callHub"
+
+        fun answer(callId: String) = ANSWER.replace("{callId}", callId)
+        fun reject(callId: String) = REJECT.replace("{callId}", callId)
+        fun end(callId: String) = END.replace("{callId}", callId)
+        fun token(callId: String) = TOKEN.replace("{callId}", callId)
     }
 
     // AI endpoints
@@ -159,7 +186,6 @@ object ApiConstants {
         const val PSYCHOLOGIST_ASSIGNMENTS = "library/assignments/by-psychologist"
 
         // Recommendation endpoints
-        const val RECOMMEND_PLACES = "library/recommendations/places"
         const val RECOMMEND_CONTENT = "library/recommendations/content"
         const val RECOMMEND_BY_EMOTION = "library/recommendations/emotion/{emotion}"
 

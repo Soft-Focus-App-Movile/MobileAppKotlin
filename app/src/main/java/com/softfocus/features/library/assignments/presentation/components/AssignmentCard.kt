@@ -80,7 +80,6 @@ fun AssignmentCard(
                                 ContentType.Movie -> "Película"
                                 ContentType.Music -> "Música"
                                 ContentType.Video -> "Video"
-                                ContentType.Weather -> "Clima"
                             },
                             style = SourceSansRegular.copy(fontSize = 12.sp),
                             color = Gray828,

@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientSummaryState
 import com.softfocus.ui.components.ProfileAvatar
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
-import com.softfocus.ui.theme.Gray89
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.SourceSansSemiBold
@@ -45,13 +45,13 @@ fun PatientDetailHeader(summaryState: PatientSummaryState) {
         Text(
             text = summaryState.patientName,
             style = CrimsonSemiBold.copy(fontSize = 30.sp),
-            color = Color.Black
+            color = AppColors.textPrimary
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "${summaryState.age} años",
             style = SourceSansSemiBold.copy(fontSize = 13.sp),
-            color = Gray89
+            color = AppColors.textSecondary
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(

@@ -6,13 +6,11 @@ package com.softfocus.features.library.domain.models
  * @property Movie Películas de TMDB
  * @property Music Canciones de Spotify
  * @property Video Videos de YouTube (meditación/bienestar)
- * @property Weather Información del clima y ubicación actual
  */
 enum class ContentType {
     Movie,
     Music,
-    Video,
-    Weather;
+    Video;
 
     companion object {
         /**
