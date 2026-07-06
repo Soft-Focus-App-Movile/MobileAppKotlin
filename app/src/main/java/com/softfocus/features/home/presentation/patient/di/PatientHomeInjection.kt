@@ -18,8 +18,11 @@ import com.softfocus.features.search.data.remote.PsychologistSearchService
 import com.softfocus.features.search.data.repositories.SearchRepositoryImpl
 import com.softfocus.features.search.domain.repositories.SearchRepository
 import com.softfocus.features.therapy.data.remote.TherapyService
+import com.softfocus.features.therapy.data.remote.PatientTaskService
 import com.softfocus.features.therapy.data.repositories.TherapyRepositoryImpl
+import com.softfocus.features.therapy.data.repositories.PatientTaskRepositoryImpl
 import com.softfocus.features.therapy.domain.repositories.TherapyRepository
+import com.softfocus.features.therapy.domain.repositories.PatientTaskRepository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -72,6 +75,11 @@ fun provideAssignmentsRepository(context: Context): AssignmentsRepository {
     )
 }
 
+fun providePatientTaskRepository(context: Context): PatientTaskRepository {
+    val service = getRetrofitInstance().create(PatientTaskService::class.java)
+    return PatientTaskRepositoryImpl(service, context)
+}
+
 @Composable
 fun patientHomeViewModel(): PatientHomeViewModel {
     val context = LocalContext.current
@@ -83,11 +91,13 @@ fun patientHomeViewModel(): PatientHomeViewModel {
                 val therapyRepository = provideTherapyRepository(context)
                 val searchRepository = provideSearchRepository(context)
                 val assignmentsRepository = provideAssignmentsRepository(context)
+                val patientTaskRepository = providePatientTaskRepository(context)
                 return PatientHomeViewModel(
                     libraryRepository,
                     therapyRepository,
                     searchRepository,
-                    assignmentsRepository
+                    assignmentsRepository,
+                    patientTaskRepository
                 ) as VM
             }
         }

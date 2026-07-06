@@ -25,6 +25,7 @@ import com.softfocus.features.home.presentation.components.TrackingHome
 import com.softfocus.features.home.presentation.components.WelcomeCard
 import com.softfocus.features.crisis.presentation.components.CrisisButton
 import com.softfocus.features.home.presentation.patient.components.TasksSection
+import com.softfocus.features.home.presentation.patient.components.PatientCustomTasksSection
 import com.softfocus.features.home.presentation.patient.components.TherapistChatCard
 import com.softfocus.features.tracking.presentation.state.TrackingUiState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
@@ -67,6 +68,7 @@ fun PatientHomeScreen(
     val recommendationsState by viewModel.recommendationsState.collectAsState()
     val therapistState by viewModel.therapistState.collectAsState()
     val assignmentsState by viewModel.assignmentsState.collectAsState()
+    val customTasksState by viewModel.customTasksState.collectAsState()
 
     // AGREGAR: Estados del tracking
     val trackingUiState by trackingViewModel.uiState.collectAsState()
@@ -191,6 +193,12 @@ fun PatientHomeScreen(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                // Tareas de texto libre asignadas por el psicólogo (se oculta si no hay ninguna)
+                PatientCustomTasksSection(
+                    state = customTasksState,
+                    onCompleteTask = { taskId -> viewModel.completeCustomTask(taskId) }
+                )
 
                 RecommendationsSection(
                     recommendationsState = recommendationsState,
