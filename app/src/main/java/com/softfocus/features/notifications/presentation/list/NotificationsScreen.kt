@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.softfocus.features.notifications.domain.models.*
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.SourceSansRegular
@@ -48,7 +49,7 @@ fun NotificationsScreen(
     }
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = AppColors.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -101,7 +102,7 @@ fun NotificationsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -110,7 +111,7 @@ fun NotificationsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color.White)
+                .background(AppColors.background)
         ) {
             if (state.isRefreshing) {
                 LinearProgressIndicator(
@@ -142,7 +143,7 @@ fun NotificationsScreen(
                             "Todas",
                             style = SourceSansRegular,
                             fontSize = 16.sp,
-                            color = if (selectedTab == 0) Green49 else Color.Gray,
+                            color = if (selectedTab == 0) Green49 else AppColors.textSecondary,
                             fontWeight = if (selectedTab == 0) FontWeight.SemiBold else FontWeight.Normal
                         )
                         if (selectedTab == 0) {
@@ -171,7 +172,7 @@ fun NotificationsScreen(
                                 "No leídas",
                                 style = SourceSansRegular,
                                 fontSize = 16.sp,
-                                color = if (selectedTab == 1) Green49 else Color.Gray,
+                                color = if (selectedTab == 1) Green49 else AppColors.textSecondary,
                                 fontWeight = if (selectedTab == 1) FontWeight.SemiBold else FontWeight.Normal
                             )
                             val unreadCount = state.notifications.count { it.status != DeliveryStatus.READ }
@@ -205,7 +206,7 @@ fun NotificationsScreen(
                 }
             }
 
-            HorizontalDivider(color = Color(0xFFE0E0E0))
+            HorizontalDivider(color = AppColors.outline)
 
             when {
                 state.isLoading && state.notifications.isEmpty() -> {
@@ -261,7 +262,7 @@ private fun NotificationsList(
                 onClick = { onNotificationClick(notification) },
                 onDelete = { onDeleteClick(notification) }
             )
-            HorizontalDivider(color = Color(0xFFE0E0E0))
+            HorizontalDivider(color = AppColors.outline)
         }
     }
 }
@@ -285,9 +286,9 @@ private fun NotificationItem(
                 }
             },
         color = if (notification.readAt != null) {
-            Color.White
+            AppColors.surface
         } else {
-            Color(0xFFF5F9F5)
+            AppColors.surfaceVariant
         }
     ) {
         Row(
@@ -338,7 +339,7 @@ private fun NotificationItem(
                             },
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = Color(0xFF2C2C2C),
+                            color = AppColors.textPrimary,
                             modifier = Modifier.weight(1f, fill = false)
                         )
 
@@ -368,7 +369,7 @@ private fun NotificationItem(
                         text = formatTimeAgo(notification.createdAt),
                         style = SourceSansRegular,
                         fontSize = 12.sp,
-                        color = Color.Gray
+                        color = AppColors.textSecondary
                     )
                 }
 
@@ -381,7 +382,7 @@ private fun NotificationItem(
                         text = notification.content,
                         style = SourceSansRegular,
                         fontSize = 14.sp,
-                        color = Color(0xFF5C5C5C),
+                        color = AppColors.textSecondary,
                         maxLines = if (isExpanded) Int.MAX_VALUE else 1,
                         overflow = if (isExpanded) TextOverflow.Visible else TextOverflow.Ellipsis,
                         lineHeight = 20.sp,
@@ -405,7 +406,7 @@ private fun NotificationItem(
                 if (isExpanded) {
                     Spacer(modifier = Modifier.height(8.dp))
                     HorizontalDivider(
-                        color = Color(0xFFE0E0E0),
+                        color = AppColors.outline,
                         thickness = 0.5.dp,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
@@ -413,7 +414,7 @@ private fun NotificationItem(
                         text = "Recibida el ${notification.createdAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm"))}",
                         style = SourceSansRegular,
                         fontSize = 12.sp,
-                        color = Color.Gray.copy(alpha = 0.7f)
+                        color = AppColors.textSecondary.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -425,7 +426,7 @@ private fun NotificationItem(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Eliminar",
-                    tint = Color.Gray,
+                    tint = AppColors.textSecondary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -494,20 +495,20 @@ private fun NotificationsDisabledView() {
                 imageVector = Icons.Default.NotificationsOff,
                 contentDescription = null,
                 modifier = Modifier.size(80.dp),
-                tint = Color.Gray.copy(alpha = 0.3f)
+                tint = AppColors.textSecondary.copy(alpha = 0.3f)
             )
             Text(
                 text = "Notificaciones desactivadas",
                 style = SourceSansRegular,
                 fontSize = 16.sp,
-                color = Color.Gray,
+                color = AppColors.textSecondary,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = "Activa las notificaciones en configuración para ver tus nuevos mensajes",
                 style = SourceSansRegular,
                 fontSize = 14.sp,
-                color = Color.Gray.copy(alpha = 0.7f),
+                color = AppColors.textSecondary.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,
                 lineHeight = 20.sp,
                 modifier = Modifier
@@ -533,19 +534,19 @@ private fun EmptyNotificationsView() {
                 imageVector = Icons.Default.Notifications,
                 contentDescription = null,
                 modifier = Modifier.size(80.dp),
-                tint = Color.Gray.copy(alpha = 0.3f)
+                tint = AppColors.textSecondary.copy(alpha = 0.3f)
             )
             Text(
                 text = "No hay notificaciones",
                 style = SourceSansRegular,
                 fontSize = 16.sp,
-                color = Color.Gray
+                color = AppColors.textSecondary
             )
             Text(
                 text = "Cuando recibas notificaciones aparecerán aquí",
                 style = SourceSansRegular,
                 fontSize = 14.sp,
-                color = Color.Gray.copy(alpha = 0.7f),
+                color = AppColors.textSecondary.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
             )
         }

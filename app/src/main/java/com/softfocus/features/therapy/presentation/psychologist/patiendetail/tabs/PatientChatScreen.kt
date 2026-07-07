@@ -25,13 +25,11 @@ import com.softfocus.features.therapy.domain.models.ChatMessage
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.PatientSummaryState
 import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Gray9B
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Green8B
-import com.softfocus.ui.theme.GreenD8
-import com.softfocus.ui.theme.GreenF2
 import com.softfocus.ui.theme.Transparent
-import com.softfocus.ui.theme.White
 
 // --- Pantalla Principal de Chat ---
 
@@ -57,7 +55,7 @@ fun PatientChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(GreenF2)
+            .background(AppColors.chatBackground)
     ) {
 
         ChatHeader(
@@ -188,14 +186,13 @@ fun ChatInput(
             modifier = Modifier
                 .border(1.dp, Gray9B, RoundedCornerShape(24.dp))
                 .weight(1f)
-                .background(White, RoundedCornerShape(24.dp)),
+                .background(AppColors.inputBackground, RoundedCornerShape(24.dp)),
             shape = RoundedCornerShape(24.dp),
-            // El chat tiene diseño claro: forzamos texto oscuro para que sea legible también
-            // cuando el celular está en modo oscuro (si no, el texto se vuelve blanco sobre blanco).
+            // Texto adaptado al tema (oscuro en claro, claro en oscuro) para que siempre sea legible.
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                cursorColor = Color.Black,
+                focusedTextColor = AppColors.textPrimary,
+                unfocusedTextColor = AppColors.textPrimary,
+                cursorColor = AppColors.textPrimary,
                 focusedPlaceholderColor = Gray9B,
                 unfocusedPlaceholderColor = Gray9B
             )
@@ -255,7 +252,7 @@ fun ChatBubble(
     time: String // <-- Recibe la hora ya formateada
 ) {
     val horizontalAlignment = if (message.isFromMe) Alignment.End else Alignment.Start
-    val color = if (message.isFromMe) GreenD8 else White
+    val color = if (message.isFromMe) AppColors.chatBubbleMine else AppColors.chatBubbleOther
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -276,12 +273,12 @@ fun ChatBubble(
                 Text(
                     text = message.content,
                     fontSize = 15.sp,
-                    color = Color.Black
+                    color = AppColors.chatBubbleText
                 )
                 Text(
                     text = time, // <-- Hora formateada
                     fontSize = 12.sp,
-                    color = Color.Gray,
+                    color = AppColors.chatBubbleText.copy(alpha = 0.6f),
                     modifier = Modifier.align(Alignment.End)
                 )
             }

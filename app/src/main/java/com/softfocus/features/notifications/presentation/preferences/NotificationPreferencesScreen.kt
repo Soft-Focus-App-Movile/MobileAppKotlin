@@ -51,17 +51,17 @@ fun NotificationPreferencesScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Gray222
+                            tint = AppColors.textPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White,
-                    titleContentColor = Gray222
+                    containerColor = AppColors.background,
+                    titleContentColor = AppColors.textPrimary
                 )
             )
         },
-        containerColor = White
+        containerColor = AppColors.background
     ) { padding ->
         when {
             state.isLoading -> {
@@ -122,7 +122,7 @@ fun NotificationPreferencesScreen(
                                 .fillMaxWidth()
                                 .wrapContentHeight(),
                             colors = CardDefaults.cardColors(
-                                containerColor = GrayF5
+                                containerColor = AppColors.cardNeutral
                             ),
                             shape = MaterialTheme.shapes.medium,
                             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -151,13 +151,13 @@ fun NotificationPreferencesScreen(
                                             Text(
                                                 text = "Recibir notificaciones",
                                                 fontSize = 14.sp,
-                                                color = Gray222,
+                                                color = AppColors.textPrimary,
                                                 fontWeight = FontWeight.Medium
                                             )
                                             Text(
                                                 text = if (pref.isEnabled) "Activado" else "Desactivado",
                                                 fontSize = 12.sp,
-                                                color = Gray808,
+                                                color = AppColors.textSecondary,
                                                 modifier = Modifier.padding(top = 2.dp)
                                             )
                                         }
@@ -177,7 +177,7 @@ fun NotificationPreferencesScreen(
                                     // Configuración de horario SOLO para psicólogos
                                     if (userType == UserType.PSYCHOLOGIST && pref.isEnabled) {
                                         HorizontalDivider(
-                                            color = GrayD9,
+                                            color = AppColors.outline,
                                             thickness = 0.5.dp,
                                             modifier = Modifier.padding(vertical = 8.dp)
                                         )
@@ -188,13 +188,13 @@ fun NotificationPreferencesScreen(
                                             Text(
                                                 text = "Horario de recepción",
                                                 fontSize = 14.sp,
-                                                color = Gray222,
+                                                color = AppColors.textPrimary,
                                                 fontWeight = FontWeight.Medium
                                             )
 
                                             Card(
                                                 colors = CardDefaults.cardColors(
-                                                    containerColor = White
+                                                    containerColor = AppColors.inputBackground
                                                 ),
                                                 modifier = Modifier.fillMaxWidth()
                                             ) {
@@ -211,14 +211,14 @@ fun NotificationPreferencesScreen(
                                                             Text(
                                                                 text = "Desde",
                                                                 fontSize = 12.sp,
-                                                                color = Gray808
+                                                                color = AppColors.textSecondary
                                                             )
                                                             Text(
                                                                 text = pref.schedule?.startTime?.format(
                                                                     DateTimeFormatter.ofPattern("HH:mm")
                                                                 ) ?: "07:00",
                                                                 fontSize = 16.sp,
-                                                                color = Gray222,
+                                                                color = AppColors.textPrimary,
                                                                 fontWeight = FontWeight.Medium
                                                             )
                                                         }
@@ -226,21 +226,21 @@ fun NotificationPreferencesScreen(
                                                         Text(
                                                             text = "—",
                                                             fontSize = 16.sp,
-                                                            color = Gray808
+                                                            color = AppColors.textSecondary
                                                         )
 
                                                         Column(horizontalAlignment = Alignment.End) {
                                                             Text(
                                                                 text = "Hasta",
                                                                 fontSize = 12.sp,
-                                                                color = Gray808
+                                                                color = AppColors.textSecondary
                                                             )
                                                             Text(
                                                                 text = pref.schedule?.endTime?.format(
                                                                     DateTimeFormatter.ofPattern("HH:mm")
                                                                 ) ?: "00:00",
                                                                 fontSize = 16.sp,
-                                                                color = Gray222,
+                                                                color = AppColors.textPrimary,
                                                                 fontWeight = FontWeight.Medium
                                                             )
                                                         }
@@ -309,7 +309,7 @@ fun NotificationPreferencesScreen(
                                     // Info adicional para pacientes/general
                                     if (userType != UserType.PSYCHOLOGIST && pref.isEnabled) {
                                         HorizontalDivider(
-                                            color = GrayD9,
+                                            color = AppColors.outline,
                                             thickness = 0.5.dp,
                                             modifier = Modifier.padding(vertical = 8.dp)
                                         )
@@ -429,7 +429,7 @@ private fun TimeRangePickerDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = Gray808)
+                Text("Cancelar", color = AppColors.textSecondary)
             }
         },
         title = {
@@ -437,7 +437,7 @@ private fun TimeRangePickerDialog(
                 text = if (isSelectingStart) "Hora de inicio" else "Hora de fin",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
-                color = Gray222
+                color = AppColors.textPrimary
             )
         },
         text = {
@@ -449,33 +449,33 @@ private fun TimeRangePickerDialog(
                     Text(
                         text = "Desde qué hora deseas recibir notificaciones",
                         fontSize = 14.sp,
-                        color = Gray808,
+                        color = AppColors.textSecondary,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 } else {
                     Text(
                         text = "Hasta qué hora deseas recibir todas las notificaciones",
                         fontSize = 14.sp,
-                        color = Gray808,
+                        color = AppColors.textSecondary,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
                 TimePicker(
                     state = timePickerState,
                     colors = TimePickerDefaults.colors(
-                        clockDialColor = GrayF5,
+                        clockDialColor = AppColors.inputBackground,
                         clockDialSelectedContentColor = White,
-                        clockDialUnselectedContentColor = Gray222,
+                        clockDialUnselectedContentColor = AppColors.textPrimary,
                         selectorColor = Green49,
-                        containerColor = White,
+                        containerColor = AppColors.surface,
                         timeSelectorSelectedContainerColor = Green49,
-                        timeSelectorUnselectedContainerColor = GrayF5,
+                        timeSelectorUnselectedContainerColor = AppColors.inputBackground,
                         timeSelectorSelectedContentColor = White,
-                        timeSelectorUnselectedContentColor = Gray222
+                        timeSelectorUnselectedContentColor = AppColors.textPrimary
                     )
                 )
             }
         },
-        containerColor = White
+        containerColor = AppColors.surface
     )
 }

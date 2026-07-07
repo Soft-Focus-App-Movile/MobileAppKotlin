@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.softfocus.R
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green49
@@ -53,7 +54,7 @@ fun PsyChatProfileScreen(
                     text = "Desvincular Terapeuta",
                     style = CrimsonSemiBold,
                     fontSize = 20.sp,
-                    color = Black,
+                    color = AppColors.textPrimary,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
@@ -68,7 +69,7 @@ fun PsyChatProfileScreen(
                         text = "¿Estás seguro de que deseas desvincularte de tu terapeuta?",
                         style = SourceSansRegular,
                         fontSize = 16.sp,
-                        color = Black,
+                        color = AppColors.textPrimary,
                         lineHeight = 22.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -76,7 +77,7 @@ fun PsyChatProfileScreen(
                         text = "Esta acción no se puede deshacer.",
                         style = SourceSansRegular,
                         fontSize = 14.sp,
-                        color = Color.Gray,
+                        color = AppColors.textSecondary,
                         lineHeight = 20.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -119,14 +120,14 @@ fun PsyChatProfileScreen(
                 ) {
                     Text(
                         text = "Cancelar",
-                        color = Black,
+                        color = AppColors.textPrimary,
                         style = SourceSansBold,
                         fontSize = 14.sp
                     )
                 }
             },
             shape = RoundedCornerShape(16.dp),
-            containerColor = White,
+            containerColor = AppColors.surface,
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -134,7 +135,7 @@ fun PsyChatProfileScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFCFEFC))
+            .background(AppColors.background)
     ) {
         // Sección de imagen superior y botón de regreso
         item {
@@ -189,7 +190,7 @@ fun PsyChatProfileScreen(
                 Text(
                     text = summaryState.psychologistName,
                     style = CrimsonSemiBold.copy(fontSize = 30.sp),
-                    color = Color(0xFF657142)
+                    color = AppColors.accent
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -201,7 +202,7 @@ fun PsyChatProfileScreen(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 24.dp), color = Color.LightGray)
+                Divider(modifier = Modifier.padding(vertical = 24.dp), color = AppColors.outline)
 
                 // Título y Universidad
                 Row(
@@ -212,26 +213,27 @@ fun PsyChatProfileScreen(
                     Text(
                         text = summaryState.degree ?: "M.A Psicología Clínica",
                         style = CrimsonSemiBold.copy(fontSize = 18.sp),
+                        color = AppColors.textPrimary
                     )
                     Text(
                         text = summaryState.university ?: "Universidad PUCP",
                         style = SourceSansSemiBold.copy(fontSize = 14.sp),
-                        color = Color.Gray
+                        color = AppColors.textSecondary
                     )
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 24.dp), color = Color.LightGray)
+                Divider(modifier = Modifier.padding(vertical = 24.dp), color = AppColors.outline)
 
                 // Biografía
                 Text(
                     text = summaryState.bio ?: "No especificado",
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
-                    color = Color.DarkGray,
+                    color = AppColors.textPrimary,
                     textAlign = TextAlign.Justify,
                     modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
-                Divider(modifier = Modifier.padding(top = 24.dp, bottom = 10.dp), color = Color.LightGray)
+                Divider(modifier = Modifier.padding(top = 24.dp, bottom = 10.dp), color = AppColors.outline)
 
                 // Contacto externo
 
@@ -245,7 +247,7 @@ fun PsyChatProfileScreen(
                         Text(
                             text = "Contacto externo",
                             style = CrimsonSemiBold.copy(fontSize = 24.sp),
-                            color = Color(0xFF37593F)
+                            color = AppColors.accent
                         )
                         Spacer(modifier = Modifier.width(20.dp))
                         ContactRow(
@@ -266,7 +268,7 @@ fun PsyChatProfileScreen(
                     )
                 }
 
-                Divider(modifier = Modifier.padding(top = 10.dp, bottom = 24.dp), color = Color.LightGray)
+                Divider(modifier = Modifier.padding(top = 10.dp, bottom = 24.dp), color = AppColors.outline)
 
                 Button(
                     onClick = onUnlinkClick,
@@ -310,14 +312,14 @@ fun ContactRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: Stri
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color(0xFF657142),
+            tint = AppColors.accent,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = text,
             style = SourceSansRegular.copy(fontSize = 14.sp, textDecoration = TextDecoration.Underline),
-            color = Color.DarkGray
+            color = AppColors.textPrimary
         )
     }
 }

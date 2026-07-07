@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.softfocus.features.tracking.presentation.components.getMoodImageResource
 import com.softfocus.features.tracking.presentation.state.QuickMoodState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
+import com.softfocus.ui.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +47,7 @@ fun QuickMoodEntrySheet(
             viewModel.resetQuickMoodState()
             onDismiss()
         },
-        containerColor = Color.White
+        containerColor = AppColors.surface
     ) {
         Column(
             modifier = Modifier
@@ -60,7 +61,7 @@ fun QuickMoodEntrySheet(
                 text = "¿Cómo te sientes ahora?",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF333333)
+                color = AppColors.textPrimary
             )
 
             // Emoji selector
@@ -77,7 +78,7 @@ fun QuickMoodEntrySheet(
                 Text(
                     text = "Nivel: $selectedLevel/10",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFF333333)
+                    color = AppColors.textPrimary
                 )
                 Slider(
                     value = selectedLevel.toFloat(),

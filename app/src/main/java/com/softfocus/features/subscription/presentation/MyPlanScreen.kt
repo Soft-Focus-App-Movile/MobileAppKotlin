@@ -93,7 +93,7 @@ fun MyPlanScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -158,7 +158,7 @@ fun PlanContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(White)
+            .background(AppColors.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally

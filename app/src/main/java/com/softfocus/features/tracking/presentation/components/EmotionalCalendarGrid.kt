@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.R
 import com.softfocus.features.tracking.domain.model.EmotionalCalendarEntry
+import com.softfocus.ui.theme.AppColors
 import java.time.LocalDate
 
 @Composable
@@ -41,7 +42,7 @@ fun EmotionalCalendarGrid(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = AppColors.textSecondary
                 )
             }
         }
@@ -112,7 +113,7 @@ private fun EmotionalCalendarDay(
             Text(
                 text = day.toString(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                color = AppColors.textSecondary
             )
         }
     }

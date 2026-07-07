@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.softfocus.features.library.domain.models.Assignment
 import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.ui.theme.CrimsonSemiBold
+import com.softfocus.ui.theme.Gray222
 import com.softfocus.ui.theme.Gray89
 import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.GreenF2
@@ -70,6 +71,9 @@ fun TaskCard(
                         fontSize = 18.sp,
                         lineHeight = 24.sp // <-- Esto separa las líneas verticalmente
                     ),
+                    // Color fijo oscuro: la tarjeta es siempre verde claro (GreenF2), así que en
+                    // modo oscuro el color por defecto se volvía blanco e ilegible.
+                    color = Gray222
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))

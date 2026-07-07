@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.softfocus.ui.theme.AppColors
 
 @Composable
 fun StatisticsCard(
@@ -20,7 +21,7 @@ fun StatisticsCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AppColors.surface
         ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -42,7 +43,7 @@ fun StatisticsCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Gray
+                    color = AppColors.textSecondary
                 )
             }
             Text(

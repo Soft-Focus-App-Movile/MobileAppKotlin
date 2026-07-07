@@ -43,7 +43,11 @@ fun PatientTaskCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = task.title,
-                style = SourceSansRegular.copy(fontSize = 16.sp, fontWeight = FontWeight.SemiBold),
+                style = SourceSansRegular.copy(
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
                 color = Green65
             )
 
@@ -51,7 +55,7 @@ fun PatientTaskCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = task.description,
-                    style = SourceSansRegular.copy(fontSize = 14.sp),
+                    style = SourceSansRegular.copy(fontSize = 14.sp, lineHeight = 20.sp),
                     color = Color.DarkGray
                 )
             }

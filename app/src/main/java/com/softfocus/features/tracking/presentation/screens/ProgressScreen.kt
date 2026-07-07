@@ -19,6 +19,7 @@ import com.softfocus.features.tracking.presentation.components.EmptyProgressStat
 import com.softfocus.features.tracking.presentation.components.StatisticsCard
 import com.softfocus.features.tracking.presentation.state.TrackingUiState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
+import com.softfocus.ui.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,7 @@ fun ProgressScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF5F5F5)
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -58,12 +59,12 @@ fun ProgressScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5))
+                .background(AppColors.background)
         ) {
             // Tabs
             TabRow(
                 selectedTabIndex = 1,
-                containerColor = Color(0xFFF5F5F5),
+                containerColor = AppColors.background,
                 contentColor = Color(0xFF6B8E7C)
             ) {
                 Tab(
@@ -120,7 +121,7 @@ fun ProgressScreen(
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = Color.White
+                                        containerColor = AppColors.surface
                                     ),
                                     elevation = CardDefaults.cardElevation(4.dp)
                                 ) {

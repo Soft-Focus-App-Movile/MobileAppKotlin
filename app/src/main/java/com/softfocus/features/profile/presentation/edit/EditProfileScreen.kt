@@ -167,7 +167,7 @@ fun EditProfileScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         },
@@ -177,7 +177,7 @@ fun EditProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(AppColors.background)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 48.dp, vertical = 24.dp)
         ) {
@@ -426,8 +426,8 @@ fun EditableTextField(
     isEdited: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val textColor = if (isEdited) Green37 else GrayB2
-    val borderColor = if (isEdited) Green37 else GrayB2
+    val textColor = if (isEdited) AppColors.accent else AppColors.textSecondary
+    val borderColor = if (isEdited) AppColors.accent else AppColors.outline
 
     Column(modifier = modifier) {
         Text(
@@ -442,12 +442,12 @@ fun EditableTextField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFEBEFE5),
-                focusedContainerColor = Color(0xFFEBEFE5),
+                unfocusedContainerColor = AppColors.surfaceVariant,
+                focusedContainerColor = AppColors.surfaceVariant,
                 unfocusedBorderColor = borderColor,
-                focusedBorderColor = Green29,
+                focusedBorderColor = AppColors.accent,
                 unfocusedTextColor = textColor,
-                focusedTextColor = Green29
+                focusedTextColor = AppColors.accent
             ),
             shape = RoundedCornerShape(8.dp),
             textStyle = SourceSansRegular.copy(fontSize = 16.sp,
@@ -473,8 +473,8 @@ fun GenderDropdown(
         else -> selectedGender.ifBlank { "Seleccionar" }
     }
 
-    val textColor = if (isEdited) Green37 else GrayB2
-    val borderColor = if (isEdited) Green37 else GrayB2
+    val textColor = if (isEdited) AppColors.accent else AppColors.textSecondary
+    val borderColor = if (isEdited) AppColors.accent else AppColors.outline
 
     Column {
         Text(
@@ -499,17 +499,17 @@ fun GenderDropdown(
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = null,
-                        tint = if (isEdited) Green37 else GrayB2
+                        tint = if (isEdited) AppColors.accent else AppColors.textSecondary
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFEBEFE5),
-                    focusedContainerColor = Color(0xFFEBEFE5),
-                    disabledContainerColor = Color(0xFFEBEFE5),
+                    unfocusedContainerColor = AppColors.surfaceVariant,
+                    focusedContainerColor = AppColors.surfaceVariant,
+                    disabledContainerColor = AppColors.surfaceVariant,
                     unfocusedBorderColor = borderColor,
-                    focusedBorderColor = Green29,
+                    focusedBorderColor = AppColors.accent,
                     unfocusedTextColor = textColor,
-                    focusedTextColor = Green29
+                    focusedTextColor = AppColors.accent
                 ),
                 shape = RoundedCornerShape(8.dp),
                 textStyle = SourceSansRegular.copy(fontSize = 16.sp)
@@ -562,8 +562,8 @@ fun DateOfBirthPicker(
         }
     }
 
-    val textColor = if (isEdited) Green37 else GrayB2
-    val borderColor = if (isEdited) Green37 else GrayB2
+    val textColor = if (isEdited) AppColors.accent else AppColors.textSecondary
+    val borderColor = if (isEdited) AppColors.accent else AppColors.outline
 
     Column {
         Text(
@@ -583,18 +583,18 @@ fun DateOfBirthPicker(
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
                         contentDescription = "Seleccionar fecha",
-                        tint = if (isEdited) Green37 else GrayB2
+                        tint = if (isEdited) AppColors.accent else AppColors.textSecondary
                     )
                 }
             },
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFEBEFE5),
-                focusedContainerColor = Color(0xFFEBEFE5),
-                disabledContainerColor = Color(0xFFEBEFE5),
+                unfocusedContainerColor = AppColors.surfaceVariant,
+                focusedContainerColor = AppColors.surfaceVariant,
+                disabledContainerColor = AppColors.surfaceVariant,
                 unfocusedBorderColor = borderColor,
-                focusedBorderColor = Green29,
+                focusedBorderColor = AppColors.accent,
                 unfocusedTextColor = textColor,
-                focusedTextColor = Green29
+                focusedTextColor = AppColors.accent
             ),
             shape = RoundedCornerShape(8.dp),
             textStyle = SourceSansRegular.copy(fontSize = 16.sp)
@@ -664,7 +664,7 @@ fun ChipSelectionField(
                     },
                     label = { Text(option, fontSize = 14.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = Color(0xFFEBEFE5),
+                        containerColor = AppColors.surfaceVariant,
                         selectedContainerColor = Green29,
                         labelColor = Gray828,
                         selectedLabelColor = Color.White

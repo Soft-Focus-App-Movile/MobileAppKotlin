@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.softfocus.ui.theme.AppColors
 
 @Composable
 fun DashboardStatCard(
@@ -21,7 +22,7 @@ fun DashboardStatCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = AppColors.surface
         ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -46,14 +47,14 @@ fun DashboardStatCard(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = AppColors.textSecondary
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                color = AppColors.textSecondary
             )
         }
     }

@@ -45,6 +45,7 @@ import com.softfocus.core.navigation.Route
 import com.softfocus.features.profile.presentation.ProfileUiState
 import com.softfocus.features.profile.presentation.PsychologistLoadState
 import com.softfocus.ui.components.ProfileAvatar
+import com.softfocus.ui.components.DarkModeToggleCard
 import com.softfocus.ui.theme.Blue77
 import com.softfocus.ui.theme.RedE8
 import com.softfocus.ui.theme.SourceSansBold
@@ -116,7 +117,7 @@ fun PatientProfileScreen(
                         text = "Esta acción no se puede deshacer.",
                         style = SourceSansRegular,
                         fontSize = 14.sp,
-                        color = Color.Gray,
+                        color = AppColors.textSecondary,
                         lineHeight = 20.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -166,7 +167,7 @@ fun PatientProfileScreen(
                 }
             },
             shape = RoundedCornerShape(16.dp),
-            containerColor = White,
+            containerColor = AppColors.surface,
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -371,6 +372,9 @@ fun PatientProfileScreen(
                 title = "Ayuda y Soporte",
                 onClick = onNavigateToHelpSupport
             )
+
+            // Toggle de modo oscuro
+            DarkModeToggleCard()
 
             Button(
                 onClick = onLogout,
