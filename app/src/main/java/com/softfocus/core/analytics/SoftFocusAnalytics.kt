@@ -152,6 +152,42 @@ object SoftFocusAnalytics {
     }
 
     // ============================================================
+    // BIBLIOTECA: RECOMENDACIONES Y TAREAS
+    // ============================================================
+
+    /** Recomendaciones de contenido mostradas según la emoción del check-in diario. */
+    fun logRecommendationsShown(emotion: String) {
+        logEvent("recommendations_shown") {
+            putString("emotion", emotion)
+        }
+    }
+
+    /** El paciente abre su lista de tareas (contenido asignado). */
+    fun logAssignmentsViewed(pendingCount: Int, completedCount: Int) {
+        logEvent("assignments_viewed") {
+            putLong("pending_count", pendingCount.toLong())
+            putLong("completed_count", completedCount.toLong())
+        }
+    }
+
+    /** El paciente marca una tarea como completada. */
+    fun logAssignmentCompleted(assignmentId: String) {
+        logEvent("assignment_completed") {
+            putString("assignment_id", assignmentId)
+        }
+    }
+
+    /** El psicólogo asigna contenido a uno o más pacientes. */
+    fun logContentAssigned(patientsCount: Int, contentCount: Int, successCount: Int, errorCount: Int) {
+        logEvent("content_assigned") {
+            putLong("patients_count", patientsCount.toLong())
+            putLong("content_count", contentCount.toLong())
+            putLong("success_count", successCount.toLong())
+            putLong("error_count", errorCount.toLong())
+        }
+    }
+
+    // ============================================================
     // TRACKING / CALENDARIO EMOCIONAL
     // ============================================================
 

@@ -3,6 +3,7 @@ package com.softfocus.features.library.presentation.general.browse
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.core.common.result.Result
 import com.softfocus.features.library.domain.models.ContentItem
 import com.softfocus.features.library.domain.models.ContentType
@@ -85,6 +86,7 @@ class GeneralLibraryViewModel(
                                 checkIn.symptoms
                             )
                             if (emotion != null) {
+                                SoftFocusAnalytics.logRecommendationsShown(emotion.name)
                                 loadContentByEmotion(emotion)
                             } else {
                                 loadAllContent()
@@ -671,6 +673,12 @@ class GeneralLibraryViewModel(
                     )
                 }
 
+                SoftFocusAnalytics.logContentAssigned(
+                    patientsCount = patientIds.size,
+                    contentCount = selectedIds.size,
+                    successCount = successCount,
+                    errorCount = errorCount
+                )
                 if (errorCount == 0) {
                     clearSelection()
                     onSuccess()
