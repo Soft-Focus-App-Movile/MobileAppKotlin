@@ -24,8 +24,7 @@ import com.softfocus.features.home.presentation.components.RecommendationsSectio
 import com.softfocus.features.home.presentation.components.TrackingHome
 import com.softfocus.features.home.presentation.components.WelcomeCard
 import com.softfocus.features.crisis.presentation.components.CrisisButton
-import com.softfocus.features.home.presentation.patient.components.TasksSection
-import com.softfocus.features.home.presentation.patient.components.PatientCustomTasksSection
+import com.softfocus.features.home.presentation.patient.components.PatientTasksSection
 import com.softfocus.features.home.presentation.patient.components.TherapistChatCard
 import com.softfocus.features.tracking.presentation.state.TrackingUiState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
@@ -154,7 +153,8 @@ fun PatientHomeScreen(
                     totalCheckIns = dashboard?.summary?.totalCheckIns ?: 0
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                // Menos separación aquí porque el koala del WelcomeCard ya deja espacio extra debajo
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Chat con terapeuta",
@@ -184,21 +184,18 @@ fun PatientHomeScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                TasksSection(
+                // Sección unificada: tareas de biblioteca + propósitos del psicólogo en una sola tarjeta
+                PatientTasksSection(
                     assignmentsState = assignmentsState,
+                    customTasksState = customTasksState,
                     onTaskClick = { assignment ->
                         navController.navigate(Route.LibraryGeneralDetail.createRoute(assignment.content.id))
                     },
+                    onCompleteTask = { taskId -> viewModel.completeCustomTask(taskId) },
                     onRetry = { viewModel.retryAssignments() }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                // Tareas de texto libre asignadas por el psicólogo (se oculta si no hay ninguna)
-                PatientCustomTasksSection(
-                    state = customTasksState,
-                    onCompleteTask = { taskId -> viewModel.completeCustomTask(taskId) }
-                )
 
                 RecommendationsSection(
                     recommendationsState = recommendationsState,

@@ -39,10 +39,11 @@ import com.softfocus.ui.theme.SourceSansRegular
 import java.net.URL
 import android.graphics.BitmapFactory
 import com.softfocus.ui.components.ProfileAvatar
+import com.softfocus.ui.components.DarkModeToggleCard
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.GreenA3
-import com.softfocus.ui.theme.White
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -87,7 +88,7 @@ fun GeneralProfileScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -96,7 +97,7 @@ fun GeneralProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(AppColors.background)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -129,7 +130,7 @@ fun GeneralProfileScreen(
                         text = user?.fullName ?: "Usuario",
                         style = CrimsonSemiBold,
                         fontSize = 28.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
 
                     // Edad calculada desde dateOfBirth
@@ -140,7 +141,7 @@ fun GeneralProfileScreen(
                                 text = "$age años",
                                 style = CrimsonSemiBold,
                                 fontSize = 18.sp,
-                                color = Black
+                                color = AppColors.textPrimary
                             )
                         }
                     }
@@ -149,7 +150,7 @@ fun GeneralProfileScreen(
                         text = user?.email ?: "",
                         style = CrimsonSemiBold,
                         fontSize = 18.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                 }
             }
@@ -191,6 +192,9 @@ fun GeneralProfileScreen(
                 title = "Ayuda y Soporte",
                 onClick = onNavigateToHelpSupport
             )
+
+            // Toggle de modo oscuro
+            DarkModeToggleCard()
 
             ProfileOption(
                 icon = Icons.Outlined.Logout,

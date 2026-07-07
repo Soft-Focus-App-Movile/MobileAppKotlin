@@ -75,10 +75,10 @@ val DarkSoftFocusColors = SoftFocusColors(
     textOnSurface = White,
     accent = Color(0xFFA8C686),         // lighter green so it reads on dark
     outline = Color(0xFF3A3A3A),
-    chatBackground = Color(0xFF14210A),
-    chatBubbleMine = Color(0xFF3A4A2A),
-    chatBubbleOther = Color(0xFF2A2A2A),
-    chatBubbleText = White
+    chatBackground = Color(0xFF17191C),  // casi negro con leve subtono plomo
+    chatBubbleMine = Color(0xFFE6DCC2),  // crema (mis mensajes)
+    chatBubbleOther = Color(0xFFF2ECDC), // crema claro (mensajes del otro)
+    chatBubbleText = Color(0xFF2C2C2C)   // texto oscuro sobre crema
 )
 
 val LocalSoftFocusColors = staticCompositionLocalOf { LightSoftFocusColors }

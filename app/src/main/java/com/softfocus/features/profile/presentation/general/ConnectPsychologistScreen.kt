@@ -62,7 +62,7 @@ fun ConnectPsychologistScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -71,7 +71,7 @@ fun ConnectPsychologistScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White),
+                .background(AppColors.background),
             contentAlignment = Alignment.Center
         ) {
             Box(

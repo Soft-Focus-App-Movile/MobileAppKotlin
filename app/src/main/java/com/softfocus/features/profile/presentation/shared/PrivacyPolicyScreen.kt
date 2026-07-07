@@ -48,7 +48,7 @@ fun PrivacyPolicyScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -57,7 +57,7 @@ fun PrivacyPolicyScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(AppColors.background)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -67,7 +67,7 @@ fun PrivacyPolicyScreen(
                 text = "Última actualización: Noviembre 2025",
                 style = SourceSansRegular,
                 fontSize = 14.sp,
-                color = Gray828
+                color = AppColors.textSecondary
             )
 
             // Introducción con icono
@@ -155,7 +155,7 @@ fun PrivacyPolicyScreen(
                             text = "¿Dudas sobre privacidad?",
                             style = SourceSansBold,
                             fontSize = 16.sp,
-                            color = Black
+                            color = AppColors.textPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -189,7 +189,7 @@ private fun PrivacyCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5)
+            containerColor = AppColors.surface
         )
     ) {
         Row(
@@ -210,7 +210,7 @@ private fun PrivacyCard(
                     text = title,
                     style = SourceSansBold,
                     fontSize = 16.sp,
-                    color = Black,
+                    color = AppColors.textPrimary,
                     lineHeight = 22.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -218,7 +218,7 @@ private fun PrivacyCard(
                     text = content,
                     style = SourceSansRegular,
                     fontSize = 14.sp,
-                    color = Gray828,
+                    color = AppColors.textSecondary,
                     lineHeight = 20.sp
                 )
             }

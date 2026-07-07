@@ -19,6 +19,7 @@ import com.softfocus.features.tracking.presentation.components.DashboardInsightC
 import com.softfocus.features.tracking.presentation.components.DashboardStatCard
 import com.softfocus.features.tracking.presentation.state.TrackingUiState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
+import com.softfocus.ui.theme.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,7 @@ fun DashboardScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF5F5F5)
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -83,7 +84,7 @@ fun DashboardScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues)
-                            .background(Color(0xFFF5F5F5))
+                            .background(AppColors.background)
                             .verticalScroll(rememberScrollState())
                             .padding(16.dp)
                     ) {
@@ -183,7 +184,7 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color.White
+                                    containerColor = AppColors.surface
                                 ),
                                 elevation = CardDefaults.cardElevation(4.dp)
                             ) {
@@ -266,7 +267,7 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFFE8F5E9)
+                                    containerColor = AppColors.surfaceVariant
                                 ),
                                 elevation = CardDefaults.cardElevation(4.dp)
                             ) {

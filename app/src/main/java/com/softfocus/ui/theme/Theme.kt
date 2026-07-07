@@ -20,22 +20,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Light Color Scheme
+// Light Color Scheme — paleta verde de la app (antes usaba el morado por defecto de M3)
 private val LightColorScheme = lightColorScheme(
-    primary = M3Primary,                    // Purple67
-    onPrimary = M3OnPrimary,                // White
-    primaryContainer = M3PrimaryContainer,  // PurpleEA
-    onPrimaryContainer = M3OnPrimaryContainer, // Purple4F
+    primary = Green49,                      // verde de marca
+    onPrimary = White,
+    primaryContainer = GreenEB2,            // verde claro
+    onPrimaryContainer = Green29,           // verde oscuro
 
-    secondary = Purple67,
+    secondary = Green65,
     onSecondary = White,
-    secondaryContainer = M3SecondaryContainer,  // PurpleE8
-    onSecondaryContainer = M3OnSecondaryContainer, // Purple4A
+    secondaryContainer = GreenDD,
+    onSecondaryContainer = Green29,
 
     tertiary = MainYellow,                  // YellowEC
     onTertiary = Black,
     tertiaryContainer = YellowEB,
-    onTertiaryContainer = Purple1D,
+    onTertiaryContainer = Green13,
 
     error = RedE6,
     onError = White,
@@ -43,35 +43,35 @@ private val LightColorScheme = lightColorScheme(
     onErrorContainer = Color(0xFF410002),
 
     background = White,
-    onBackground = M3OnSurface,             // Purple1D
+    onBackground = Gray222,                 // casi negro neutro (sin tinte morado)
 
     surface = White,
-    onSurface = M3OnSurface,                // Purple1D
-    surfaceVariant = M3SurfaceContainerHigh, // PurpleEC
-    onSurfaceVariant = M3OnSurfaceVariant,  // Purple49
+    onSurface = Gray222,
+    surfaceVariant = GreenF2,               // verde-gris claro
+    onSurfaceVariant = Green65,
 
-    outline = M3OutlineVariant,             // PurpleCA
+    outline = GreenB8,                      // bordes/lineas verde-gris (antes morado)
     outlineVariant = GrayE0,
 
     scrim = Black,
-    inverseSurface = Purple1D,
+    inverseSurface = Gray222,
     inverseOnSurface = White,
-    inversePrimary = PurpleEA,
+    inversePrimary = GreenA3,
 
-    surfaceTint = M3Primary,
+    surfaceTint = Green49,
 )
 
-// Dark Color Scheme
+// Dark Color Scheme — verde para modo oscuro (antes morado)
 private val DarkColorScheme = darkColorScheme(
-    primary = PurpleEA,                     // Lighter purple for dark mode
-    onPrimary = Purple4F,
-    primaryContainer = Purple67,
-    onPrimaryContainer = PurpleEA,
+    primary = GreenA3,                      // verde más claro para modo oscuro
+    onPrimary = Green13,
+    primaryContainer = Green37,
+    onPrimaryContainer = GreenE7,
 
-    secondary = PurpleE8,
-    onSecondary = Purple4A,
-    secondaryContainer = Purple4A,
-    onSecondaryContainer = PurpleE8,
+    secondary = GreenAB,
+    onSecondary = Green13,
+    secondaryContainer = Green37,
+    onSecondaryContainer = GreenE7,
 
     tertiary = YellowE8,                    // Lighter yellow for dark mode
     onTertiary = Yellow7E,
@@ -83,23 +83,23 @@ private val DarkColorScheme = darkColorScheme(
     errorContainer = Color(0xFF93000A),
     onErrorContainer = Color(0xFFFFDAD6),
 
-    background = Purple1D,                  // Dark background
+    background = Color(0xFF121212),         // fondo oscuro (igual que AppColors)
     onBackground = White,
 
-    surface = Purple1D,
+    surface = Color(0xFF1E1E1E),
     onSurface = White,
-    surfaceVariant = Purple49,
-    onSurfaceVariant = PurpleCA,
+    surfaceVariant = Green29,               // verde oscuro
+    onSurfaceVariant = GreenB8,
 
     outline = Gray808,
-    outlineVariant = Purple49,
+    outlineVariant = Green37,
 
     scrim = Black,
     inverseSurface = GrayE6,
-    inverseOnSurface = Purple1D,
-    inversePrimary = Purple67,
+    inverseOnSurface = Gray222,
+    inversePrimary = Green49,
 
-    surfaceTint = PurpleEA,
+    surfaceTint = GreenA3,
 )
 
 @Composable

@@ -43,7 +43,7 @@ fun PatientPlanScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -52,7 +52,7 @@ fun PatientPlanScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(White)
+                .background(AppColors.background)
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally

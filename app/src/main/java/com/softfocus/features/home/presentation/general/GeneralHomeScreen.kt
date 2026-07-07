@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Gray787
 import com.softfocus.ui.theme.Green49
@@ -117,7 +118,7 @@ fun GeneralHomeScreen(
                             text = locationText,
                             style = SourceSansRegular,
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = AppColors.textSecondary
                         )
                     }
                 },
@@ -149,7 +150,7 @@ fun GeneralHomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -159,7 +160,7 @@ fun GeneralHomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(AppColors.background)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -178,7 +179,7 @@ fun GeneralHomeScreen(
                             text = "Necesitas ayuda profesional?",
                             style = SourceSansRegular,
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = AppColors.textSecondary
                         )
                     },
                     leadingIcon = {
@@ -198,11 +199,11 @@ fun GeneralHomeScreen(
                         .clickable(onClick = onNavigateToSearchPsychologist),
                     shape = RoundedCornerShape(8.dp),
                     colors = TextFieldDefaults.colors(
-                        disabledContainerColor = Color.White,
-                        disabledPlaceholderColor = Color.Gray,
+                        disabledContainerColor = AppColors.inputBackground,
+                        disabledPlaceholderColor = AppColors.textSecondary,
                         disabledLeadingIconColor = Color.Unspecified,
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = AppColors.inputBackground,
+                        unfocusedContainerColor = AppColors.inputBackground,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         disabledIndicatorColor = Color.Transparent

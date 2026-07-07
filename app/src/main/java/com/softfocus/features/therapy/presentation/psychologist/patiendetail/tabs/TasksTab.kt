@@ -53,11 +53,11 @@ import com.softfocus.features.therapy.domain.models.PatientTask
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.CustomTasksState
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.PatientTaskCard
 import com.softfocus.features.therapy.presentation.psychologist.patiendetail.components.TaskCard
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.GrayD9
 import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.SourceSansRegular
-import com.softfocus.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,12 +96,12 @@ fun TasksTab(
                 Row(
                     modifier = Modifier
                         .clickable { isFilterMenuExpanded = true } // Al hacer clic, expande el menú
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                        .border(1.dp, AppColors.outline, RoundedCornerShape(8.dp))
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // El texto de la opción seleccionada
-                    Text(selectedFilterOption, color = Color.Black, fontSize = 14.sp)
+                    Text(selectedFilterOption, color = AppColors.textPrimary, fontSize = 14.sp)
 
                     // El icono de flecha que cambia
                     Icon(
@@ -128,9 +128,9 @@ fun TasksTab(
                             },
                             text = {Text(option, style = SourceSansRegular.copy(fontSize = 14.sp), )},
                             modifier = if (selectedFilterOption == option) {
-                                Modifier.background(Color.LightGray.copy(alpha = 0.3f))
+                                Modifier.background(AppColors.surfaceVariant)
                             } else {
-                                Modifier.background(White)
+                                Modifier.background(Color.Transparent)
                             }
                         )
                     }

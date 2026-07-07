@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.GreenA3
 import com.softfocus.ui.theme.SourceSansBold
@@ -58,7 +59,7 @@ fun HelpSupportScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         }
@@ -67,7 +68,7 @@ fun HelpSupportScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(AppColors.background)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -77,7 +78,7 @@ fun HelpSupportScreen(
                 text = "¿Necesitas ayuda? Estamos aquí para ti",
                 style = CrimsonSemiBold,
                 fontSize = 20.sp,
-                color = Black,
+                color = AppColors.textPrimary,
                 lineHeight = 28.sp
             )
 
@@ -86,7 +87,7 @@ fun HelpSupportScreen(
                        "Estamos disponibles 24/7 para asistirte.",
                 style = SourceSansRegular,
                 fontSize = 16.sp,
-                color = Color.Gray,
+                color = AppColors.textSecondary,
                 lineHeight = 24.sp
             )
 
@@ -105,7 +106,7 @@ fun HelpSupportScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFF5F5F5)
+                    containerColor = AppColors.surface
                 )
             ) {
                 Row(
@@ -126,7 +127,7 @@ fun HelpSupportScreen(
                             text = "Sitio Web",
                             style = SourceSansBold,
                             fontSize = 16.sp,
-                            color = Black,
+                            color = AppColors.textPrimary,
                             lineHeight = 22.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -231,7 +232,7 @@ fun HelpSupportScreen(
                         text = "Para dudas específicas o atención urgente:",
                         style = SourceSansRegular,
                         fontSize = 14.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
 
                     Text(
@@ -280,7 +281,7 @@ private fun ContactCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5)
+            containerColor = AppColors.surface
         )
     ) {
         Row(
@@ -301,7 +302,7 @@ private fun ContactCard(
                     text = title,
                     style = SourceSansBold,
                     fontSize = 16.sp,
-                    color = Black,
+                    color = AppColors.textPrimary,
                     lineHeight = 22.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -337,7 +338,7 @@ private fun SectionTitle(text: String) {
         text = text,
         style = SourceSansBold,
         fontSize = 18.sp,
-        color = Black,
+        color = AppColors.textPrimary,
         lineHeight = 24.sp,
         modifier = Modifier.padding(top = 8.dp)
     )
@@ -356,7 +357,7 @@ private fun SupportNumberCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF5F5F5)
+            containerColor = AppColors.surface
         )
     ) {
         Row(
@@ -379,7 +380,7 @@ private fun SupportNumberCard(
                     text = category,
                     style = SourceSansBold,
                     fontSize = 16.sp,
-                    color = Black,
+                    color = AppColors.textPrimary,
                     lineHeight = 22.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))

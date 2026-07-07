@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.softfocus.ui.theme.AppColors
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -30,7 +31,7 @@ fun CalendarDatePicker(
             .fillMaxWidth()
             .clickable { showDatePicker = true },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = AppColors.surface)
     ) {
         Row(
             modifier = Modifier

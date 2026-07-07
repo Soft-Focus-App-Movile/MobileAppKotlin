@@ -61,6 +61,7 @@ import com.softfocus.R
 import com.softfocus.features.ai.domain.models.ChatSession
 import com.softfocus.features.ai.presentation.chat.components.SuggestedQuestionChip
 import com.softfocus.features.ai.presentation.di.AIPresentationModule
+import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Green29
 import com.softfocus.ui.theme.Green65
@@ -124,7 +125,7 @@ fun AIWelcomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
+            .background(AppColors.background)
     ) {
         // Gradient background with oval bottom
         Box(

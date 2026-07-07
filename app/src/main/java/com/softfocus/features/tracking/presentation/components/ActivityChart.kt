@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.softfocus.features.tracking.domain.model.CheckIn
+import com.softfocus.ui.theme.AppColors
 
 @Composable
 fun ActivityChart(
@@ -29,7 +30,7 @@ fun ActivityChart(
                 Text(
                     text = day,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = AppColors.textSecondary
                 )
             }
         }

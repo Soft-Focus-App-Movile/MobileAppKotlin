@@ -26,6 +26,7 @@ import com.softfocus.features.tracking.presentation.components.getMoodImageResou
 import com.softfocus.features.tracking.presentation.state.DeleteTodayEntriesState
 import com.softfocus.features.tracking.presentation.state.TrackingUiState
 import com.softfocus.features.tracking.presentation.viewmodel.TrackingViewModel
+import com.softfocus.ui.theme.AppColors
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -144,7 +145,7 @@ fun DiaryScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF5F5F5)
+                    containerColor = AppColors.background
                 )
             )
         },
@@ -172,12 +173,12 @@ fun DiaryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5))
+                .background(AppColors.background)
         ) {
             // Tabs
             TabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = Color(0xFFF5F5F5),
+                containerColor = AppColors.background,
                 contentColor = Color(0xFF6B8E7C)
             ) {
                 tabs.forEachIndexed { index, title ->
@@ -254,7 +255,7 @@ fun DiaryScreen(
                                     text = "Entradas de hoy",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF333333)
+                                    color = AppColors.textPrimary
                                 )
                                 if (quickEntriesCount > 0) {
                                     TextButton(
@@ -307,7 +308,7 @@ fun EmotionalEntryCard(entry: EmotionalCalendarEntry) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = AppColors.surface)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -325,7 +326,7 @@ fun EmotionalEntryCard(entry: EmotionalCalendarEntry) {
                         text = "Nivel: ${entry.moodLevel}/10",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF333333)
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -337,13 +338,13 @@ fun EmotionalEntryCard(entry: EmotionalCalendarEntry) {
                 Text(
                     text = "Hora: ${formatEntryTime(entry.timestamp)}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF666666)
+                    color = AppColors.textSecondary
                 )
                 if (entry.content.isNotEmpty()) {
                     Text(
                         text = entry.content,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF666666)
+                        color = AppColors.textSecondary
                     )
                 }
             }
