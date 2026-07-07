@@ -148,7 +148,15 @@ fun PatientBottomNav(navController: NavController) {
                     )
                 }
             },
-            label = { Text("Mi terapeuta", fontSize = 12.sp, style = SourceSansRegular) },
+            label = {
+                Text(
+                    "Terapeuta",
+                    fontSize = 12.sp,
+                    style = SourceSansRegular,
+                    maxLines = 1,
+                    softWrap = false
+                )
+            },
             selected = currentRoute == Route.PatientPsychologistChat.path,
             onClick = {
                 if (currentRoute != Route.PatientPsychologistChat.path) {

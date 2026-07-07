@@ -217,7 +217,9 @@ class PatientHomeViewModel(
         viewModelScope.launch {
             _assignmentsState.value = AssignmentsUiState.Loading
 
-            assignmentsRepository.getAssignedContent(completed = false).fold(
+            // Traemos TODAS (pendientes + completadas) para que el filtro de la pantalla de
+            // Tareas funcione; el home igual filtra a pendientes por su cuenta.
+            assignmentsRepository.getAssignedContent(completed = null).fold(
                 onSuccess = { assignments ->
                     val pending = assignments.count { !it.isCompleted }
                     val completedCount = assignments.count { it.isCompleted }
@@ -266,6 +268,20 @@ class PatientHomeViewModel(
                 onSuccess = { loadCustomTasks() },
                 onFailure = { exception ->
                     Log.w(TAG, "completeCustomTask: error: ${exception.message}")
+                }
+            )
+        }
+    }
+
+    /**
+     * El paciente marca una asignación de biblioteca como completada y se recarga la lista.
+     */
+    fun completeAssignment(assignmentId: String) {
+        viewModelScope.launch {
+            assignmentsRepository.completeAssignment(assignmentId).fold(
+                onSuccess = { loadAssignments() },
+                onFailure = { exception ->
+                    Log.w(TAG, "completeAssignment: error: ${exception.message}")
                 }
             )
         }

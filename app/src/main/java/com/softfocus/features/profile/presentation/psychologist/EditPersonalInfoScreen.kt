@@ -210,12 +210,12 @@ fun EditPersonalInfoScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.White
+        containerColor = AppColors.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -267,7 +267,7 @@ fun EditPersonalInfoScreen(
                             modifier = Modifier
                                 .size(100.dp)
                                 .clip(CircleShape)
-                                .background(GreenEB2)
+                                .background(AppColors.surfaceVariant)
                                 .clickable { imagePickerLauncher.launch("image/*") },
                             contentAlignment = Alignment.Center
                         ) {
@@ -474,7 +474,7 @@ fun EditPersonalInfoScreen(
                         text = "Aceptando nuevos pacientes",
                         style = SourceSansRegular,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                 }
 
@@ -496,7 +496,7 @@ fun EditPersonalInfoScreen(
                         text = "Perfil visible en directorio",
                         style = SourceSansRegular,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                 }
 
@@ -518,7 +518,7 @@ fun EditPersonalInfoScreen(
                         text = "Permitir mensajes directos",
                         style = SourceSansRegular,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                 }
             }
@@ -537,7 +537,7 @@ fun EditPersonalInfoScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = Black,
-                        containerColor = GreenEB2
+                        containerColor = AppColors.surfaceVariant
                     ),
                     border = null,
                     contentPadding = PaddingValues(vertical = 10.dp, horizontal = 16.dp)
@@ -662,7 +662,7 @@ fun PsychologistEditableField(
             text = label,
             style = SourceSansRegular,
             fontSize = 16.sp,
-            color = Black,
+            color = AppColors.textPrimary,
             lineHeight = 20.sp,
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -675,10 +675,10 @@ fun PsychologistEditableField(
 
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = GreenEB2,
-                focusedContainerColor = GreenEB2,
+                unfocusedContainerColor = AppColors.surfaceVariant,
+                focusedContainerColor = AppColors.surfaceVariant,
                 unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Green37
+                focusedBorderColor = AppColors.accent
             ),
             textStyle = SourceSansRegular.copy(lineHeight = 22.sp),
             minLines = minLines,
@@ -715,7 +715,7 @@ fun PsychologistDateOfBirthPicker(
             text = "Fecha de Cumpleaños",
             style = SourceSansRegular,
             fontSize = 16.sp,
-            color = Black
+            color = AppColors.textPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -733,11 +733,11 @@ fun PsychologistDateOfBirthPicker(
                 }
             },
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = GreenEB2,
-                focusedContainerColor = GreenEB2,
-                disabledContainerColor = GreenEB2,
+                unfocusedContainerColor = AppColors.surfaceVariant,
+                focusedContainerColor = AppColors.surfaceVariant,
+                disabledContainerColor = AppColors.surfaceVariant,
                 unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Green37
+                focusedBorderColor = AppColors.accent
             ),
             shape = RoundedCornerShape(12.dp),
             textStyle = SourceSansRegular
@@ -812,7 +812,7 @@ fun ChipSelectionField(
             text = label,
             style = SourceSansRegular,
             fontSize = 16.sp,
-            color = Black,
+            color = AppColors.textPrimary,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         FlowRow(
@@ -834,9 +834,9 @@ fun ChipSelectionField(
                     },
                     label = { Text(option, fontSize = 14.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = GreenEB2,
+                        containerColor = AppColors.surfaceVariant,
                         selectedContainerColor = Green29,
-                        labelColor = Black,
+                        labelColor = AppColors.textPrimary,
                         selectedLabelColor = White
                     )
                 )
@@ -878,7 +878,7 @@ fun ProfileImageFromUrl(
         modifier = Modifier
             .size(100.dp)
             .clip(CircleShape)
-            .background(GreenEB2)
+            .background(AppColors.surfaceVariant)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -912,7 +912,7 @@ fun EditPersonalInfoScreenPreview() {
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
-                    .background(GreenEB2),
+                    .background(AppColors.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -1022,7 +1022,7 @@ fun EditPersonalInfoScreenPreview() {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = Black,
-                    containerColor = GreenEB2
+                    containerColor = AppColors.surfaceVariant
                 ),
                 border = null,
                 contentPadding = PaddingValues(vertical = 10.dp, horizontal = 16.dp)

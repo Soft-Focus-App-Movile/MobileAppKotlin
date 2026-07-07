@@ -105,6 +105,9 @@ Route(val path: String) {
 
     data object PsychologistChatProfile : Route("psychologist_chat_profile")
 
+    // Pantalla "Tareas" del paciente (mismas cards que ve el psicólogo)
+    data object PatientTasks : Route("patient_tasks")
+
     // Call screen (Agora voice/video). callType = "Video" | "Audio".
     // - callId is set only when answering an incoming call; null/absent means an outgoing call.
     // - targetUserId is set when a psychologist calls a specific patient; patients omit it

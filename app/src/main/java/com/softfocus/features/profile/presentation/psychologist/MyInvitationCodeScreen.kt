@@ -48,17 +48,17 @@ fun MyInvitationCodeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = AppColors.background
                 )
             )
         },
-        containerColor = Color.White
+        containerColor = AppColors.background
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White),
+                .background(AppColors.background),
             contentAlignment = Alignment.Center
         ) {
             if (isLoading.value) {

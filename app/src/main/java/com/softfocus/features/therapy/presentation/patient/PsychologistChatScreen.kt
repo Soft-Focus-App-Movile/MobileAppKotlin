@@ -178,12 +178,12 @@ fun ChatHeader(summaryState: PsychologistSummaryState, navController: NavHostCon
 
             IconButton(onClick = {
                 navController.navigate(
-                    Route.Library.path
+                    Route.PatientTasks.path
                 )
             }) {
                 Icon(
                     imageVector = Icons.Outlined.ContentPaste,
-                    contentDescription = "Botón de portapapeles",
+                    contentDescription = "Tareas",
                     modifier = Modifier.size(24.dp),
                     tint = Color.White
                 )

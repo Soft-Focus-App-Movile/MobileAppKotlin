@@ -117,6 +117,7 @@ fun CallScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .statusBarsPadding()
                     .padding(16.dp)
                     .size(width = 110.dp, height = 160.dp)
                     .clip(RoundedCornerShape(16.dp))
@@ -131,8 +132,10 @@ fun CallScreen(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 24.dp)
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    // padding-end grande para no quedar debajo del preview de la cámara (arriba a la derecha)
+                    .padding(start = 20.dp, top = 24.dp, end = 150.dp)
             )
         }
 
@@ -145,6 +148,7 @@ fun CallScreen(
             onHangUp = viewModel::hangUp,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
                 .padding(bottom = 40.dp)
         )
     }

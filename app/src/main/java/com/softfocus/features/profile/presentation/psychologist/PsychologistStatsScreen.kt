@@ -81,11 +81,11 @@ fun PsychologistStatsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White
+                    containerColor = AppColors.background
                 )
             )
         },
-        containerColor = White
+        containerColor = AppColors.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -260,7 +260,7 @@ private fun StatsDetailCard(
                     text = title,
                     style = CrimsonSemiBold,
                     fontSize = 18.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
             }
 
@@ -296,7 +296,7 @@ private fun StatsEmotionalCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = AppColors.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -320,7 +320,7 @@ private fun StatsEmotionalCard(
                     text = title,
                     style = CrimsonSemiBold,
                     fontSize = 18.sp,
-                    color = Black
+                    color = AppColors.textPrimary
                 )
             }
 
@@ -400,7 +400,7 @@ private fun DateFilterCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = AppColors.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -429,7 +429,7 @@ private fun DateFilterCard(
                         text = "Filtro de Fechas",
                         style = CrimsonSemiBold,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                 }
 

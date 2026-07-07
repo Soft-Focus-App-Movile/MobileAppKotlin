@@ -82,12 +82,12 @@ fun CrisisAlertsScreen(
             ScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = Color.Transparent,
-                contentColor = Green65,
+                contentColor = AppColors.accent,
                 edgePadding = 16.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = Green65
+                        color = AppColors.accent
                     )
                 },
                 divider = { }
@@ -104,7 +104,7 @@ fun CrisisAlertsScreen(
                             Text(
                                 text = title,
                                 style = SourceSansRegular.copy(fontSize = 15.sp),
-                                color = if (isSelected) Green65 else Black
+                                color = if (isSelected) AppColors.accent else AppColors.textSecondary
                             )
                         }
                     )

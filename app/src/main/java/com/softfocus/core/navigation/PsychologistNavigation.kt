@@ -283,7 +283,7 @@ fun NavGraphBuilder.psychologistNavigation(
         }
 
         Scaffold(
-            containerColor = GreenF2,
+            containerColor = Color.Transparent,
             bottomBar = { PsychologistBottomNav(navController) }
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)){

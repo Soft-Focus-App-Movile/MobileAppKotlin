@@ -2,6 +2,7 @@ package com.softfocus.features.home.presentation.patient.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.R
@@ -21,6 +23,8 @@ import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.features.therapy.domain.models.PatientTask
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.CrimsonMixed
+import com.softfocus.ui.theme.Green29
+import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.SourceSansRegular
 import com.softfocus.ui.theme.White
@@ -37,6 +41,7 @@ fun PatientTasksSection(
     customTasksState: CustomTasksUiState,
     onTaskClick: (Assignment) -> Unit = {},
     onCompleteTask: (String) -> Unit = {},
+    onCompleteAssignment: (String) -> Unit = {},
     onRetry: () -> Unit = {}
 ) {
     val customTasks = (customTasksState as? CustomTasksUiState.Success)?.tasks ?: emptyList()
@@ -47,8 +52,7 @@ fun PatientTasksSection(
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(4.dp, YellowCB9D),
-        colors = CardDefaults.cardColors(containerColor = White)
+        colors = CardDefaults.cardColors(containerColor = YellowCB9D)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             when (val state = assignmentsState) {
@@ -102,9 +106,14 @@ fun PatientTasksSection(
                     val total = pendingAssignments.size + pendingCustom.size
 
                     if (total == 0) {
+                        // Distinguir "nunca tuvo tareas" de "las completó todas"
+                        val hasEverHadTasks = state.assignments.isNotEmpty() || customTasks.isNotEmpty()
                         TaskSectionHeader(text = "No tienes tareas pendientes")
                         Text(
-                            text = "¡Excelente! Has completado todas tus tareas",
+                            text = if (hasEverHadTasks)
+                                "¡Excelente! Has completado todas tus tareas"
+                            else
+                                "Aún no tienes tareas asignadas",
                             style = SourceSansRegular,
                             fontSize = 14.sp,
                             color = Black
@@ -117,7 +126,8 @@ fun PatientTasksSection(
                         pendingAssignments.forEachIndexed { index, assignment ->
                             TaskItem(
                                 assignment = assignment,
-                                onClick = { onTaskClick(assignment) }
+                                onClick = { onTaskClick(assignment) },
+                                onComplete = { onCompleteAssignment(assignment.id) }
                             )
                             if (index < pendingAssignments.size - 1 || pendingCustom.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -154,7 +164,7 @@ private fun TaskSectionHeader(text: String) {
         Icon(
             painter = painterResource(id = R.drawable.tasks_icon),
             contentDescription = null,
-            tint = Green65,
+            tint = Green29,
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -162,7 +172,8 @@ private fun TaskSectionHeader(text: String) {
             text = text,
             style = CrimsonMixed,
             fontSize = 16.sp,
-            color = Green65
+            fontWeight = FontWeight.Bold,
+            color = White
         )
     }
 }
@@ -170,14 +181,15 @@ private fun TaskSectionHeader(text: String) {
 @Composable
 fun TaskItem(
     assignment: Assignment,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onComplete: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        color = YellowCB9D
+        color = White
     ) {
         Row(
             modifier = Modifier
@@ -185,14 +197,12 @@ fun TaskItem(
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Checkbox placeholder (cuadrito sin check)
+            // Checkbox (marcador verde). Al tocarlo se marca la asignación como completada.
             Box(
                 modifier = Modifier
-                    .size(16.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(3.dp)
-                    )
+                    .size(18.dp)
+                    .border(2.dp, Green49, RoundedCornerShape(4.dp))
+                    .clickable(onClick = onComplete)
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(

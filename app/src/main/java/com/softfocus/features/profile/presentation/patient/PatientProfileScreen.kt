@@ -374,7 +374,7 @@ fun PatientProfileScreen(
             )
 
             // Toggle de modo oscuro
-            DarkModeToggleCard()
+            DarkModeToggleCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 
             Button(
                 onClick = onLogout,

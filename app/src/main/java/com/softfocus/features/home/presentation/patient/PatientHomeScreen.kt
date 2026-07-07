@@ -169,7 +169,7 @@ fun PatientHomeScreen(
                     therapistState = therapistState,
                     onRetry = { viewModel.retryTherapist() },
                     onChatClick = {
-                        // TODO: Navegar al chat con el terapeuta
+                        navController.navigate(Route.PatientPsychologistChat.path)
                     }
                 )
 
@@ -192,6 +192,7 @@ fun PatientHomeScreen(
                         navController.navigate(Route.LibraryGeneralDetail.createRoute(assignment.content.id))
                     },
                     onCompleteTask = { taskId -> viewModel.completeCustomTask(taskId) },
+                    onCompleteAssignment = { id -> viewModel.completeAssignment(id) },
                     onRetry = { viewModel.retryAssignments() }
                 )
 
@@ -214,16 +215,21 @@ fun PatientHomeScreen(
                 TrackingHome(
                     daysRegistered = dashboard?.summary?.totalCheckIns ?: 0,
                     totalDays = 7,
-                    daysFeelingSad = if (dashboard?.summary?.averageEmotionalLevel != null &&
+                    // Solo consideramos "días mal" e insights del backend si el usuario YA tiene registros;
+                    // así evitamos mensajes como "tus niveles están bajos" para quien no ha registrado nada.
+                    daysFeelingSad = if ((dashboard?.summary?.totalCheckIns ?: 0) > 0 &&
+                        dashboard?.summary?.averageEmotionalLevel != null &&
                         dashboard.summary.averageEmotionalLevel < 5) 3 else 0,
                     averageEmotionalLevel = dashboard?.summary?.averageEmotionalLevel,
-                    insightMessage = dashboard?.insights?.messages?.firstOrNull(),
-                    secondButtonText = "Buscar Psicólogo",
+                    insightMessage = if ((dashboard?.summary?.totalCheckIns ?: 0) > 0)
+                        dashboard?.insights?.messages?.firstOrNull() else null,
+                    secondButtonText = "Hablar con tu psicólogo",
                     onAIChatClick = {
                         navController.navigate(Route.AIWelcome.path)
                     },
                     onSecondButtonClick = {
-                        navController.navigate(Route.ConnectPsychologist.path)
+                        // El paciente ya tiene psicólogo: lo llevamos a su chat, no a "buscar"
+                        navController.navigate(Route.PatientPsychologistChat.path)
                     },
                     onCardClick = {
                         navController.navigate(Route.Diary.path)
