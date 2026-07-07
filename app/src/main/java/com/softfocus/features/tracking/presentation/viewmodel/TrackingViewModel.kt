@@ -2,6 +2,7 @@ package com.softfocus.features.tracking.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.core.common.result.Result
 import com.softfocus.features.tracking.domain.usecase.*
 import com.softfocus.features.tracking.presentation.state.*
@@ -114,6 +115,7 @@ class TrackingViewModel @Inject constructor(
                 notes = notes
             )) {
                 is Result.Success -> {
+                    SoftFocusAnalytics.logCheckInCreated(emotionalLevel, energyLevel)
                     _checkInFormState.value = CheckInFormState.Success
                     // Recargar datos después de crear check-in
                     loadTodayCheckIn()
@@ -149,6 +151,7 @@ class TrackingViewModel @Inject constructor(
                 entryType = entryType
             )) {
                 is Result.Success -> {
+                    SoftFocusAnalytics.logEmotionalCalendarEntryCreated(emotionalEmoji)
                     _emotionalCalendarFormState.value = EmotionalCalendarFormState.Success
                     // Recargar calendario después de crear entrada
                     loadEmotionalCalendar()
@@ -213,6 +216,7 @@ class TrackingViewModel @Inject constructor(
                 notes = notes
             )) {
                 is Result.Success -> {
+                    SoftFocusAnalytics.logCheckInCreated(emotionalLevel, energyLevel)
                     _checkInFormState.value = CheckInFormState.Success
                     loadTodayCheckIn()
                     loadCheckInHistory()
@@ -268,6 +272,7 @@ class TrackingViewModel @Inject constructor(
                 sessionDurationSeconds = durationSeconds
             )) {
                 is Result.Success -> {
+                    SoftFocusAnalytics.logQuickMoodEntry(emoji)
                     _quickMoodState.value = QuickMoodState.Success(result.data)
                     loadTodayEmotionalEntries()
                     loadEmotionalCalendar()

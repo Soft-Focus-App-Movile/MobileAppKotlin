@@ -3,6 +3,7 @@ package com.softfocus.features.therapy.presentation.call
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.features.therapy.data.remote.AgoraCallManager
 import com.softfocus.features.therapy.data.remote.CallSignalEvent
 import com.softfocus.features.therapy.data.remote.CallSignalRService
@@ -62,6 +63,18 @@ class CallViewModel(
 
     private var signalingObserved = false
 
+    /** Momento en que la llamada pasó a InCall, para medir la duración. */
+    private var callConnectedAtMillis: Long? = null
+
+    private val callTypeLabel: String
+        get() = if (_uiState.value.isVideo) "Video" else "Audio"
+
+    private fun logCallEndedWithDuration() {
+        val duration = callConnectedAtMillis?.let { (System.currentTimeMillis() - it) / 1000 }
+        SoftFocusAnalytics.logCallEnded(callTypeLabel, duration)
+        callConnectedAtMillis = null
+    }
+
     /** Entry point once permissions are granted: answers an incoming call or starts an outgoing one. */
     fun start() {
         observeSignaling()
@@ -81,8 +94,10 @@ class CallViewModel(
                 val myCallId = _uiState.value.callId ?: return@collect
                 if (event.callId != myCallId) return@collect
                 when (event) {
-                    is CallSignalEvent.Accepted ->
+                    is CallSignalEvent.Accepted -> {
+                        if (callConnectedAtMillis == null) callConnectedAtMillis = System.currentTimeMillis()
                         _uiState.update { if (it.phase == CallPhase.Ringing) it.copy(phase = CallPhase.InCall) else it }
+                    }
                     is CallSignalEvent.Rejected -> endLocally("Llamada rechazada")
                     is CallSignalEvent.Ended -> endLocally(null)
                 }
@@ -93,6 +108,7 @@ class CallViewModel(
     /** Tears down the call locally (the other party ended/rejected; no backend call needed). */
     private fun endLocally(message: String?) {
         if (_uiState.value.phase == CallPhase.Ended) return
+        logCallEndedWithDuration()
         agora.leaveAndDestroy()
         _uiState.update { it.copy(phase = CallPhase.Ended, errorMessage = message ?: it.errorMessage) }
     }
@@ -106,10 +122,12 @@ class CallViewModel(
             initiateCallUseCase(callType = callType, mode = "Direct", targetUserId = targetUserId)
                 .onSuccess { ca ->
                     access = ca
+                    SoftFocusAnalytics.logCallInitiated(callType)
                     _uiState.update { it.copy(callId = ca.callId, phase = CallPhase.Ringing) }
                     joinChannel(ca)
                 }
                 .onFailure { e ->
+                    SoftFocusAnalytics.logCallFailed(callType, e.message)
                     _uiState.update { it.copy(phase = CallPhase.Error, errorMessage = e.message) }
                 }
         }
@@ -124,11 +142,14 @@ class CallViewModel(
             answerCallUseCase(id)
                 .onSuccess { ca ->
                     access = ca
+                    SoftFocusAnalytics.logCallAnswered(callTypeLabel)
+                    callConnectedAtMillis = System.currentTimeMillis()
                     // The user just accepted, so they're already in the call.
                     _uiState.update { it.copy(callId = ca.callId, phase = CallPhase.InCall) }
                     joinChannel(ca)
                 }
                 .onFailure { e ->
+                    SoftFocusAnalytics.logCallFailed(callTypeLabel, e.message)
                     _uiState.update { it.copy(phase = CallPhase.Error, errorMessage = e.message) }
                 }
         }
@@ -136,6 +157,7 @@ class CallViewModel(
 
     private fun joinChannel(ca: CallAccess) {
         agora.onRemoteUserJoined = { uid ->
+            if (callConnectedAtMillis == null) callConnectedAtMillis = System.currentTimeMillis()
             _uiState.update { it.copy(remoteUid = uid, phase = CallPhase.InCall) }
         }
         agora.onRemoteUserLeft = {
@@ -172,6 +194,7 @@ class CallViewModel(
 
     fun hangUp() {
         if (_uiState.value.phase == CallPhase.Ended) return
+        logCallEndedWithDuration()
         val id = _uiState.value.callId
         viewModelScope.launch {
             if (id != null) endCallUseCase(id)

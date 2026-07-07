@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.features.auth.data.remote.GoogleSignInManager
 import com.softfocus.features.auth.data.remote.GoogleSignInRequiredException
 import com.softfocus.features.auth.domain.models.User
@@ -60,12 +61,15 @@ class LoginViewModel(
 
             repository.login(email.value, password.value)
                 .onSuccess { user ->
+                    SoftFocusAnalytics.setUser(user.id, user.userType.name)
+                    SoftFocusAnalytics.logLogin(method = "email", userType = user.userType.name)
                     _user.value = user
                     _isLoading.value = false
                 }
                 .onFailure { error ->
                     // Check if it's a psychologist pending verification error
                     val errorMsg = error.message ?: "Error desconocido"
+                    SoftFocusAnalytics.logLoginFailed(method = "email", reason = errorMsg)
                     if (errorMsg.contains("pending verification", ignoreCase = true) ||
                         errorMsg.contains("wait for admin approval", ignoreCase = true)) {
                         _psychologistPendingVerification.value = true
@@ -156,10 +160,13 @@ class LoginViewModel(
                             isVerified = true // Existing users are already verified
                         )
 
+                        SoftFocusAnalytics.setUser(user.id, user.userType.name)
+                        SoftFocusAnalytics.logLogin(method = "google", userType = user.userType.name)
                         _user.value = user
                         _isLoading.value = false
                     } catch (e: Exception) {
                         android.util.Log.e("LoginViewModel", "Error decoding JWT token", e)
+                        SoftFocusAnalytics.logLoginFailed(method = "google", reason = "jwt_decode_error")
                         _errorMessage.value = "Error al procesar la autenticación"
                         _isLoading.value = false
                     }
@@ -168,6 +175,7 @@ class LoginViewModel(
             .onFailure { error ->
                 // Check if it's a psychologist pending verification error
                 val errorMsg = error.message ?: "Error al verificar la cuenta de Google"
+                SoftFocusAnalytics.logLoginFailed(method = "google", reason = errorMsg)
                 if (errorMsg.contains("pending verification", ignoreCase = true) ||
                     errorMsg.contains("wait for admin approval", ignoreCase = true)) {
                     _psychologistPendingVerification.value = true
