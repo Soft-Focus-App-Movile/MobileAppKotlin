@@ -3,6 +3,7 @@ package com.softfocus.features.library.assignments.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.features.library.assignments.domain.repositories.AssignmentsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ class AssignmentsViewModel(
                     val pending = assignments.count { !it.isCompleted }
                     val completedCount = assignments.count { it.isCompleted }
 
+                    SoftFocusAnalytics.logAssignmentsViewed(pending, completedCount)
                     _uiState.value = AssignmentsUiState.Success(
                         assignments = assignments,
                         pendingCount = pending,
@@ -48,6 +50,7 @@ class AssignmentsViewModel(
         viewModelScope.launch {
             repository.completeAssignment(assignmentId).fold(
                 onSuccess = {
+                    SoftFocusAnalytics.logAssignmentCompleted(assignmentId)
                     val currentState = _uiState.value
                     if (currentState is AssignmentsUiState.Success) {
                         val updatedAssignments = currentState.assignments.filter { it.id != assignmentId }
