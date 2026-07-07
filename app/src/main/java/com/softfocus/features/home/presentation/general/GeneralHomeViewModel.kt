@@ -20,8 +20,10 @@ class GeneralHomeViewModel(
         private const val TAG = "GeneralHomeVM"
         private const val RESULTS_PER_SEARCH = 15
 
-        // Palabras clave rotativas enfocadas en bienestar y salud mental
-        private val MOVIE_KEYWORDS = listOf("inspirational", "feel-good", "hope", "friendship", "family", "uplifting")
+        // Palabras clave de respaldo si el endpoint de recomendaciones no devuelve contenido.
+        // Solo keywords que devuelven resultados válidos en TMDB con language=es-PE
+        // (el backend descarta películas sin poster/overview/rating/fecha).
+        private val MOVIE_KEYWORDS = listOf("family", "hope", "friendship", "feel-good")
         private val MUSIC_KEYWORDS = listOf("meditation", "relaxing", "peaceful", "healing", "soothing", "calming")
     }
 
@@ -45,9 +47,10 @@ class GeneralHomeViewModel(
             allContent.clear()
 
             try {
-                // Solo buscar películas y música
-                searchAndAddContent(ContentType.Movie, getNextKeyword(MOVIE_KEYWORDS))
-                searchAndAddContent(ContentType.Music, getNextKeyword(MUSIC_KEYWORDS))
+                // Solo películas y música, usando el mismo endpoint de recomendaciones
+                // que la biblioteca (devuelve contenido curado con imágenes)
+                loadAndAddContent(ContentType.Movie, MOVIE_KEYWORDS)
+                loadAndAddContent(ContentType.Music, MUSIC_KEYWORDS)
 
                 // Filtrar solo contenido que tenga imagen válida
                 val contentWithImages = allContent.filter { item ->
@@ -90,27 +93,42 @@ class GeneralHomeViewModel(
     }
 
     /**
-     * Busca contenido por tipo y palabra clave
+     * Carga contenido recomendado por tipo; si no hay resultados,
+     * usa búsqueda por palabra clave como respaldo
      */
-    private suspend fun searchAndAddContent(contentType: ContentType, keyword: String) {
+    private suspend fun loadAndAddContent(contentType: ContentType, fallbackKeywords: List<String>) {
         try {
-            Log.d(TAG, "searchAndAddContent: Buscando $contentType con keyword: $keyword")
+            Log.d(TAG, "loadAndAddContent: Cargando recomendaciones de $contentType")
 
-            val result = repository.searchContent(
-                query = keyword,
+            val result = repository.getRecommendedContent(
                 contentType = contentType,
                 limit = RESULTS_PER_SEARCH
             )
 
-            result.onSuccess { content ->
-                Log.d(TAG, "searchAndAddContent: ✅ $contentType - Recibidos ${content.size} items con '$keyword'")
+            val recommended = result.getOrNull().orEmpty()
+            if (recommended.isNotEmpty()) {
+                Log.d(TAG, "loadAndAddContent: ✅ $contentType - Recibidos ${recommended.size} items recomendados")
+                allContent.addAll(recommended)
+                return
+            }
+
+            // Respaldo: búsqueda por palabra clave
+            val keyword = getNextKeyword(fallbackKeywords)
+            Log.w(TAG, "loadAndAddContent: ⚠️ $contentType sin recomendaciones, buscando con '$keyword'")
+
+            repository.searchContent(
+                query = keyword,
+                contentType = contentType,
+                limit = RESULTS_PER_SEARCH
+            ).onSuccess { content ->
+                Log.d(TAG, "loadAndAddContent: ✅ $contentType - Recibidos ${content.size} items con '$keyword'")
                 allContent.addAll(content)
             }.onFailure { error ->
-                Log.w(TAG, "searchAndAddContent: ⚠️ $contentType - Error con '$keyword': ${error.message}")
+                Log.w(TAG, "loadAndAddContent: ⚠️ $contentType - Error con '$keyword': ${error.message}")
                 // No lanzar error, continuar con otros tipos
             }
         } catch (e: Exception) {
-            Log.w(TAG, "searchAndAddContent: ⚠️ Excepción en $contentType: ${e.message}")
+            Log.w(TAG, "loadAndAddContent: ⚠️ Excepción en $contentType: ${e.message}")
         }
     }
 
