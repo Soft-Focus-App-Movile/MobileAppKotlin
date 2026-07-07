@@ -1,6 +1,7 @@
 package com.softfocus.features.home.presentation.patient.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.softfocus.features.therapy.domain.models.PatientTask
 import com.softfocus.ui.theme.Black
+import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.theme.White
 import com.softfocus.ui.theme.YellowCB9D
 
 /**
@@ -43,7 +46,7 @@ fun CustomTaskItem(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        color = YellowCB9D
+        color = White
     ) {
         Row(
             modifier = Modifier
@@ -54,10 +57,12 @@ fun CustomTaskItem(
             // Cuadrito de marcado, igual que el de las tareas de biblioteca (arriba)
             Box(
                 modifier = Modifier
-                    .size(16.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(3.dp)
+                    .size(18.dp)
+                    .then(
+                        if (task.isCompleted)
+                            Modifier.background(Green49, RoundedCornerShape(4.dp))
+                        else
+                            Modifier.border(2.dp, Green49, RoundedCornerShape(4.dp))
                     )
                     .then(
                         if (!task.isCompleted) Modifier.clickable(onClick = onComplete)
@@ -69,7 +74,7 @@ fun CustomTaskItem(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Completada",
-                        tint = Green65,
+                        tint = White,
                         modifier = Modifier.size(12.dp)
                     )
                 }

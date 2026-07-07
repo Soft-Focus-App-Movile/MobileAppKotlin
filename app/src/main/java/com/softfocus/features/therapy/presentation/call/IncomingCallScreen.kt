@@ -78,7 +78,7 @@ private fun IncomingCallOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xF20E1F17)) // near-opaque to cover whatever is underneath
+            .background(Color(0xFF0E1F17)) // fondo sólido (100% opaco) para cubrir lo de atrás
     ) {
         Column(
             modifier = Modifier

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,7 +40,7 @@ import com.softfocus.ui.theme.White
  * Al cambiar el switch, [ThemeManager] actualiza el tema de toda la app al instante.
  */
 @Composable
-fun DarkModeToggleCard() {
+fun DarkModeToggleCard(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val isDark = when (ThemeManager.mode) {
         ThemeMode.DARK -> true
@@ -48,16 +49,15 @@ fun DarkModeToggleCard() {
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = GreenA3)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
+                .height(56.dp) // misma altura que los demás items del menú (ícono 24 + padding 16*2)
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

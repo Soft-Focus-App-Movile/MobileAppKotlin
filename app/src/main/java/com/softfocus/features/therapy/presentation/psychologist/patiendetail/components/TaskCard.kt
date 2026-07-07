@@ -1,5 +1,9 @@
 package com.softfocus.features.therapy.presentation.psychologist.patiendetail.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayCircleOutline
@@ -30,9 +35,11 @@ import com.softfocus.features.library.domain.models.ContentType
 import com.softfocus.ui.theme.CrimsonSemiBold
 import com.softfocus.ui.theme.Gray222
 import com.softfocus.ui.theme.Gray89
+import com.softfocus.ui.theme.Green49
 import com.softfocus.ui.theme.Green65
 import com.softfocus.ui.theme.GreenF2
 import com.softfocus.ui.theme.SourceSansRegular
+import com.softfocus.ui.theme.White
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -40,7 +47,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskCard(
-    assignment: Assignment
+    assignment: Assignment,
+    onComplete: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -92,6 +100,42 @@ fun TaskCard(
                     color = Gray89
                 )
             }
+
+            // Checkbox de completar: solo aparece cuando el paciente puede completar (onComplete != null)
+            if (onComplete != null) {
+                Spacer(modifier = Modifier.width(12.dp))
+                TaskCompleteCheckbox(isCompleted = assignment.isCompleted, onComplete = onComplete)
+            }
+        }
+    }
+}
+
+/**
+ * Cuadrito verde para marcar una tarea como completada. Se usa en la vista del paciente
+ * (en la del psicólogo no se pasa onComplete, así que no aparece).
+ */
+@Composable
+internal fun TaskCompleteCheckbox(
+    isCompleted: Boolean,
+    onComplete: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .then(
+                if (isCompleted) Modifier.background(Green49, RoundedCornerShape(4.dp))
+                else Modifier.border(2.dp, Green49, RoundedCornerShape(4.dp))
+            )
+            .then(if (!isCompleted) Modifier.clickable(onClick = onComplete) else Modifier),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isCompleted) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Completada",
+                tint = White,
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }

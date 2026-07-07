@@ -49,11 +49,11 @@ fun ProfessionalDataScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White
+                    containerColor = AppColors.background
                 )
             )
         },
-        containerColor = White
+        containerColor = AppColors.background
     ) { paddingValues ->
         when (uiState) {
             is PsychologistProfileUiState.Loading -> {
@@ -94,7 +94,7 @@ fun ProfessionalDataScreen(
                         // Professional Info Container
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = GreenF2,
+                            color = AppColors.surfaceVariant,
                             modifier = Modifier.fillMaxWidth()
                                 .wrapContentHeight()
                         ) {
@@ -110,14 +110,14 @@ fun ProfessionalDataScreen(
                                         text = "Número de licencia",
                                         style = CrimsonSemiBold,
                                         fontSize = 16.sp,
-                                        color = Black
+                                        color = AppColors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = psychProfile.licenseNumber,
                                         style = SourceSansSemiBold,
                                         fontSize = 16.sp,
-                                        color = Gray070
+                                        color = AppColors.textSecondary
                                     )
                                 }
 
@@ -127,14 +127,14 @@ fun ProfessionalDataScreen(
                                         text = "Universidad",
                                         style = CrimsonSemiBold,
                                         fontSize = 16.sp,
-                                        color = Black
+                                        color = AppColors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = psychProfile.university ?: "No especificado",
                                         style = SourceSansSemiBold,
                                         fontSize = 16.sp,
-                                        color = Gray070
+                                        color = AppColors.textSecondary
                                     )
                                 }
 
@@ -144,14 +144,14 @@ fun ProfessionalDataScreen(
                                         text = "Especialidades",
                                         style = CrimsonSemiBold,
                                         fontSize = 16.sp,
-                                        color = Black
+                                        color = AppColors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = psychProfile.specialties.joinToString(", "),
                                         style = SourceSansSemiBold,
                                         fontSize = 16.sp,
-                                        color = Gray070
+                                        color = AppColors.textSecondary
                                     )
                                 }
 
@@ -161,14 +161,14 @@ fun ProfessionalDataScreen(
                                         text = "Años de experiencia",
                                         style = CrimsonSemiBold,
                                         fontSize = 16.sp,
-                                        color = Black
+                                        color = AppColors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "${psychProfile.yearsOfExperience} años",
                                         style = SourceSansSemiBold,
                                         fontSize = 16.sp,
-                                        color = Gray070
+                                        color = AppColors.textSecondary
                                     )
                                 }
                             }
@@ -192,7 +192,7 @@ fun ProfessionalDataScreen(
 
                                 Surface(
                                     shape = RoundedCornerShape(12.dp),
-                                    color = GreenF2,
+                                    color = AppColors.surfaceVariant,
                                     modifier = Modifier.fillMaxWidth()
                                         .wrapContentHeight()
                                 ) {
@@ -250,7 +250,7 @@ fun ProfessionalDataScreenPreview() {
         // Professional Info Container
         Surface(
             shape = RoundedCornerShape(12.dp),
-            color = GreenF2,
+            color = AppColors.surfaceVariant,
             modifier = Modifier.fillMaxWidth()
                 .wrapContentHeight()
         ) {
@@ -266,7 +266,7 @@ fun ProfessionalDataScreenPreview() {
                         text = "Número de licencia",
                         style = CrimsonSemiBold,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -283,7 +283,7 @@ fun ProfessionalDataScreenPreview() {
                         text = "Universidad",
                         style = CrimsonSemiBold,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -300,7 +300,7 @@ fun ProfessionalDataScreenPreview() {
                         text = "Especialidades",
                         style = CrimsonSemiBold,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -317,7 +317,7 @@ fun ProfessionalDataScreenPreview() {
                         text = "Años de experiencia",
                         style = CrimsonSemiBold,
                         fontSize = 16.sp,
-                        color = Black
+                        color = AppColors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -344,7 +344,7 @@ fun ProfessionalDataScreenPreview() {
 
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = GreenF2,
+                color = AppColors.surfaceVariant,
                 modifier = Modifier.fillMaxWidth()
                     .wrapContentHeight()
             ) {

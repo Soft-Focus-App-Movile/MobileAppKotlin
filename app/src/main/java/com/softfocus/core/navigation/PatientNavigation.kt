@@ -24,6 +24,7 @@ import com.softfocus.core.utils.SessionManager
 import com.softfocus.features.therapy.presentation.di.TherapyPresentationModule
 import com.softfocus.features.therapy.presentation.patient.PsychologistChatScreen
 import com.softfocus.features.therapy.presentation.patient.psychologistprofile.PsyChatProfileScreen
+import com.softfocus.features.home.presentation.patient.PatientTasksScreen
 import com.softfocus.ui.components.navigation.PsychologistBottomNav
 
 
@@ -144,6 +145,14 @@ fun NavGraphBuilder.patientNavigation(
                 )
             }
         }
+    }
+
+    // Patient Tasks Screen (mismas cards con las que el psicólogo ve las tareas de sus pacientes)
+    composable(Route.PatientTasks.path) {
+        PatientTasksScreen(
+            onNavigateBack = { navController.popBackStack() },
+            navController = navController
+        )
     }
 
     // Library Screen (shared route; el nav depende de si el usuario tiene psicólogo)

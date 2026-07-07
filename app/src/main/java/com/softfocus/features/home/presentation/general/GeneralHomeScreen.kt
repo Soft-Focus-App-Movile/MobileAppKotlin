@@ -255,10 +255,14 @@ fun GeneralHomeScreen(
             TrackingHome(
                 daysRegistered = dashboard?.summary?.totalCheckIns ?: 0,
                 totalDays = 7,
-                daysFeelingSad = if (dashboard?.summary?.averageEmotionalLevel != null &&
+                // Solo consideramos "días mal" e insights del backend si el usuario YA tiene registros;
+                // así evitamos mensajes como "tus niveles están bajos" para quien no ha registrado nada.
+                daysFeelingSad = if ((dashboard?.summary?.totalCheckIns ?: 0) > 0 &&
+                    dashboard?.summary?.averageEmotionalLevel != null &&
                     dashboard.summary.averageEmotionalLevel < 5) 3 else 0,
                 averageEmotionalLevel = dashboard?.summary?.averageEmotionalLevel,
-                insightMessage = dashboard?.insights?.messages?.firstOrNull(),
+                insightMessage = if ((dashboard?.summary?.totalCheckIns ?: 0) > 0)
+                    dashboard?.insights?.messages?.firstOrNull() else null,
                 secondButtonText = "Buscar Psicólogo",
                 onAIChatClick = onNavigateToAIChat,
                 onSecondButtonClick = onNavigateToSearchPsychologist,

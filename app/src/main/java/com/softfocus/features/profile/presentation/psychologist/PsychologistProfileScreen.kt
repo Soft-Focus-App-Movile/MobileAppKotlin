@@ -31,6 +31,8 @@ import com.softfocus.ui.theme.*
 import java.net.URL
 import android.graphics.BitmapFactory
 import com.softfocus.ui.components.ProfileAvatar
+import com.softfocus.ui.components.DarkModeToggleCard
+import com.softfocus.ui.components.LogoutButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -64,11 +66,11 @@ fun PsychologistProfileScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = White
+                    containerColor = AppColors.background
                 )
             )
         },
-        containerColor = Color.White
+        containerColor = AppColors.background
     ) { paddingValues ->
         when (uiState) {
             is PsychologistProfileUiState.Loading -> {
@@ -136,7 +138,7 @@ fun PsychologistProfileScreen(
                                     style = CrimsonSemiBold.copy(
                                         fontSize = if (psychProfile.fullName.length > 20) 20.sp else 28.sp
                                     ),
-                                    color = Black,
+                                    color = AppColors.textPrimary,
                                     maxLines = 2,
                                     lineHeight = 28.sp
                                 )
@@ -149,7 +151,7 @@ fun PsychologistProfileScreen(
                                             text = "$age años",
                                             style = CrimsonSemiBold,
                                             fontSize = 18.sp,
-                                            color = Black
+                                            color = AppColors.textPrimary
                                         )
                                     }
                                 }
@@ -159,7 +161,7 @@ fun PsychologistProfileScreen(
                                     text = psychProfile.email,
                                     style = CrimsonSemiBold,
                                     fontSize = 18.sp,
-                                    color = Black,
+                                    color = AppColors.textPrimary,
                                     maxLines = 1
                                 )
 
@@ -227,10 +229,14 @@ fun PsychologistProfileScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        MenuOption(
-                            icon = Icons.Outlined.Logout,
-                            text = "Cerrar Sesión",
-                            onClick = onLogout
+                        // Toggle de modo oscuro
+                        DarkModeToggleCard(modifier = Modifier.padding(vertical = 8.dp))
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        LogoutButton(
+                            onClick = onLogout,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))

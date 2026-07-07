@@ -40,6 +40,7 @@ import java.net.URL
 import android.graphics.BitmapFactory
 import com.softfocus.ui.components.ProfileAvatar
 import com.softfocus.ui.components.DarkModeToggleCard
+import com.softfocus.ui.components.LogoutButton
 import com.softfocus.ui.theme.AppColors
 import com.softfocus.ui.theme.Black
 import com.softfocus.ui.theme.Green49
@@ -194,12 +195,11 @@ fun GeneralProfileScreen(
             )
 
             // Toggle de modo oscuro
-            DarkModeToggleCard()
+            DarkModeToggleCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 
-            ProfileOption(
-                icon = Icons.Outlined.Logout,
-                title = "Cerrar Sesión",
-                onClick = onLogout
+            LogoutButton(
+                onClick = onLogout,
+                modifier = Modifier.padding(top = 8.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
