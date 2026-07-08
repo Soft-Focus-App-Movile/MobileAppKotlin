@@ -194,14 +194,18 @@ class CallViewModel(
         _uiState.update { it.copy(speakerOn = on) }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun hangUp() {
         if (_uiState.value.phase == CallPhase.Ended) return
         logCallEndedWithDuration()
         val id = _uiState.value.callId
-        viewModelScope.launch {
-            if (id != null) endCallUseCase(id)
-            agora.leaveAndDestroy()
-            _uiState.update { it.copy(phase = CallPhase.Ended) }
+        // Apagamos media + UI al instante para que colgar sea inmediato.
+        agora.leaveAndDestroy()
+        _uiState.update { it.copy(phase = CallPhase.Ended) }
+        // Avisamos al backend en un scope que sobrevive al pop de la pantalla (viewModelScope se
+        // cancela al salir). Si no se cierra la sesión, el próximo initiate devuelve 400.
+        if (id != null) {
+            GlobalScope.launch { runCatching { endCallUseCase(id) } }
         }
     }
 
