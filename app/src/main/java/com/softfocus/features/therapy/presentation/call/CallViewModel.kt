@@ -10,6 +10,8 @@ import com.softfocus.features.therapy.domain.models.CallAccess
 import com.softfocus.features.therapy.domain.usecases.AnswerCallUseCase
 import com.softfocus.features.therapy.domain.usecases.EndCallUseCase
 import com.softfocus.features.therapy.domain.usecases.InitiateCallUseCase
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -185,9 +187,18 @@ class CallViewModel(
     fun setupLocalVideo(view: View) = agora.setupLocalVideo(view)
     fun setupRemoteVideo(view: View, uid: Int) = agora.setupRemoteVideo(view, uid)
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCleared() {
+        val id = _uiState.value.callId
         if (_uiState.value.phase != CallPhase.Ended) {
             agora.leaveAndDestroy()
+            // Best-effort: cerrar la sesión en el backend aunque el ViewModel ya se esté
+            // destruyendo (salida abrupta / app cerrada / back sin colgar). Si no se cierra,
+            // el usuario queda "en llamada" en el servidor y el próximo initiate devuelve 400.
+            // Usamos GlobalScope porque viewModelScope ya está cancelado en onCleared.
+            if (id != null) {
+                GlobalScope.launch { runCatching { endCallUseCase(id) } }
+            }
         }
         super.onCleared()
     }
