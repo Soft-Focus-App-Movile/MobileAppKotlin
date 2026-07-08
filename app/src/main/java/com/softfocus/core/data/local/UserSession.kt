@@ -1,6 +1,7 @@
 package com.softfocus.core.data.local
 
 import android.content.Context
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.features.auth.domain.models.User
 import com.softfocus.features.auth.domain.models.UserType
 
@@ -34,6 +35,9 @@ class UserSession(context: Context) {
             .putBoolean(KEY_PUSH_NOTIFICATIONS, user.pushNotifications)
             .putBoolean(KEY_IS_PROFILE_PUBLIC, user.isProfilePublic)
             .apply()
+
+        // Asocia todos los eventos de Analytics al usuario de la sesión activa
+        SoftFocusAnalytics.setUser(user.id, user.userType.name)
     }
 
     fun getUser(): User? {
@@ -72,6 +76,8 @@ class UserSession(context: Context) {
 
     fun clear() {
         prefs.edit().clear().apply()
+        SoftFocusAnalytics.logEvent("logout")
+        SoftFocusAnalytics.clearUser()
     }
 
     /**

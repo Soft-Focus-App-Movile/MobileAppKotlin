@@ -2,6 +2,7 @@ package com.softfocus.features.ai.presentation.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.features.ai.domain.models.ChatMessage
 import com.softfocus.features.ai.domain.models.MessageRole
 import com.softfocus.features.ai.domain.repositories.AIChatRepository
@@ -50,8 +51,10 @@ class AIChatViewModel(
             }
 
             // Enviar al backend
+            SoftFocusAnalytics.logAiChatMessageSent(_state.value.sessionId)
             repository.sendMessage(messageToSend, _state.value.sessionId)
                 .onSuccess { chatResponse ->
+                    SoftFocusAnalytics.logAiChatResponseReceived(chatResponse.sessionId)
                     _state.update {
                         it.copy(
                             messages = it.messages + chatResponse.message,
@@ -64,6 +67,7 @@ class AIChatViewModel(
                     loadUsageStats()
                 }
                 .onFailure { exception ->
+                    SoftFocusAnalytics.logAiChatError(exception.message)
                     _state.update {
                         it.copy(
                             isLoading = false,
@@ -96,6 +100,7 @@ class AIChatViewModel(
     }
 
     fun startNewConversation() {
+        SoftFocusAnalytics.logAiChatNewConversation()
         _state.update {
             AIChatState()
         }
@@ -104,6 +109,7 @@ class AIChatViewModel(
 
     fun loadSession(sessionId: String) {
         viewModelScope.launch {
+            SoftFocusAnalytics.logAiChatSessionLoaded(sessionId)
             _state.update { it.copy(isLoading = true) }
 
             repository.getSessionMessages(sessionId, limit = 50)

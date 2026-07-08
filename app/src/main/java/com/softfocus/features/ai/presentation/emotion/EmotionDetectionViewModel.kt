@@ -2,6 +2,7 @@ package com.softfocus.features.ai.presentation.emotion
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.core.common.result.Result
 import com.softfocus.features.ai.domain.repositories.AIEmotionRepository
 import com.softfocus.features.tracking.domain.usecase.GetTodayCheckInUseCase
@@ -54,6 +55,7 @@ class EmotionDetectionViewModel(
 
             emotionRepository.analyzeEmotion(imageFile, autoCheckIn)
                 .onSuccess { analysis: com.softfocus.features.ai.domain.models.EmotionAnalysis ->
+                    SoftFocusAnalytics.logEmotionAnalysisCompleted(analysis.emotion)
                     _state.value = _state.value.copy(
                         isLoading = false,
                         emotionAnalysis = analysis,
@@ -61,6 +63,7 @@ class EmotionDetectionViewModel(
                     )
                 }
                 .onFailure { exception: Throwable ->
+                    SoftFocusAnalytics.logEmotionAnalysisFailed(exception.message)
                     _state.value = _state.value.copy(
                         isLoading = false,
                         error = exception.message ?: "Error desconocido al analizar la emoción"
