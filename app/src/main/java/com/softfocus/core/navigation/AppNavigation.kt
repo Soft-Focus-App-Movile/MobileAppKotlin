@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.auth.domain.models.UserType
 import com.softfocus.features.therapy.presentation.call.IncomingCallHost
@@ -79,6 +80,20 @@ fun AppNavigation() {
     // This ensures the correct navigation routes are registered after login/logout
     key(userTypeKey) {
         val navController = rememberNavController()
+        val firebaseAnalytics = remember { FirebaseAnalytics.getInstance(context) }
+
+        DisposableEffect(navController) {
+            val listener = androidx.navigation.NavController.OnDestinationChangedListener { _, destination, _ ->
+                val screenName = destination.route ?: return@OnDestinationChangedListener
+                val params = android.os.Bundle().apply {
+                    putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
+                    putString(FirebaseAnalytics.Param.SCREEN_CLASS, screenName)
+                }
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, params)
+            }
+            navController.addOnDestinationChangedListener(listener)
+            onDispose { navController.removeOnDestinationChangedListener(listener) }
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
         NavHost(

@@ -2,6 +2,7 @@ package com.softfocus.features.auth.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.core.data.repositories.UniversityInfo
 import com.softfocus.core.data.repositories.UniversityRepository
 import com.softfocus.features.auth.domain.models.User
@@ -173,6 +174,7 @@ class RegisterViewModel(
                 password = password.value,
                 acceptsPrivacyPolicy = acceptsPrivacyPolicy
             ).onSuccess { result ->
+                SoftFocusAnalytics.logSignUp(method = "email", userType = "GENERAL")
                 _registrationResultRegular.value = result
                 _isLoading.value = false
             }.onFailure { error ->
@@ -203,6 +205,8 @@ class RegisterViewModel(
                 tempToken = tempToken,
                 acceptsPrivacyPolicy = acceptsPrivacyPolicy
             ).onSuccess { user ->
+                SoftFocusAnalytics.logSignUp(method = "google", userType = "GENERAL")
+                SoftFocusAnalytics.setUser(user.id, user.userType.name)
                 // OAuth registration returns User with JWT token for auto-login
                 _registrationResultOAuth.value = user
                 _isLoading.value = false
@@ -311,6 +315,7 @@ class RegisterViewModel(
                 specialties = specialties,
                 certificationDocumentUris = certificationDocumentUris
             ).onSuccess { result ->
+                SoftFocusAnalytics.logSignUp(method = "email", userType = "PSYCHOLOGIST")
                 _registrationResultRegular.value = result
                 _isLoading.value = false
             }.onFailure { error ->
@@ -381,6 +386,8 @@ class RegisterViewModel(
                 specialties = specialties,
                 certificationDocumentUris = certificationDocumentUris
             ).onSuccess { user ->
+                SoftFocusAnalytics.logSignUp(method = "google", userType = "PSYCHOLOGIST")
+                SoftFocusAnalytics.setUser(user.id, user.userType.name)
                 // OAuth registration returns User with JWT token for auto-login
                 _registrationResultOAuth.value = user
                 _isLoading.value = false

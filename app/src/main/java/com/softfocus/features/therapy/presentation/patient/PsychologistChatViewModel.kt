@@ -2,6 +2,7 @@ package com.softfocus.features.therapy.presentation.patient
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.profile.domain.models.AssignedPsychologist
 import com.softfocus.features.profile.presentation.PsychologistLoadState
@@ -73,6 +74,7 @@ class PsychologistChatViewModel(
         if (patientId == null) {
             _uiState.update { it.copy(isLoading = false, error = "Error: No se pudo obtener el ID del paciente.") }
         } else {
+            SoftFocusAnalytics.logTherapyChatOpened(role = "patient")
             initializeChat()
         }
     }
@@ -176,6 +178,7 @@ class PsychologistChatViewModel(
             )
             _uiState.update { it.copy(messages = listOf(localMessage) + it.messages) }
 
+            SoftFocusAnalytics.logTherapyChatMessageSent(role = "patient")
             sendChatMessageUseCase("$relationshipId", "$psychologistId", content, "text")
                 .onFailure { error ->
                     // Opcional: Marcar el mensaje local como "fallido" en la UI

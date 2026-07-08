@@ -3,6 +3,7 @@ package com.softfocus.features.therapy.presentation.psychologist.patiendetail.ta
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.softfocus.core.analytics.SoftFocusAnalytics
 import com.softfocus.core.data.local.UserSession
 import com.softfocus.features.therapy.data.remote.SignalRService
 import com.softfocus.features.therapy.domain.models.ChatMessage
@@ -72,6 +73,7 @@ class PatientChatViewModel(
         if (psychologistId == null) {
             _uiState.update { it.copy(isLoading = false, error = "Error: No se pudo obtener el ID del psicólogo.") }
         } else {
+            SoftFocusAnalytics.logTherapyChatOpened(role = "psychologist")
             loadPatientDetails()
             initializeChat()
         }
@@ -172,6 +174,7 @@ class PatientChatViewModel(
 
     fun sendMessage(content: String) {
 
+        SoftFocusAnalytics.logTherapyChatMessageSent(role = "psychologist")
         viewModelScope.launch(Dispatchers.IO) {
             val relationshipResult = getRelationshipWithPatientUseCase(patientId)
             if (relationshipResult.isFailure) {
